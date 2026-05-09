@@ -1,0 +1,40 @@
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
+import { I18N_COMMON } from 'libs/common/constants/i18n.constant';
+import { JWT_REFRESH } from 'libs/common/constants/tokens/jwt-names.token';
+import { jwtToRequestUser } from 'libs/common/helpers/functions';
+import { CACHE_KEYS } from 'libs/common/modules/cache/constants/cache-keys.constant';
+import { CACHE_SERVICE } from 'libs/common/modules/cache/constants/cache.token';
+import type { ICacheService } from 'libs/common/modules/cache/interfaces/cache-service.interface';
+import { template } from 'libs/common/utils/functions.utils';
+import { JwtPayload } from 'libs/contracts/interfaces/jwt-payload.interface';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+@Injectable()
+export class JwtRefreshStrategy extends PassportStrategy(Strategy, JWT_REFRESH) {
+  constructor(
+    configService: ConfigService,
+    @Inject(CACHE_SERVICE) private readonly cacheService: ICacheService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get('JWT_REFRESH_SECRET'),
+      passReqToCallback: true,
+    } as any);
+  }
+
+  async validate(req: Request, payload: JwtPayload) {
+    const isBlacklisted = await this.cacheService.get(
+      CACHE_KEYS.AUTH.BLACKLIST(payload.jti),
+    );
+    if (isBlacklisted) {
+      throw new UnauthorizedException(template(I18N_COMMON.ERRORS.TOKEN_REVOKED));
+    }
+    const authHeader = req.headers.authorization;
+    payload.refreshToken = authHeader?.replace('Bearer', '').trim();
+    return jwtToRequestUser(payload); // Req.user
+  }
+}

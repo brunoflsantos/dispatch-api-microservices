@@ -1,0 +1,6 @@
+{
+  "ERRORS": {
+    "INTERNAL_SERVER_ERROR": "Erro interno de servidor",
+    "INVALID_INTERNAL_KEY": "Chave interna inválida"
+  }
+}

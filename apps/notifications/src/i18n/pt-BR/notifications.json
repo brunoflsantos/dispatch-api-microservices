@@ -1,0 +1,6 @@
+{
+  "ERRORS": {
+    "NOTIFICATION_NOT_FOUND": "Notificação não encontrada.",
+    "ACCESS_DENIED": "Você não tem permissão para acessar esta notificação."
+  }
+}

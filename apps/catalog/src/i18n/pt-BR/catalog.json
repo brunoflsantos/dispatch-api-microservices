@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "productNotFound": "Produto não encontrado.",
+    "productInsufficientStock": "Estoque insuficiente para o produto: {productName}."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "ERRORS": {
+    "INTERNAL_SERVER_ERROR": "Internal server error",
+    "INVALID_INTERNAL_KEY": "Invalid internal key"
+  }
+}

@@ -1,0 +1,19 @@
+const MILISECONDS = 1;
+const SECONDS = 1000 * MILISECONDS;
+const MINUTES = 60 * SECONDS;
+const HOURS = 60 * MINUTES;
+const DAYS = 24 * HOURS;
+
+export const CACHE_TTL = {
+  DEFAULT: 5 * MINUTES,
+
+  LOCK: 5 * SECONDS,
+
+  LIST: 5 * MINUTES,
+
+  IDEMPOTENCY: 1 * DAYS,
+
+  AUTH_BLACKLIST: 15 * MINUTES,
+
+  JOB_LOCK: 30 * SECONDS,
+} as const;

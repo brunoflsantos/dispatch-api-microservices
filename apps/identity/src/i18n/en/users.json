@@ -1,0 +1,12 @@
+{
+  "ERRORS": {
+    "USER_NOT_FOUND": "User not found.",
+    "EMAIL_ALREADY_EXISTS": "This email already exists.",
+    "INVALID_USER_ID": "Invalid user ID.",
+    "CURRENT_PASSWORD_REQUIRED": "Current password is required to change password.",
+    "CURRENT_PASSWORD_INVALID": "Current password is incorrect.",
+    "AUTH_IS_REQUIRED": "Authentication is required.",
+    "ACCESS_DENIED": "You are not allowed to access this user.",
+    "ROLE_CHANGE_DENIED": "You are not allowed to change to the specified role."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "ERRORS": {
+    "USER_NOT_FOUND": "Usuário não encontrado.",
+    "EMAIL_ALREADY_EXISTS": "Este email já existe.",
+    "INVALID_USER_ID": "ID de usuário inválido.",
+    "CURRENT_PASSWORD_REQUIRED": "A senha atual é necessária para alterar a senha.",
+    "CURRENT_PASSWORD_INVALID": "A senha atual está incorreta.",
+    "AUTH_IS_REQUIRED": "Autenticação é necessária.",
+    "ACCESS_DENIED": "Você não tem permissão para acessar este usuário.",
+    "ROLE_CHANGE_DENIED": "Você não tem permissão para mudar para o papel especificado."
+  }
+}
