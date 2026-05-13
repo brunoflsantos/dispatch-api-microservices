@@ -1,12 +1,11 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { I18N_COMMON } from 'libs/common/constants/i18n.constant';
 import { JWT_ACCESS } from 'libs/common/constants/tokens/jwt-names.token';
 import { jwtToRequestUser } from 'libs/common/helpers/functions';
+import { CacheService } from 'libs/common/modules/cache/cache.service';
 import { CACHE_KEYS } from 'libs/common/modules/cache/constants/cache-keys.constant';
-import { CACHE_SERVICE } from 'libs/common/modules/cache/constants/cache.token';
-import type { ICacheService } from 'libs/common/modules/cache/interfaces/cache-service.interface';
 import { template } from 'libs/common/utils/functions.utils';
 import { JwtPayload } from 'libs/contracts/interfaces/jwt-payload.interface';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -15,7 +14,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 export class JwtStrategy extends PassportStrategy(Strategy, JWT_ACCESS) {
   constructor(
     configService: ConfigService,
-    @Inject(CACHE_SERVICE) private readonly cacheService: ICacheService,
+    private readonly cacheService: CacheService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

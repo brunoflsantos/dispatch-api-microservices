@@ -4,9 +4,10 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AcceptLanguageResolver, HeaderResolver, I18nModule } from 'nestjs-i18n';
 import { LoggerModule } from 'nestjs-pino';
-import { rmqEventBusConfig } from '../config/broker.config';
 import { loggerConfig } from '../config/logger.config';
 import { throttleConfig } from '../config/throttle.config';
+import { rmqEventBusConfig } from '../config/transport.config';
+import { EVENT_BUS_CLIENT } from '../modules/transport/constants/client-proxies.tokens';
 
 interface CreateI18nModuleOptions {
   translationsPath: string;
@@ -67,16 +68,7 @@ export class ModuleImportsFactory {
     });
   }
 
-  static createClientModule(...name: (string | symbol)[]) {
-    const clients = name.map((clientName: string | symbol) => ({
-      name: clientName,
-      imports: [ConfigModule],
-      useFactory: rmqEventBusConfig,
-      inject: [ConfigService],
-    }));
-    return ClientsModule.registerAsync(clients);
-  }
-
+  // RMQ Client Modules (request-response)
   static createRpcClientModule(
     entries: Array<{
       name: string | symbol;
@@ -90,5 +82,17 @@ export class ModuleImportsFactory {
       inject: [ConfigService],
     }));
     return ClientsModule.registerAsync(clients);
+  }
+
+  // RMQ Client Modules (event bus)
+  static createEventBusClientModule() {
+    return ClientsModule.registerAsync([
+      {
+        name: EVENT_BUS_CLIENT,
+        imports: [ConfigModule],
+        useFactory: rmqEventBusConfig,
+        inject: [ConfigService],
+      },
+    ]);
   }
 }

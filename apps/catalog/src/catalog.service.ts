@@ -4,22 +4,22 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CACHE_TTL } from 'libs/common/constants/cache-ttl.constant';
-import { LOCK_KEYS } from 'libs/common/constants/lock-keys.constant';
 import { CacheService } from 'libs/common/modules/cache/cache.service';
 import { CACHE_KEYS } from 'libs/common/modules/cache/constants/cache-keys.constant';
-import { IdempotencyService } from 'libs/common/modules/cache/idempotency.service';
+import { CACHE_TTL } from 'libs/common/modules/cache/constants/cache-ttl.constant';
+import { LOCK_KEYS } from 'libs/common/modules/cache/constants/lock-keys.constant';
+import { IdempotencyService } from 'libs/common/modules/cache/providers/idempotency.service';
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { runAndIgnoreError, template } from 'libs/common/utils/functions.utils';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import { CreateProductRequestContract } from 'libs/contracts/interfaces/products/create-product-request.interface';
-import { ProductQueryRequestContract } from 'libs/contracts/interfaces/products/product-query-request.interface';
+import { CreateProductInput } from 'libs/contracts/interfaces/products/create-product-input.interface';
+import { ProductQueryInput } from 'libs/contracts/interfaces/products/product-query-input.interface';
 import {
-  ProductResponseContract,
-  PublicProductResponseContract,
-} from 'libs/contracts/interfaces/products/product-response.interface';
-import { UpdateProductRequestContract } from 'libs/contracts/interfaces/products/update-product-request.interface';
+  ProductResult,
+  PublicProductResult,
+} from 'libs/contracts/interfaces/products/product-result.interface';
+import { UpdateProductInput } from 'libs/contracts/interfaces/products/update-product-input.interface';
 import { BaseService } from 'libs/contracts/services/base.service';
 import { PRODUCT_REPOSITORY } from './constants/catalog.token';
 import { I18N_CATALOG } from './constants/i18n.constant';
@@ -45,8 +45,8 @@ export class CatalogService extends BaseService implements ICatalogService {
   //#region Products - Public
 
   async publicFindAllProducts(
-    query: ProductQueryRequestContract,
-  ): Promise<PagOffsetResultDto<PublicProductResponseContract>> {
+    query: ProductQueryInput,
+  ): Promise<PagOffsetResultDto<PublicProductResult>> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ALL(query);
     const cachedResult = await runAndIgnoreError(
       () =>
@@ -80,7 +80,7 @@ export class CatalogService extends BaseService implements ICatalogService {
     return resultMapped;
   }
 
-  async publicFindOneProduct(id: string): Promise<PublicProductResponseContract> {
+  async publicFindOneProduct(id: string): Promise<PublicProductResult> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ONE(id);
     const cachedResult = await runAndIgnoreError(
       () => this.cacheService.get<PublicProductResponseDto>(cacheKey),
@@ -112,9 +112,9 @@ export class CatalogService extends BaseService implements ICatalogService {
   //#region Products - Admin
 
   adminCreateProduct(
-    dto: CreateProductRequestContract,
+    dto: CreateProductInput,
     idempotencyKey: string,
-  ): Promise<ProductResponseContract> {
+  ): Promise<ProductResult> {
     return this.guard.lockAndTransaction(
       LOCK_KEYS.PRODUCTS.CREATE(idempotencyKey),
       async () =>
@@ -126,8 +126,8 @@ export class CatalogService extends BaseService implements ICatalogService {
   }
 
   private async _adminCreateProduct(
-    dto: CreateProductRequestContract,
-  ): Promise<ProductResponseContract> {
+    dto: CreateProductInput,
+  ): Promise<ProductResult> {
     const product = this.productRepository.createEntity(dto);
     const savedProduct = await this.productRepository.save(product);
     const productResponse = EntityMapper.map(savedProduct, ProductResponseDto);
@@ -144,8 +144,8 @@ export class CatalogService extends BaseService implements ICatalogService {
   }
 
   async adminFindAllProducts(
-    query: ProductQueryRequestContract,
-  ): Promise<PagOffsetResultDto<ProductResponseContract>> {
+    query: ProductQueryInput,
+  ): Promise<PagOffsetResultDto<ProductResult>> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ALL(query);
     const cachedResult = await runAndIgnoreError(
       () => this.cacheService.get<PagOffsetResultDto<ProductResponseDto>>(cacheKey),
@@ -176,7 +176,7 @@ export class CatalogService extends BaseService implements ICatalogService {
     return resultMapped;
   }
 
-  async adminFindOneProduct(id: string): Promise<ProductResponseContract> {
+  async adminFindOneProduct(id: string): Promise<ProductResult> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ONE(id);
     const cachedResult = await runAndIgnoreError(
       () => this.cacheService.get<ProductResponseDto>(cacheKey),
@@ -205,10 +205,7 @@ export class CatalogService extends BaseService implements ICatalogService {
     return productMapped;
   }
 
-  adminUpdateProduct(
-    id: string,
-    dto: UpdateProductRequestContract,
-  ): Promise<ProductResponseContract> {
+  adminUpdateProduct(id: string, dto: UpdateProductInput): Promise<ProductResult> {
     return this.guard.lockAndTransaction(LOCK_KEYS.PRODUCTS.UPDATE(id), async () =>
       this._adminUpdateProduct(id, dto),
     );
@@ -216,8 +213,8 @@ export class CatalogService extends BaseService implements ICatalogService {
 
   private async _adminUpdateProduct(
     id: string,
-    dto: UpdateProductRequestContract,
-  ): Promise<ProductResponseContract> {
+    dto: UpdateProductInput,
+  ): Promise<ProductResult> {
     const product = await this.productRepository.findById(id);
     if (!product) {
       throw new NotFoundException(template(I18N_CATALOG.ERRORS.NOT_FOUND));
@@ -262,7 +259,7 @@ export class CatalogService extends BaseService implements ICatalogService {
 
   //#region Products - Misc
 
-  async findManyProductsByIds(ids: string[]): Promise<ProductResponseContract[]> {
+  async findManyProductsByIds(ids: string[]): Promise<ProductResult[]> {
     const result = await this.productRepository.findManyByIds(ids);
     return EntityMapper.mapArray(result, ProductResponseDto);
   }
@@ -296,9 +293,7 @@ export class CatalogService extends BaseService implements ICatalogService {
     );
   }
 
-  async validateAndGetCatalogProducts(
-    ids: string[],
-  ): Promise<ProductResponseContract[]> {
+  async validateAndGetCatalogProducts(ids: string[]): Promise<ProductResult[]> {
     const products = await this.findManyProductsByIds(ids);
     // Validate all products exist in catalog
     for (const id of ids) {

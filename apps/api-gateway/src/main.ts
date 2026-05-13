@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
-import { AppExceptionFilter } from 'libs/common/filters/exception.filter';
+import { AllExceptionsFilter } from 'libs/common/filters/all-exceptions.filter';
 import { Logger } from 'nestjs-pino';
 import { ApiGatewayModule } from './api-gateway.module';
 
@@ -81,7 +81,7 @@ async function bootstrap() {
 
   const port = configService.get('APP_PORT') || 3000;
 
-  app.useGlobalFilters(new AppExceptionFilter());
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   configureSwagger(app, configService);
 

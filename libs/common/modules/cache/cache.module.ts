@@ -1,17 +1,13 @@
-/*eslint-disable @typescript-eslint/no-explicit-any */
-import { Global, Module } from '@nestjs/common';
 import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import { cacheConfig, redisClient } from 'libs/common/config/redis.config';
+import { REDIS_CLIENT } from 'libs/common/constants/tokens/redis.token';
 import Redlock from 'redlock';
-import { cacheConfig, redisClient } from '../../../config/redis.config';
 import { CacheService } from './cache.service';
-import { IdempotencyService } from './idempotency.service';
-import { REDIS_CLIENT } from '@/shared/modules/cache/constants/redis-client.token';
-import { CACHE_SERVICE } from './constants/cache.token';
-import { IDEMPOTENCY_SERVICE } from './constants/idempotency.token';
+import { IdempotencyService } from './providers/idempotency.service';
 
-@Global()
 @Module({
   imports: [
     NestCacheModule.registerAsync({
@@ -21,8 +17,7 @@ import { IDEMPOTENCY_SERVICE } from './constants/idempotency.token';
     }),
   ],
   providers: [
-    { provide: CACHE_SERVICE, useClass: CacheService },
-    { provide: IDEMPOTENCY_SERVICE, useClass: IdempotencyService },
+    IdempotencyService,
     {
       provide: REDIS_CLIENT,
       useFactory: redisClient,
@@ -34,6 +29,6 @@ import { IDEMPOTENCY_SERVICE } from './constants/idempotency.token';
       inject: [REDIS_CLIENT],
     },
   ],
-  exports: [CACHE_SERVICE, IDEMPOTENCY_SERVICE, REDIS_CLIENT, Redlock],
+  exports: [CacheService, IdempotencyService, Redlock],
 })
 export class CacheModule {}

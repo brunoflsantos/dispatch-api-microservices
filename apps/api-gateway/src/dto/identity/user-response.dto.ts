@@ -1,12 +1,12 @@
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { UserRole } from 'libs/common/enums/user-role.enum';
+import { Role } from 'libs/common/enums/role.enum';
 import {
-  PublicUserResponseContract,
+  PublicUserResult,
   UserAddressResponseContract,
-  UserResponseContract,
-  UserSelfResponseContract,
-} from 'libs/contracts/interfaces/users/user-response.interface';
+  UserResult,
+  UserSelfResult,
+} from 'libs/contracts/interfaces/users/user-result.interface';
 import { BaseAddressDto } from './create-address.dto';
 
 @Exclude()
@@ -15,7 +15,7 @@ export class UserAddressResponseDto
   implements UserAddressResponseContract {}
 
 @Exclude()
-export class UserResponseDto implements UserResponseContract {
+export class UserResponseDto implements UserResult {
   @Expose()
   @ApiProperty({
     description: 'User unique identifier',
@@ -40,9 +40,9 @@ export class UserResponseDto implements UserResponseContract {
   @Expose()
   @ApiProperty({
     description: 'User role',
-    example: UserRole.USER,
+    example: Role.USER,
   })
-  role: UserRole;
+  role: Role;
 
   @Expose()
   @ApiProperty({
@@ -77,9 +77,9 @@ export class UserResponseDto implements UserResponseContract {
 @Exclude()
 export class UserSelfResponseDto
   extends OmitType(UserResponseDto, ['role', 'updatedAt'] as const)
-  implements UserSelfResponseContract {}
+  implements UserSelfResult {}
 
 @Exclude()
 export class PublicUserResponseDto
   extends PickType(UserResponseDto, ['id', 'name', 'createdAt'] as const)
-  implements PublicUserResponseContract {}
+  implements PublicUserResult {}

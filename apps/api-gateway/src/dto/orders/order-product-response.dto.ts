@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { OrderProductResponseContract } from 'libs/contracts/interfaces/orders/order-product-response.interface';
+import { OrderProductResult } from 'libs/contracts/interfaces/orders/order-product-result.interface';
 
 @Exclude()
-export class OrderProductResponseDto implements OrderProductResponseContract {
+export class OrderProductResponseDto implements OrderProductResult {
   @Expose()
   @ApiProperty({
     description: 'Order product unique identifier',

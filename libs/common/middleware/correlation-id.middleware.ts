@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/require-await */
+import { RequestContext } from '@/shared/utils/request-context.utils';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { IncomingMessage, ServerResponse } from 'http';
-import { RequestContext } from '@/shared/utils/request-context.utils';
 
 @Injectable()
 export class CorrelationIdMiddleware implements NestMiddleware {
@@ -19,7 +20,7 @@ export class CorrelationIdMiddleware implements NestMiddleware {
 
     res.setHeader('x-correlation-id', correlationId);
 
-    RequestContext.run(correlationId, async () => {
+    void RequestContext.run(correlationId, async () => {
       next();
     });
   }

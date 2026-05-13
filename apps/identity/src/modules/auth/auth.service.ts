@@ -1,16 +1,16 @@
 import { Inject, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { CACHE_TTL } from 'libs/common/constants/cache-ttl.constant';
-import { LOCK_KEYS } from 'libs/common/constants/lock-keys.constant';
 import { CacheService } from 'libs/common/modules/cache/cache.service';
 import { CACHE_KEYS } from 'libs/common/modules/cache/constants/cache-keys.constant';
+import { CACHE_TTL } from 'libs/common/modules/cache/constants/cache-ttl.constant';
+import { LOCK_KEYS } from 'libs/common/modules/cache/constants/lock-keys.constant';
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { OUTBOX_SERVICE } from 'libs/common/modules/outbox/constants/outbox.token';
 import type { IOutboxService } from 'libs/common/modules/outbox/interfaces/outbox-service.interface';
 import { template } from 'libs/common/utils/functions.utils';
 import { HashAdapter } from 'libs/common/utils/hash-adapter.utils';
-import { LoginResponseContract } from 'libs/contracts/interfaces/auth/login-response.interface';
+import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
 import { JwtPayload } from 'libs/contracts/interfaces/jwt-payload.interface';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import { BaseService } from 'libs/contracts/services/base.service';
@@ -35,17 +35,14 @@ export class AuthService extends BaseService implements IAuthService {
 
   //#region Auth - Public
 
-  publicLogin(email: string, password: string): Promise<LoginResponseContract> {
-    return this.guard.lockAndTransaction<LoginResponseContract>(
+  publicLogin(email: string, password: string): Promise<LoginResult> {
+    return this.guard.lockAndTransaction<LoginResult>(
       LOCK_KEYS.AUTH.LOGIN(email),
       () => this._publicLogin(email, password),
     );
   }
 
-  private async _publicLogin(
-    email: string,
-    password: string,
-  ): Promise<LoginResponseContract> {
+  private async _publicLogin(email: string, password: string): Promise<LoginResult> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user)
       throw new UnauthorizedException(
@@ -61,26 +58,19 @@ export class AuthService extends BaseService implements IAuthService {
     const result = this.generateTokens(user);
     await this.updateRefreshToken(user.id, result.refreshToken);
 
-    // Notify the user
-    // const message = await this.messages.notifications.login(
-    //   user.language,
-    //   user.name,
-    // );
-    // await this.outboxService.add(new NotifyUserJobPayload(user.id, message));
+    // TODO: call OutboxService to create login event for analytics
 
     return result;
   }
 
-  publicRefreshSession(reqUser: RequestUser): Promise<LoginResponseContract> {
-    return this.guard.lockAndTransaction<LoginResponseContract>(
+  publicRefreshSession(reqUser: RequestUser): Promise<LoginResult> {
+    return this.guard.lockAndTransaction<LoginResult>(
       LOCK_KEYS.AUTH.REFRESH(reqUser.email),
       () => this._publicRefreshSession(reqUser),
     );
   }
 
-  private async _publicRefreshSession(
-    reqUser: RequestUser,
-  ): Promise<LoginResponseContract> {
+  private async _publicRefreshSession(reqUser: RequestUser): Promise<LoginResult> {
     const refreshToken = reqUser.jwt.refreshToken;
     if (!refreshToken)
       throw new UnauthorizedException(
@@ -132,7 +122,7 @@ export class AuthService extends BaseService implements IAuthService {
 
   //#region Private methods
 
-  private generateTokens(user: User): LoginResponseContract {
+  private generateTokens(user: User): LoginResult {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -155,7 +145,7 @@ export class AuthService extends BaseService implements IAuthService {
       expiresIn: refreshTokenExpiry,
     });
 
-    const result: LoginResponseContract = {
+    const result: LoginResult = {
       accessToken,
       refreshToken,
       userId: user.id,

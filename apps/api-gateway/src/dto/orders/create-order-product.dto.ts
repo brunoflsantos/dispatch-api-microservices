@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsNumber, IsPositive } from 'class-validator';
-import { CreateOrderProductRequestContract } from 'libs/contracts/interfaces/orders/create-order-product-request.interface';
+import { IsNumber, IsPositive, IsUUID } from 'class-validator';
+import { CreateOrderProductInput } from 'libs/contracts/interfaces/orders/create-order-product-input.interface';
 
-export class CreateOrderProductDto implements CreateOrderProductRequestContract {
+export class CreateOrderProductDto implements CreateOrderProductInput {
   @ApiProperty({
     description: 'Product unique identifier (UUID)',
     example: '550e8400-e29b-41d4-a716-446655440000',

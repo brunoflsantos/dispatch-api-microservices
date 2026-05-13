@@ -1,11 +1,11 @@
-import { UserRole } from '@/shared/enums/user-role.enum';
+import { Role } from 'libs/common/enums/role.enum';
 
 export interface JwtPayload {
   sub: string;
 
   email: string;
 
-  role: UserRole;
+  role: Role;
 
   language: string;
 

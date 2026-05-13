@@ -1,4 +1,4 @@
-import { UserRole } from 'libs/common/enums/user-role.enum';
+import { Role } from 'libs/common/enums/role.enum';
 import { BaseEntity } from 'libs/contracts/entities/base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Address } from './address.entity';
@@ -19,10 +19,10 @@ export class User extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: UserRole,
-    default: UserRole.USER,
+    enum: Role,
+    default: Role.USER,
   })
-  role: UserRole;
+  role: Role;
 
   @Column({ default: 'en' })
   language: string;

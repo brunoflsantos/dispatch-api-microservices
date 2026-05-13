@@ -1,6 +1,6 @@
-import { IBaseService } from '@/shared/services/base-service.interface';
-import { BaseOutboxJobPayload } from '../payloads/outbox.payload';
+import { IBaseService } from 'libs/contracts/interfaces/base-service.interface';
+import { BaseEventInput } from '../../transport/dto/base.input';
 
 export interface IOutboxService extends IBaseService {
-  add<T extends BaseOutboxJobPayload>(outboxPayload: T): Promise<void>;
+  add<T extends BaseEventInput>(outboxPayload: T): Promise<void>;
 }

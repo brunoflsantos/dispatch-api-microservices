@@ -3,6 +3,7 @@
     "INTERNAL_SERVER_ERROR": "Internal server error",
     "INVALID_INTERNAL_KEY": "Invalid internal key",
     "INVALID_CURSOR": "Invalid cursor",
-    "IDEMPOTENCY_KEY_REQUIRED": "The idempotency-key header is required."
+    "IDEMPOTENCY_KEY_REQUIRED": "The idempotency-key header is required.",
+    "TOKEN_REVOKED": "Token has been revoked"
   }
 }

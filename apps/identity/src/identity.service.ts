@@ -1,25 +1,25 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
 import type { IAuthService } from 'libs/contracts/interfaces/auth-service.interface';
-import { LoginResponseContract } from 'libs/contracts/interfaces/auth/login-response.interface';
+import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import {
-  CreateUserRequestContract,
-  PublicCreateUserRequestContract,
-} from 'libs/contracts/interfaces/users/create-user-request.interface';
+  CreateUserInput,
+  PublicCreateUserInput,
+} from 'libs/contracts/interfaces/users/create-user-input.interface';
 import {
-  PublicUserQueryRequestContract,
-  UserQueryRequestContract,
-} from 'libs/contracts/interfaces/users/update-user-query-request.interface';
+  PublicUpdateUserInput,
+  UpdateUserInput,
+} from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUpdateUserRequestContract,
-  UpdateUserRequestContract,
-} from 'libs/contracts/interfaces/users/update-user-request.interface';
+  PublicUserQueryInput,
+  UserQueryRequestInput,
+} from 'libs/contracts/interfaces/users/update-user-query-input.interface';
 import {
-  PublicUserResponseContract,
-  UserResponseContract,
-  UserSelfResponseContract,
-} from 'libs/contracts/interfaces/users/user-response.interface';
+  PublicUserResult,
+  UserResult,
+  UserSelfResult,
+} from 'libs/contracts/interfaces/users/user-result.interface';
 import { BaseService } from 'libs/contracts/services/base.service';
 import { AUTH_SERVICE, USERS_SERVICE } from './constants/identity.token';
 import { IIdentityService } from './interfaces/identity-service.interface';
@@ -37,30 +37,30 @@ export class IdentityService extends BaseService implements IIdentityService {
   //#region Users - Public
 
   publicCreateUser(
-    dto: PublicCreateUserRequestContract,
+    dto: PublicCreateUserInput,
     idempotencyKey: string,
-  ): Promise<UserSelfResponseContract> {
+  ): Promise<UserSelfResult> {
     return this.usersService.publicCreate(dto, idempotencyKey);
   }
 
-  publicFindMyUser(requestUser: RequestUser): Promise<UserSelfResponseContract> {
+  publicFindMyUser(requestUser: RequestUser): Promise<UserSelfResult> {
     return this.usersService.publicFindMe(requestUser);
   }
 
-  publicFindOneUser(id: string): Promise<PublicUserResponseContract> {
+  publicFindOneUser(id: string): Promise<PublicUserResult> {
     return this.usersService.publicFindOne(id);
   }
 
   publicFindAllUsers(
-    query: PublicUserQueryRequestContract,
-  ): Promise<PagOffsetResultDto<PublicUserResponseContract>> {
+    query: PublicUserQueryInput,
+  ): Promise<PagOffsetResultDto<PublicUserResult>> {
     return this.usersService.publicFindAll(query);
   }
 
   publicUpdateUser(
-    dto: PublicUpdateUserRequestContract,
+    dto: PublicUpdateUserInput,
     requestUser: RequestUser,
-  ): Promise<UserSelfResponseContract> {
+  ): Promise<UserSelfResult> {
     return this.usersService.publicUpdate(dto, requestUser);
   }
 
@@ -73,28 +73,28 @@ export class IdentityService extends BaseService implements IIdentityService {
   //#region Users - Admin
 
   adminCreateUser(
-    dto: CreateUserRequestContract,
+    dto: CreateUserInput,
     idempotencyKey: string,
     requestUser: RequestUser,
-  ): Promise<UserResponseContract> {
+  ): Promise<UserResult> {
     return this.usersService.adminCreate(dto, idempotencyKey, requestUser);
   }
 
   adminFindAllUsers(
-    query: UserQueryRequestContract,
-  ): Promise<PagOffsetResultDto<UserResponseContract>> {
+    query: UserQueryRequestInput,
+  ): Promise<PagOffsetResultDto<UserResult>> {
     return this.usersService.adminFindAll(query);
   }
 
-  adminFindOneUser(id: string): Promise<UserResponseContract> {
+  adminFindOneUser(id: string): Promise<UserResult> {
     return this.usersService.adminFindOne(id);
   }
 
   adminUpdateUser(
     id: string,
-    dto: UpdateUserRequestContract,
+    dto: UpdateUserInput,
     requestUser: RequestUser,
-  ): Promise<UserResponseContract> {
+  ): Promise<UserResult> {
     return this.usersService.adminUpdate(id, dto, requestUser);
   }
 
@@ -106,11 +106,11 @@ export class IdentityService extends BaseService implements IIdentityService {
 
   //#region Auth - Public
 
-  publicLogin(email: string, password: string): Promise<LoginResponseContract> {
+  publicLogin(email: string, password: string): Promise<LoginResult> {
     return this.authService.login(email, password);
   }
 
-  publicRefreshSession(reqUser: RequestUser): Promise<LoginResponseContract> {
+  publicRefreshSession(reqUser: RequestUser): Promise<LoginResult> {
     return this.authService.refresh(reqUser);
   }
 

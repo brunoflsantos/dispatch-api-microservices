@@ -7,10 +7,10 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { CreateAddressRequestContract } from '../../../../../libs/contracts/interfaces/users/create-address-request.interface';
+import { CreateAddressInput } from '../../../../../libs/contracts/interfaces/users/create-address-input.interface';
 
 @Exclude()
-export abstract class BaseAddressDto implements CreateAddressRequestContract {
+export abstract class BaseAddressDto implements CreateAddressInput {
   @Expose()
   @ApiProperty({
     description: 'Address first line',

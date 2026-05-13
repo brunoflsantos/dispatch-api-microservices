@@ -1,11 +1,11 @@
-import { UserRole } from '@/shared/enums/user-role.enum';
+import { Role } from 'libs/common/enums/role.enum';
 
 export interface RequestUser {
   id: string;
 
   email: string;
 
-  role: UserRole;
+  role: Role;
 
   language: string;
 

@@ -25,6 +25,9 @@ export class Order extends BaseEntity {
   paymentStatus?: string;
 
   @Column({ nullable: true })
+  paymentSecret?: string;
+
+  @Column({ nullable: true })
   trackingNumber?: string;
 
   @Column({ nullable: true })

@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { col } from 'libs/common/utils/functions.utils';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import { UserQueryRequestContract } from 'libs/contracts/interfaces/users/update-user-query-request.interface';
+import { UserQueryRequestInput } from 'libs/contracts/interfaces/users/update-user-query-input.interface';
 import { BaseRepository } from 'libs/contracts/repositories/base.repository';
 import { Repository } from 'typeorm';
-import { User } from '../modules/users/entities/user.entity';
-import { IUserRepository } from '../modules/users/interfaces/user-repository.interface';
+import { User } from '../entities/user.entity';
+import { IUserRepository } from '../interfaces/user-repository.interface';
 
 const ALIAS_USER = 'user';
 const user = col<User>(ALIAS_USER);
@@ -18,7 +18,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
   }
 
   async filter(
-    query: Partial<UserQueryRequestContract>,
+    query: Partial<UserQueryRequestInput>,
   ): Promise<PagOffsetResultDto<User>> {
     const queryBuilder = this.createQueryBuilder(ALIAS_USER);
 

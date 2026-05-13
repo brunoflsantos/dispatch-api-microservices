@@ -1,18 +1,18 @@
+import { ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
 import {
-  IsString,
-  IsOptional,
-  MinLength,
-  MaxLength,
   IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
   ValidateIf,
 } from 'class-validator';
-import { ApiPropertyOptional, OmitType, PartialType } from '@nestjs/swagger';
-import { CreateUserAddressDto, CreateUserDto } from './create-user.dto';
 import {
-  PublicUpdateUserRequestContract,
+  PublicUpdateUserInput,
   UpdateUserAddressRequestContract,
-  UpdateUserRequestContract,
-} from 'libs/contracts/interfaces/users/update-user-request.interface';
+  UpdateUserInput,
+} from 'libs/contracts/interfaces/users/update-user-input.interface';
+import { CreateUserAddressDto, CreateUserDto } from './create-user.dto';
 
 export class UpdateUserAddressDto
   extends PartialType(CreateUserAddressDto)
@@ -20,7 +20,7 @@ export class UpdateUserAddressDto
 
 export class UpdateUserDto
   extends PartialType(CreateUserDto)
-  implements UpdateUserRequestContract
+  implements UpdateUserInput
 {
   @ApiPropertyOptional({
     description: 'User current password (required if changing password)',
@@ -39,4 +39,4 @@ export class UpdateUserDto
 
 export class PublicUpdateUserDto
   extends OmitType(UpdateUserDto, ['role'] as const)
-  implements PublicUpdateUserRequestContract {}
+  implements PublicUpdateUserInput {}

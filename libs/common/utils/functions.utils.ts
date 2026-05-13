@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AppLogger } from './app-logger.utils';
 
 /**
@@ -40,11 +39,11 @@ export async function runAndIgnoreError<T>(
     return await fn();
   } catch (e) {
     const error = ensureError(e);
-    const message = `Non-critical error ignored in ${context}: ${error.message}`;
+    const message = `Non-critical error ignored in ${context}`;
     if (logger) {
-      logger.warn(message);
+      logger.warn(message, { cause: error });
     } else {
-      console.warn(message);
+      console.warn(message, { cause: error });
     }
     return null;
   }
@@ -59,11 +58,11 @@ export async function runAndIgnoreError<T>(
 export function ensureError(value: unknown): Error {
   if (value instanceof Error) return value;
 
-  let stringified = '[Unable to extract error message]';
+  let stringified: string;
   try {
     stringified = JSON.stringify(value);
   } catch {
-    stringified = String(value);
+    stringified = '[Unable to extract error message]';
   }
 
   return new Error(`Unexpected error: ${stringified}`);

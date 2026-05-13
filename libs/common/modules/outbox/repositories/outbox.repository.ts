@@ -1,9 +1,9 @@
-import { BaseRepository } from '@/shared/repositories/base.repository';
-import { Outbox } from '../entities/outbox.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { col } from '@/shared/utils/functions.utils';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { BaseRepository } from 'libs/contracts/repositories/base.repository';
+import { Repository } from 'typeorm';
+import { Outbox } from '../../../entities/outbox.entity';
 import { IOutboxRepository } from '../interfaces/outbox-repository.interface';
 
 const outboxAlias = 'outbox';

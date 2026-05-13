@@ -7,9 +7,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { CreateProductRequestContract } from 'libs/contracts/interfaces/products/create-product-request.interface';
+import { CreateProductInput } from 'libs/contracts/interfaces/products/create-product-input.interface';
 
-export class CreateProductDto implements CreateProductRequestContract {
+export class CreateProductDto implements CreateProductInput {
   @ApiProperty({
     description: 'Product name',
     example: 'Wireless Headphones',

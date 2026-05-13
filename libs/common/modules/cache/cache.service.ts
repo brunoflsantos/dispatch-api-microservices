@@ -1,12 +1,11 @@
-import { REDIS_CLIENT } from '@/shared/modules/cache/constants/redis-client.token';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
 import Redis from 'ioredis';
-import { ICacheService } from './interfaces/cache-service.interface';
+import { REDIS_CLIENT } from 'libs/common/constants/tokens/redis.token';
 
 @Injectable()
-export class CacheService implements OnModuleDestroy, ICacheService {
+export class CacheService implements OnModuleDestroy {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -19,18 +18,37 @@ export class CacheService implements OnModuleDestroy, ICacheService {
     await this.redisClient.quit();
   }
 
+  /**
+   * Retrieves a value from the cache by its key.
+   * @param key The key of the cache entry.
+   * @returns The cached value or undefined if not found.
+   */
   async get<T>(key: string): Promise<T | undefined> {
     return await this.cacheManager.get<T>(key);
   }
 
+  /**
+   * Sets a value in the cache with an optional time-to-live (TTL).
+   * @param key The key of the cache entry.
+   * @param value The value to be cached.
+   * @param ttl Optional time-to-live in seconds.
+   */
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     await this.cacheManager.set(key, value, ttl);
   }
 
+  /**
+   * Deletes a value from the cache by its key.
+   * @param key The key of the cache entry to delete.
+   */
   async delete(key: string): Promise<void> {
     await this.cacheManager.del(key);
   }
 
+  /**
+   * Deletes cache entries that match a specific pattern.
+   * @param listCacheKey The pattern to match cache keys.
+   */
   async deletePattern(listCacheKey: string): Promise<void> {
     const keys: string[] = await this.redisClient.keys(listCacheKey);
     if (keys.length > 0) {

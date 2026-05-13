@@ -1,12 +1,12 @@
-import { IsOptional, IsString, IsEmail } from 'class-validator';
 import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { BaseQueryDto } from 'libs/contracts/dto/base-query.dto';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { OffsetQueryDto } from 'libs/contracts/dto/base-query.dto';
 import {
-  PublicUserQueryRequestContract,
-  UserQueryRequestContract,
-} from 'libs/contracts/interfaces/users/update-user-query-request.interface';
+  PublicUserQueryInput,
+  UserQueryRequestInput,
+} from 'libs/contracts/interfaces/users/update-user-query-input.interface';
 
-export class UserQueryDto extends BaseQueryDto implements UserQueryRequestContract {
+export class UserQueryDto extends OffsetQueryDto implements UserQueryRequestInput {
   @ApiPropertyOptional({
     description: 'Filter users by name (partial match)',
     example: 'João',
@@ -26,4 +26,4 @@ export class UserQueryDto extends BaseQueryDto implements UserQueryRequestContra
 
 export class PublicUserQueryDto
   extends PickType(UserQueryDto, ['name'] as const)
-  implements PublicUserQueryRequestContract {}
+  implements PublicUserQueryInput {}

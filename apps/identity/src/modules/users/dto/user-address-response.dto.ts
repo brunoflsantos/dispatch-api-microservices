@@ -1,5 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
-import { UserAddressResponseContract } from 'libs/contracts/interfaces/users/user-response.interface';
+import { UserAddressResponseContract } from 'libs/contracts/interfaces/users/user-result.interface';
 
 @Exclude()
 export class UserAddressResponseDto implements UserAddressResponseContract {

@@ -1,9 +1,9 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
-import { BaseQueryRequestContract } from '../interfaces/base-query-request.interface';
+import { OffsetQueryInput } from '../interfaces/offset-query-input.interface';
 
-export abstract class BaseQueryDto implements BaseQueryRequestContract {
+export abstract class OffsetQueryDto implements OffsetQueryInput {
   @ApiPropertyOptional({
     description: 'Page number for pagination',
     example: 1,

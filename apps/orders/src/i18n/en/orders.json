@@ -1,0 +1,20 @@
+{
+  "NOTIFICATIONS": {
+    "ORDER_CREATED": "Your order has been created successfully. Total: {total}. Please proceed to payment.",
+    "ORDER_UPDATED": "Your order status has been updated to {status}.",
+    "ORDER_PAID": "Your payment has been received. We are processing your order.",
+    "ORDER_PROCESSED": "Your order is being prepared for shipment.",
+    "ORDER_SHIPPED": "Your order has been shipped.",
+    "ORDER_DELIVERED": "Your order has been delivered.",
+    "ORDER_CANCELED": "Your order has been canceled.",
+    "ORDER_REFUNDED": "Your order has been refunded.",
+    "ORDER_FAILED": "Processing your order failed. Please contact support."
+  },
+  "ERRORS": {
+    "ORDER_NOT_FOUND": "Order not found.",
+    "INVALID_ORDER_DATA": "Invalid order data.",
+    "INSUFFICIENT_STOCK": "Insufficient stock for product: {productName}.",
+    "BAD_PRECONDITIONS": "Cannot update order to status {status} from current status {currentStatus}.",
+    "ACCESS_DENIED": "Forbidden access. You do not have permission to access this order."
+  }
+}

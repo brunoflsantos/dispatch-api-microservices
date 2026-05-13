@@ -1,12 +1,9 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { BaseQueryDto } from 'libs/contracts/dto/base-query.dto';
-import { ProductQueryRequestContract } from 'libs/contracts/interfaces/products/product-query-request.interface';
+import { OffsetQueryDto } from 'libs/contracts/dto/base-query.dto';
+import { ProductQueryInput } from 'libs/contracts/interfaces/products/product-query-input.interface';
 
-export class ProductQueryDto
-  extends BaseQueryDto
-  implements ProductQueryRequestContract
-{
+export class ProductQueryDto extends OffsetQueryDto implements ProductQueryInput {
   @ApiPropertyOptional({
     description: 'Filter items by name (partial match)',
     example: 'Headphones',

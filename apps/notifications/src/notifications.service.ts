@@ -4,15 +4,15 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { LOCK_KEYS } from 'libs/common/constants/lock-keys.constant';
+import { LOCK_KEYS } from 'libs/common/modules/cache/constants/lock-keys.constant';
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { template } from 'libs/common/utils/functions.utils';
+import { CursorParams } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
-import { CreateNotificationRequestContract } from 'libs/contracts/interfaces/notifications/create-notification-request.interface';
-import { NotificationResponseContract } from 'libs/contracts/interfaces/notifications/notification-response.interface';
+import { CreateNotificationInput } from 'libs/contracts/interfaces/notifications/create-notification-input.interface';
+import { NotificationResult } from 'libs/contracts/interfaces/notifications/notification-result.interface';
 import { BaseService } from 'libs/contracts/services/base.service';
-import { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { I18N_NOTIFICATIONS } from './constants/i18n.constant';
 import { NOTIFICATION_REPOSITORY } from './constants/notifications.token';
 import { NotificationResponseDto } from './dto/notification-response.dto';
@@ -32,9 +32,7 @@ export class NotificationsService
     super(NotificationsService.name);
   }
 
-  async create(
-    dto: CreateNotificationRequestContract,
-  ): Promise<NotificationResponseContract> {
+  async create(dto: CreateNotificationInput): Promise<NotificationResult> {
     const notification = this.notificationRepository.createEntity({
       userId: dto.userId,
       type: dto.type,
@@ -78,7 +76,7 @@ export class NotificationsService
   findByUser(
     userId: string,
     cursor?: CursorParams,
-  ): Promise<PagCursorResultDto<NotificationResponseContract>> {
+  ): Promise<PagCursorResultDto<NotificationResult>> {
     return this.notificationRepository.filterByUser(userId, cursor);
   }
 

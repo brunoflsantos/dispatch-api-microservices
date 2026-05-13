@@ -10,19 +10,19 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { UserRole } from 'libs/common/enums/user-role.enum';
+import { Role } from 'libs/common/enums/role.enum';
 import {
   CreateUserAddressRequestContract,
-  CreateUserRequestContract,
-  PublicCreateUserRequestContract,
-} from 'libs/contracts/interfaces/users/create-user-request.interface';
+  CreateUserInput,
+  PublicCreateUserInput,
+} from 'libs/contracts/interfaces/users/create-user-input.interface';
 import { BaseAddressDto } from './create-address.dto';
 
 export class CreateUserAddressDto
   extends BaseAddressDto
   implements CreateUserAddressRequestContract {}
 
-export class CreateUserDto implements CreateUserRequestContract {
+export class CreateUserDto implements CreateUserInput {
   @ApiProperty({
     description: 'User full name',
     example: 'João Silva',
@@ -66,11 +66,11 @@ export class CreateUserDto implements CreateUserRequestContract {
 
   @ApiPropertyOptional({
     description: 'User role',
-    example: UserRole.USER,
+    example: Role.USER,
   })
   @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
+  @IsEnum(Role)
+  role?: Role;
 
   @ApiPropertyOptional({
     description: 'User address',
@@ -84,4 +84,4 @@ export class CreateUserDto implements CreateUserRequestContract {
 
 export class PublicCreateUserDto
   extends OmitType(CreateUserDto, ['role'] as const)
-  implements PublicCreateUserRequestContract {}
+  implements PublicCreateUserInput {}

@@ -1,8 +1,8 @@
-import { ConfigService } from '@nestjs/config';
-import { CacheModuleOptions } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
-import { CACHE_TTL } from '@/shared/constants/cache-ttl.constant';
+import { CacheModuleOptions } from '@nestjs/cache-manager';
+import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import { CACHE_TTL } from 'libs/common/modules/cache/constants/cache-ttl.constant';
 
 export const cacheConfig = (configService: ConfigService): CacheModuleOptions => ({
   stores: [

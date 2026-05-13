@@ -12,27 +12,27 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'libs/common/decorators/public.decorator';
 import { Roles } from 'libs/common/decorators/roles.decorator';
-import { UserRole } from 'libs/common/enums/user-role.enum';
-import { BaseController } from 'libs/contracts/controllers/base.controller';
+import { Role } from 'libs/common/enums/role.enum';
 import {
-  AdminCreateProductContractMethod,
-  AdminFindAllProductsContractMethod,
-  AdminFindOneProductContractMethod,
-  AdminRemoveProductContractMethod,
-  AdminUpdateProductContractMethod,
-  PublicFindAllProductsContractMethod,
-  PublicFindOneProductContractMethod,
-} from 'libs/contracts/messaging/catalog-contracts';
+  AdminCreateProductRpcInput,
+  AdminFindAllProductsRpcInput,
+  AdminFindOneProductRpcInput,
+  AdminRemoveProductRpcInput,
+  AdminUpdateProductRpcInput,
+  PublicFindAllProductsRpcInput,
+  PublicFindOneProductRpcInput,
+} from 'libs/common/modules/transport/dto/catalog-rpc.input';
+import { CatalogRpcClient } from 'libs/common/modules/transport/providers/catalog-rpc-client';
+import { BaseController } from 'libs/contracts/controllers/base.controller';
 import { CreateProductDto } from '../dto/catalog/create-product.dto';
 import { ProductQueryDto } from '../dto/catalog/product-query.dto';
 import { UpdateProductDto } from '../dto/catalog/update-product.dto';
-import { ApiCatalogService } from '../services/api-catalog.service';
 
 @Controller('catalog')
 @ApiTags('catalog')
 @ApiBearerAuth()
 export class ApiCatalogController extends BaseController {
-  constructor(private readonly apiCatalogService: ApiCatalogService) {
+  constructor(private readonly catalogRpcClient: CatalogRpcClient) {
     super(ApiCatalogController.name);
   }
 
@@ -41,64 +41,52 @@ export class ApiCatalogController extends BaseController {
   @Public()
   @Get('public/products')
   publicFindAllProducts(@Query() query: ProductQueryDto) {
-    return this.apiCatalogService.sendMessage(
-      new PublicFindAllProductsContractMethod({ query }),
-    );
+    return this.catalogRpcClient.call(new PublicFindAllProductsRpcInput({ query }));
   }
 
   @Public()
   @Get('public/products/:id')
   publicFindOneProduct(@Param('id') id: string) {
-    return this.apiCatalogService.sendMessage(
-      new PublicFindOneProductContractMethod({ id }),
-    );
+    return this.catalogRpcClient.call(new PublicFindOneProductRpcInput({ id }));
   }
 
   //#endregion
 
   //#region Products - Admin
 
-  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Post('admin/products')
   adminCreateProduct(
     @Body() dto: CreateProductDto,
     @Headers('x-idempotency-key') idempotencyKey: string,
   ) {
-    return this.apiCatalogService.sendMessage(
-      new AdminCreateProductContractMethod({ dto, idempotencyKey }),
+    return this.catalogRpcClient.call(
+      new AdminCreateProductRpcInput({ dto, idempotencyKey }),
     );
   }
 
-  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Get('admin/products')
   adminFindAllProducts(@Query() query: ProductQueryDto) {
-    return this.apiCatalogService.sendMessage(
-      new AdminFindAllProductsContractMethod({ query }),
-    );
+    return this.catalogRpcClient.call(new AdminFindAllProductsRpcInput({ query }));
   }
 
-  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Get('admin/products/:id')
   adminFindOneProduct(@Param('id') id: string) {
-    return this.apiCatalogService.sendMessage(
-      new AdminFindOneProductContractMethod({ id }),
-    );
+    return this.catalogRpcClient.call(new AdminFindOneProductRpcInput({ id }));
   }
 
-  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Put('admin/products/:id')
   adminUpdateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    return this.apiCatalogService.sendMessage(
-      new AdminUpdateProductContractMethod({ id, dto }),
-    );
+    return this.catalogRpcClient.call(new AdminUpdateProductRpcInput({ id, dto }));
   }
 
-  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  @Roles(Role.SUPERADMIN, Role.ADMIN)
   @Delete('admin/products/:id')
   adminRemoveProduct(@Param('id') id: string) {
-    return this.apiCatalogService.sendMessage(
-      new AdminRemoveProductContractMethod({ id }),
-    );
+    return this.catalogRpcClient.call(new AdminRemoveProductRpcInput({ id }));
   }
 
   //#endregion

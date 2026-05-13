@@ -1,10 +1,10 @@
 import { Exclude, Expose } from 'class-transformer';
-import { UserRole } from 'libs/common/enums/user-role.enum';
-import { UserResponseContract } from 'libs/contracts/interfaces/users/user-response.interface';
+import { Role } from 'libs/common/enums/role.enum';
+import { UserResult } from 'libs/contracts/interfaces/users/user-result.interface';
 import { UserAddressResponseDto } from './user-address-response.dto';
 
 @Exclude()
-export class UserResponseDto implements UserResponseContract {
+export class UserResponseDto implements UserResult {
   @Expose()
   id: string;
 
@@ -15,7 +15,7 @@ export class UserResponseDto implements UserResponseContract {
   email: string;
 
   @Expose()
-  role: UserRole;
+  role: Role;
 
   @Expose()
   createdAt: Date;

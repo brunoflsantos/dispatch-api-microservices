@@ -1,10 +1,10 @@
-import { IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsArray, ValidateNested } from 'class-validator';
+import { CreateOrderInput } from 'libs/contracts/interfaces/orders/create-order-input.interface';
 import { CreateOrderProductDto } from './create-order-product.dto';
-import { CreateOrderRequestContract } from 'libs/contracts/interfaces/orders/create-order-request.interface';
 
-export class CreateOrderDto implements CreateOrderRequestContract {
+export class CreateOrderDto implements CreateOrderInput {
   @ApiProperty({
     description: 'Order products',
     type: [CreateOrderProductDto],

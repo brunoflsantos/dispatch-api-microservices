@@ -1,128 +1,133 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
-  AdminCreateUserContractMethod,
-  AdminFindAllUsersContractMethod,
-  AdminFindOneUserContractMethod,
-  AdminRemoveUserContractMethod,
-  AdminUpdateUserContractMethod,
-  PublicCreateUserContractMethod,
-  PublicFindAllUsersContractMethod,
-  PublicFindMyUserContractMethod,
-  PublicFindOneUserContractMethod,
-  PublicLoginContractMethod,
-  PublicLogoutContractMethod,
-  PublicRefreshContractMethod,
-  PublicRemoveMyUserContractMethod,
-  PublicUpdateUserContractMethod,
-} from 'libs/contracts/messaging/identity-contracts';
+  AdminCreateUserRpcInput,
+  AdminFindAllUsersRpcInput,
+  AdminFindOneUserRpcInput,
+  AdminRemoveUserRpcInput,
+  AdminUpdateUserRpcInput,
+  PublicCreateUserRpcInput,
+  PublicFindAllUsersRpcInput,
+  PublicFindMyUserRpcInput,
+  PublicFindOneUserRpcInput,
+  PublicLoginRpcInput,
+  PublicLogoutRpcInput,
+  PublicRefreshRpcInput,
+  PublicRemoveMyUserRpcInput,
+  PublicUpdateUserRpcInput,
+} from 'libs/common/modules/transport/dto/identity-rpc.input';
 import { IdentityService } from './identity.service';
 
 @Controller()
 export class IdentityController {
   constructor(private readonly identityService: IdentityService) {}
 
-  @MessagePattern(PublicCreateUserContractMethod.message)
+  @MessagePattern(PublicCreateUserRpcInput.pattern)
   publicCreateUser(
-    @Payload() data: typeof PublicCreateUserContractMethod.prototype.payload,
-  ): Promise<typeof PublicCreateUserContractMethod.prototype.response> {
-    return this.identityService.publicCreateUser(data.dto, data.idempotencyKey);
-  }
-
-  @MessagePattern(PublicFindMyUserContractMethod.message)
-  publicFindMyUser(
-    @Payload() data: typeof PublicFindMyUserContractMethod.prototype.payload,
-  ): Promise<typeof PublicFindMyUserContractMethod.prototype.response> {
-    return this.identityService.publicFindMyUser(data.reqUser);
-  }
-
-  @MessagePattern(PublicFindOneUserContractMethod.message)
-  publicFindOneUser(
-    @Payload() data: typeof PublicFindOneUserContractMethod.prototype.payload,
-  ): Promise<typeof PublicFindOneUserContractMethod.prototype.response> {
-    return this.identityService.publicFindOneUser(data.id);
-  }
-
-  @MessagePattern(PublicFindAllUsersContractMethod.message)
-  publicFindAllUsers(
-    @Payload() data: typeof PublicFindAllUsersContractMethod.prototype.payload,
-  ): Promise<typeof PublicFindAllUsersContractMethod.prototype.response> {
-    return this.identityService.publicFindAllUsers(data.query);
-  }
-
-  @MessagePattern(PublicUpdateUserContractMethod.message)
-  publicUpdateUser(
-    @Payload() data: typeof PublicUpdateUserContractMethod.prototype.payload,
-  ): Promise<typeof PublicUpdateUserContractMethod.prototype.response> {
-    return this.identityService.publicUpdateUser(data.dto, data.reqUser);
-  }
-
-  @MessagePattern(PublicRemoveMyUserContractMethod.message)
-  publicRemoveMyUser(
-    @Payload() data: typeof PublicRemoveMyUserContractMethod.prototype.payload,
-  ): Promise<typeof PublicRemoveMyUserContractMethod.prototype.response> {
-    return this.identityService.publicRemoveMyUser(data.reqUser);
-  }
-
-  @MessagePattern(AdminCreateUserContractMethod.message)
-  adminCreateUser(
-    @Payload()
-    data: typeof AdminCreateUserContractMethod.prototype.payload,
-  ): Promise<typeof AdminCreateUserContractMethod.prototype.response> {
-    return this.identityService.adminCreateUser(
-      data.dto,
-      data.idempotencyKey,
-      data.reqUser,
+    @Payload() payload: PublicCreateUserRpcInput['payload'],
+  ): Promise<PublicCreateUserRpcInput['response']> {
+    return this.identityService.publicCreateUser(
+      payload.dto,
+      payload.idempotencyKey,
     );
   }
 
-  @MessagePattern(AdminFindAllUsersContractMethod.message)
+  @MessagePattern(PublicFindMyUserRpcInput.pattern)
+  publicFindMyUser(
+    @Payload() payload: PublicFindMyUserRpcInput['payload'],
+  ): Promise<PublicFindMyUserRpcInput['response']> {
+    return this.identityService.publicFindMyUser(payload.reqUser);
+  }
+
+  @MessagePattern(PublicFindOneUserRpcInput.pattern)
+  publicFindOneUser(
+    @Payload() payload: PublicFindOneUserRpcInput['payload'],
+  ): Promise<PublicFindOneUserRpcInput['response']> {
+    return this.identityService.publicFindOneUser(payload.id);
+  }
+
+  @MessagePattern(PublicFindAllUsersRpcInput.pattern)
+  publicFindAllUsers(
+    @Payload() payload: PublicFindAllUsersRpcInput['payload'],
+  ): Promise<PublicFindAllUsersRpcInput['response']> {
+    return this.identityService.publicFindAllUsers(payload.query);
+  }
+
+  @MessagePattern(PublicUpdateUserRpcInput.pattern)
+  publicUpdateUser(
+    @Payload() payload: PublicUpdateUserRpcInput['payload'],
+  ): Promise<PublicUpdateUserRpcInput['response']> {
+    return this.identityService.publicUpdateUser(payload.dto, payload.reqUser);
+  }
+
+  @MessagePattern(PublicRemoveMyUserRpcInput.pattern)
+  publicRemoveMyUser(
+    @Payload() payload: PublicRemoveMyUserRpcInput['payload'],
+  ): Promise<PublicRemoveMyUserRpcInput['response']> {
+    return this.identityService.publicRemoveMyUser(payload.reqUser);
+  }
+
+  @MessagePattern(AdminCreateUserRpcInput.pattern)
+  adminCreateUser(
+    @Payload() payload: AdminCreateUserRpcInput['payload'],
+  ): Promise<AdminCreateUserRpcInput['response']> {
+    return this.identityService.adminCreateUser(
+      payload.dto,
+      payload.idempotencyKey,
+      payload.reqUser,
+    );
+  }
+
+  @MessagePattern(AdminFindAllUsersRpcInput.pattern)
   adminFindAllUsers(
-    @Payload() data: typeof AdminFindAllUsersContractMethod.prototype.payload,
-  ): Promise<typeof AdminFindAllUsersContractMethod.prototype.response> {
-    return this.identityService.adminFindAllUsers(data.query);
+    @Payload() payload: AdminFindAllUsersRpcInput['payload'],
+  ): Promise<AdminFindAllUsersRpcInput['response']> {
+    return this.identityService.adminFindAllUsers(payload.query);
   }
 
-  @MessagePattern(AdminFindOneUserContractMethod.message)
+  @MessagePattern(AdminFindOneUserRpcInput.pattern)
   adminFindOneUser(
-    @Payload() data: typeof AdminFindOneUserContractMethod.prototype.payload,
-  ): Promise<typeof AdminFindOneUserContractMethod.prototype.response> {
-    return this.identityService.adminFindOneUser(data.id);
+    @Payload() payload: AdminFindOneUserRpcInput['payload'],
+  ): Promise<AdminFindOneUserRpcInput['response']> {
+    return this.identityService.adminFindOneUser(payload.id);
   }
 
-  @MessagePattern(AdminUpdateUserContractMethod.message)
+  @MessagePattern(AdminUpdateUserRpcInput.pattern)
   adminUpdateUser(
-    @Payload()
-    data: typeof AdminUpdateUserContractMethod.prototype.payload,
-  ): Promise<typeof AdminUpdateUserContractMethod.prototype.response> {
-    return this.identityService.adminUpdateUser(data.id, data.dto, data.reqUser);
+    @Payload() payload: AdminUpdateUserRpcInput['payload'],
+  ): Promise<AdminUpdateUserRpcInput['response']> {
+    return this.identityService.adminUpdateUser(
+      payload.id,
+      payload.dto,
+      payload.reqUser,
+    );
   }
 
-  @MessagePattern(AdminRemoveUserContractMethod.message)
+  @MessagePattern(AdminRemoveUserRpcInput.pattern)
   adminRemoveUser(
-    @Payload() data: typeof AdminRemoveUserContractMethod.prototype.payload,
-  ): Promise<typeof AdminRemoveUserContractMethod.prototype.response> {
-    return this.identityService.adminRemoveUser(data.id, data.reqUser);
+    @Payload() payload: AdminRemoveUserRpcInput['payload'],
+  ): Promise<AdminRemoveUserRpcInput['response']> {
+    return this.identityService.adminRemoveUser(payload.id, payload.reqUser);
   }
 
-  @MessagePattern(PublicLoginContractMethod.message)
+  @MessagePattern(PublicLoginRpcInput.pattern)
   publicLogin(
-    @Payload() data: typeof PublicLoginContractMethod.prototype.payload,
-  ): Promise<typeof PublicLoginContractMethod.prototype.response> {
-    return this.identityService.publicLogin(data.email, data.password);
+    @Payload() payload: PublicLoginRpcInput['payload'],
+  ): Promise<PublicLoginRpcInput['response']> {
+    return this.identityService.publicLogin(payload.email, payload.password);
   }
 
-  @MessagePattern(PublicRefreshContractMethod.message)
+  @MessagePattern(PublicRefreshRpcInput.pattern)
   publicRefreshSession(
-    @Payload() data: typeof PublicRefreshContractMethod.prototype.payload,
-  ): Promise<typeof PublicRefreshContractMethod.prototype.response> {
-    return this.identityService.publicRefreshSession(data.reqUser);
+    @Payload() payload: PublicRefreshRpcInput['payload'],
+  ): Promise<PublicRefreshRpcInput['response']> {
+    return this.identityService.publicRefreshSession(payload.reqUser);
   }
 
-  @MessagePattern(PublicLogoutContractMethod.message)
+  @MessagePattern(PublicLogoutRpcInput.pattern)
   publicLogout(
-    @Payload() data: typeof PublicLogoutContractMethod.prototype.payload,
-  ): Promise<typeof PublicLogoutContractMethod.prototype.response> {
-    return this.identityService.publicLogout(data.reqUser);
+    @Payload() payload: PublicLogoutRpcInput['payload'],
+  ): Promise<PublicLogoutRpcInput['response']> {
+    return this.identityService.publicLogout(payload.reqUser);
   }
 }

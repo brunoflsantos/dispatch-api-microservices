@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { LoginResponseContract } from 'libs/contracts/interfaces/auth/login-response.interface';
+import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
 
 @Exclude()
-export class LoginResponseDto implements LoginResponseContract {
+export class LoginResponseDto implements LoginResult {
   @Expose()
   @ApiProperty({ description: 'Access token for authentication' })
   accessToken: string;

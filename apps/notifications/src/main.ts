@@ -4,9 +4,9 @@ import { RmqOptions } from '@nestjs/microservices';
 import {
   rmqEventBusConfig,
   rmqRpcBrokerConfig,
-} from 'libs/common/config/broker.config';
-import { NOTIFICATION_RPC_QUEUE } from 'libs/common/constants/tokens/queues.token';
-import { AppExceptionFilter } from 'libs/common/filters/exception.filter';
+} from 'libs/common/config/transport.config';
+import { RpcExceptionConverterFilter } from 'libs/common/filters/rpc-exception.filter';
+import { NOTIFICATIONS_RPC_QUEUE } from 'libs/common/modules/transport/constants/queues.token';
 import { Logger } from 'nestjs-pino';
 import { NotificationsModule } from './notifications.module';
 
@@ -20,13 +20,13 @@ async function bootstrap() {
 
   // Dedicated RPC queue for direct calls
   app.connectMicroservice<RmqOptions>(
-    rmqRpcBrokerConfig(NOTIFICATION_RPC_QUEUE)(configService),
+    rmqRpcBrokerConfig(NOTIFICATIONS_RPC_QUEUE)(configService),
   );
 
   // General event bus — for events from other microservices
   app.connectMicroservice<RmqOptions>(rmqEventBusConfig(configService));
 
-  app.useGlobalFilters(new AppExceptionFilter());
+  app.useGlobalFilters(new RpcExceptionConverterFilter());
 
   await app.startAllMicroservices();
 

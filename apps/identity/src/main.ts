@@ -4,9 +4,9 @@ import { RmqOptions } from '@nestjs/microservices';
 import {
   rmqEventBusConfig,
   rmqRpcBrokerConfig,
-} from 'libs/common/config/broker.config';
-import { IDENTITY_RPC_QUEUE } from 'libs/common/constants/tokens/queues.token';
-import { AppExceptionFilter } from 'libs/common/filters/exception.filter';
+} from 'libs/common/config/transport.config';
+import { RpcExceptionConverterFilter } from 'libs/common/filters/rpc-exception.filter';
+import { IDENTITY_RPC_QUEUE } from 'libs/common/modules/transport/constants/queues.token';
 import { Logger } from 'nestjs-pino';
 import { IdentityModule } from './identity.module';
 
@@ -26,7 +26,7 @@ async function bootstrap() {
   // General event bus — for events from other microservices
   app.connectMicroservice<RmqOptions>(rmqEventBusConfig(configService));
 
-  app.useGlobalFilters(new AppExceptionFilter());
+  app.useGlobalFilters(new RpcExceptionConverterFilter());
 
   await app.startAllMicroservices();
 

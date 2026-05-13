@@ -1,0 +1,8 @@
+{
+  "ERRORS": {
+    "CREATE_CUSTOMER_FAILED": "Failed to create customer: No customer ID returned.",
+    "UPDATE_CUSTOMER_FAILED": "Failed to update customer: No customer ID returned.",
+    "CUSTOMER_DELETED": "Customer {customerId} has been deleted.",
+    "CUSTOMER_NOT_FOUND": "Customer {customerId} not found."
+  }
+}

@@ -6,9 +6,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { LoginRequestContract } from 'libs/contracts/interfaces/auth/login-request.interface';
+import { LoginInput } from 'libs/contracts/interfaces/auth/login-input.interface';
 
-export class LoginDto implements LoginRequestContract {
+export class LoginDto implements LoginInput {
   @ApiProperty({
     description: 'User email address',
     example: 'joao.silva@email.com',

@@ -1,21 +1,21 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { DataSource } from 'typeorm';
 import { Item } from '@/modules/items/entities/item.entity';
 import { PAYMENTS_GATEWAY_SERVICE } from '@/modules/payment-gateways/constants/payments-gateway.token';
 import { GatewayCreateCustomerDto } from '@/modules/payment-gateways/dto/gateway-customer.dto';
 import type { IPaymentGatewaysService } from '@/modules/payment-gateways/interfaces/payment-gateways-service.interface';
 import { User } from '@/modules/users/entities/user.entity';
-import { UserRole } from '@/shared/enums/user-role.enum';
 import { HashAdapter } from '@/shared/utils/hash-adapter.utils';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Role } from 'libs/common/enums/role.enum';
 import { Logger } from 'nestjs-pino';
+import { DataSource } from 'typeorm';
 
 const MOCK_ADMIN_USER = {
   id: 'c6d77b5d-1d3f-4c91-9e9d-9b7a8f7c4b21',
   name: 'João Silva Admin',
   email: 'joao.silva@email.com',
   password: 'password123',
-  role: UserRole.ADMIN,
+  role: Role.ADMIN,
 } as const;
 
 const MOCK_ADMIN_CUSTOMER: GatewayCreateCustomerDto = {

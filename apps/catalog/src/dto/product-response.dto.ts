@@ -1,10 +1,10 @@
 import { OmitType } from '@nestjs/swagger';
 import {
-  ProductResponseContract,
-  PublicProductResponseContract,
-} from 'libs/contracts/interfaces/products/product-response.interface';
+  ProductResult,
+  PublicProductResult,
+} from 'libs/contracts/interfaces/products/product-result.interface';
 
-export class ProductResponseDto implements ProductResponseContract {
+export class ProductResponseDto implements ProductResult {
   id: string;
 
   name: string;
@@ -22,4 +22,4 @@ export class ProductResponseDto implements ProductResponseContract {
 
 export class PublicProductResponseDto
   extends OmitType(ProductResponseDto, ['createdAt', 'updatedAt'] as const)
-  implements PublicProductResponseContract {}
+  implements PublicProductResult {}

@@ -1,12 +1,12 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import {
-  ProductResponseContract,
-  PublicProductResponseContract,
-} from 'libs/contracts/interfaces/products/product-response.interface';
+  ProductResult,
+  PublicProductResult,
+} from 'libs/contracts/interfaces/products/product-result.interface';
 
 @Exclude()
-export class ProductResponseDto implements ProductResponseContract {
+export class ProductResponseDto implements ProductResult {
   @Expose()
   @ApiProperty({
     description: 'Product unique identifier',
@@ -67,4 +67,4 @@ export class ProductResponseDto implements ProductResponseContract {
 
 export class PublicProductResponseDto
   extends OmitType(ProductResponseDto, ['createdAt', 'updatedAt'] as const)
-  implements PublicProductResponseContract {}
+  implements PublicProductResult {}

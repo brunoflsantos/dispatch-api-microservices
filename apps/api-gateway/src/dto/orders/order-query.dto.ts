@@ -1,16 +1,13 @@
-import { IsOptional, IsEnum, IsDateString, IsUUID } from 'class-validator';
 import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import {
-  OrderByUserQueryRequestContract,
-  OrderQueryRequestContract,
-} from 'libs/contracts/interfaces/orders/order-query-request.interface';
-import { BaseQueryDto } from 'libs/contracts/dto/base-query.dto';
+import { IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { OrderStatus } from 'libs/common/enums/order-status.enum';
+import { OffsetQueryDto } from 'libs/contracts/dto/base-query.dto';
+import {
+  OrderByUserQueryInput,
+  OrderQueryInput,
+} from 'libs/contracts/interfaces/orders/order-query-input.interface';
 
-export class OrderQueryDto
-  extends BaseQueryDto
-  implements OrderQueryRequestContract
-{
+export class OrderQueryDto extends OffsetQueryDto implements OrderQueryInput {
   @ApiPropertyOptional({
     description: 'User ID to filter orders',
     example: '550e8400-e29b-41d4-a716-446655440001',
@@ -47,4 +44,4 @@ export class OrderQueryDto
 
 export class OrderByUserQueryDto
   extends OmitType(OrderQueryDto, ['userId'] as const)
-  implements OrderByUserQueryRequestContract {}
+  implements OrderByUserQueryInput {}

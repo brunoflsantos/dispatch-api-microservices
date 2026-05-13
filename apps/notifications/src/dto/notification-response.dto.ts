@@ -1,6 +1,6 @@
-import { NotificationResponseContract } from 'libs/contracts/interfaces/notifications/notification-response.interface';
+import { NotificationResult } from 'libs/contracts/interfaces/notifications/notification-result.interface';
 
-export class NotificationResponseDto implements NotificationResponseContract {
+export class NotificationResponseDto implements NotificationResult {
   id: string;
 
   type: string;

@@ -1,8 +1,8 @@
 import {
-  delay,
   col,
-  runAndIgnoreError,
+  delay,
   ensureError,
+  runAndIgnoreError,
   template,
 } from './functions.utils';
 
@@ -37,13 +37,13 @@ describe('functions.ts', () => {
 
   describe('runAndIgnoreError', () => {
     it('should return result if no error', async () => {
-      const fn = async () => 42;
+      const fn = async () => await Promise.resolve(42);
       const result = await runAndIgnoreError(fn, 'test');
       expect(result).toBe(42);
     });
 
     it('should return null and log if error', async () => {
-      const fn = async () => {
+      const fn = () => {
         throw new Error('fail');
       };
       const logger = { warn: jest.fn() };

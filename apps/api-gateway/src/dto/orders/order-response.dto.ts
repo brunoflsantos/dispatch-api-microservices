@@ -1,11 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { OrderProductResponseDto } from './order-product-response.dto';
 import { OrderStatus } from 'libs/common/enums/order-status.enum';
-import { OrderResponseContract } from 'libs/contracts/interfaces/orders/order-response.interface';
+import { OrderResult } from 'libs/contracts/interfaces/orders/order-result.interface';
+import { OrderProductResponseDto } from './order-product-response.dto';
 
 @Exclude()
-export class OrderResponseDto implements OrderResponseContract {
+export class OrderResponseDto implements OrderResult {
   @Expose()
   @ApiProperty({
     description: 'Order unique identifier',

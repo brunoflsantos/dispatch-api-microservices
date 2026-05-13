@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { col } from 'libs/common/utils/functions.utils';
+import { CursorParams } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { BaseRepository } from 'libs/contracts/repositories/base.repository';
-import { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { Brackets, Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
 import { INotificationRepository } from '../interfaces/notification-repository.interface';
@@ -39,12 +39,12 @@ export class NotificationRepository
       queryBuilder.andWhere(
         new Brackets((cursorQuery) => {
           cursorQuery.where(`${notification('createdAt')} < :cursorCreatedAt`, {
-            cursorCreatedAt: cursor.createdAt,
+            cursorCreatedAt: cursor.startingAfter,
           });
           cursorQuery.orWhere(
             `(${notification('createdAt')} = :cursorCreatedAt AND ${notification('id')} < :cursorId)`,
             {
-              cursorCreatedAt: cursor.createdAt,
+              cursorCreatedAt: cursor.startingAfter,
               cursorId: cursor.id,
             },
           );
@@ -65,7 +65,7 @@ export class NotificationRepository
 
   private encodeCursor(notification: Notification): string {
     const cursor: CursorParams = {
-      createdAt: notification.createdAt.toISOString(),
+      startingAfter: notification.createdAt.toISOString(),
       id: notification.id,
     };
 

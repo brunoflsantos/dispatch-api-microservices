@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ModuleImportsFactory } from 'libs/common/factories/module-imports.factory';
+import { TransportModule } from 'libs/common/modules/transport/transport.module';
 import { join, resolve } from 'path';
 import { typeOrmIdentityConfig } from './config/orm.identity.config';
 import { IDENTITY_SERVICE, USER_REPOSITORY } from './constants/identity.token';
@@ -29,6 +30,8 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
 
     UsersModule,
+
+    TransportModule,
   ],
   controllers: [IdentityController],
   providers: [

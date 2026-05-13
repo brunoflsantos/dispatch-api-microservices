@@ -1,12 +1,12 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { BaseController } from 'libs/contracts/controllers/base.controller';
 import {
-  CountUnreadNotificationsContractMethod,
-  FindByUserNotificationsContractMethod,
-  HasNewNotificationsContractMethod,
-  MarkNotificationAsReadContractMethod,
-} from 'libs/contracts/messaging/notifications-contracts';
+  CountUnreadNotificationsRpcInput,
+  FindByUserNotificationsRpcInput,
+  HasNewNotificationsRpcInput,
+  MarkNotificationAsReadRpcInput,
+} from 'libs/common/modules/transport/dto/notifications-rpc.input';
+import { BaseController } from 'libs/contracts/controllers/base.controller';
 import { NOTIFICATIONS_SERVICE } from './constants/notifications.token';
 import type { INotificationsService } from './interfaces/notifications-service.interface';
 
@@ -19,31 +19,31 @@ export class NotificationsController extends BaseController {
     super(NotificationsController.name);
   }
 
-  @MessagePattern(FindByUserNotificationsContractMethod.message)
+  @MessagePattern(FindByUserNotificationsRpcInput.pattern)
   findByUser(
-    @Payload() data: typeof FindByUserNotificationsContractMethod.prototype.payload,
-  ): Promise<typeof FindByUserNotificationsContractMethod.prototype.response> {
-    return this.notificationsService.findByUser(data.user.id, data.cursor);
+    @Payload() payload: FindByUserNotificationsRpcInput['payload'],
+  ): Promise<FindByUserNotificationsRpcInput['response']> {
+    return this.notificationsService.findByUser(payload.user.id, payload.cursor);
   }
 
-  @MessagePattern(MarkNotificationAsReadContractMethod.message)
+  @MessagePattern(MarkNotificationAsReadRpcInput.pattern)
   async markAsRead(
-    @Payload() data: typeof MarkNotificationAsReadContractMethod.prototype.payload,
-  ): Promise<typeof MarkNotificationAsReadContractMethod.prototype.response> {
-    await this.notificationsService.markAsRead(data.id, data.userId);
+    @Payload() payload: MarkNotificationAsReadRpcInput['payload'],
+  ): Promise<MarkNotificationAsReadRpcInput['response']> {
+    await this.notificationsService.markAsRead(payload.id, payload.userId);
   }
 
-  @MessagePattern(CountUnreadNotificationsContractMethod.message)
+  @MessagePattern(CountUnreadNotificationsRpcInput.pattern)
   countUnread(
-    @Payload() data: typeof CountUnreadNotificationsContractMethod.prototype.payload,
-  ): Promise<typeof CountUnreadNotificationsContractMethod.prototype.response> {
-    return this.notificationsService.countUnread(data.userId);
+    @Payload() payload: CountUnreadNotificationsRpcInput['payload'],
+  ): Promise<CountUnreadNotificationsRpcInput['response']> {
+    return this.notificationsService.countUnread(payload.userId);
   }
 
-  @MessagePattern(HasNewNotificationsContractMethod.message)
+  @MessagePattern(HasNewNotificationsRpcInput.pattern)
   hasNewNotifications(
-    @Payload() data: typeof HasNewNotificationsContractMethod.prototype.payload,
-  ): Promise<typeof HasNewNotificationsContractMethod.prototype.response> {
-    return this.notificationsService.hasNewNotifications(data.userId);
+    @Payload() payload: HasNewNotificationsRpcInput['payload'],
+  ): Promise<HasNewNotificationsRpcInput['response']> {
+    return this.notificationsService.hasNewNotifications(payload.userId);
   }
 }

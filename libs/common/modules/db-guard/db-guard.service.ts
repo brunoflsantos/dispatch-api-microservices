@@ -1,8 +1,8 @@
+import { TransactionContext } from '@/shared/utils/transaction-context.utils';
 import { Injectable } from '@nestjs/common';
+import { CACHE_TTL } from 'libs/common/modules/cache/constants/cache-ttl.constant';
 import Redlock from 'redlock';
 import { DataSource, EntityManager } from 'typeorm';
-import { TransactionContext } from '@/shared/utils/transaction-context.utils';
-import { CACHE_TTL } from '@/shared/constants/cache-ttl.constant';
 
 @Injectable()
 export class DbGuardService {

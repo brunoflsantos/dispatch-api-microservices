@@ -1,21 +1,17 @@
-import { ORDER_QUEUE, PAYMENT_QUEUE } from '@/shared/constants/queues.token';
 import { ensureError } from '@/shared/utils/functions.utils';
 import { RequestContext } from '@/shared/utils/request-context.utils';
-import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Queue } from 'bullmq';
 import { randomUUID } from 'crypto';
+import { Outbox } from '../../entities/outbox.entity';
 import { OUTBOX_REPOSITORY } from './constants/outbox.token';
-import { Outbox } from './entities/outbox.entity';
 import type { IOutboxRepository } from './interfaces/outbox-repository.interface';
 import { IOutboxService } from './interfaces/outbox-service.interface';
 
-import { EFFECTS_QUEUE } from '@/shared/constants/queues.token';
 import { BaseService } from 'libs/contracts/services/base.service';
 import { DbGuardService } from '../db-guard/db-guard.service';
-import { OutboxDispatcher } from './helpers/outbox-dispatcher';
-import { BaseOutboxJobPayload } from './payloads/outbox.payload';
+import { BaseEventInput } from '../transport/dto/base.input';
+import { EventEmitter } from '../transport/providers/event-emitter';
 
 @Injectable()
 export class OutboxService
@@ -27,10 +23,8 @@ export class OutboxService
   private isShuttingDown = false;
 
   constructor(
-    @InjectQueue(ORDER_QUEUE) private readonly orderQueue: Queue,
-    @InjectQueue(PAYMENT_QUEUE) private readonly paymentQueue: Queue,
-    @InjectQueue(EFFECTS_QUEUE) private readonly effectQueue: Queue,
     @Inject(OUTBOX_REPOSITORY) private readonly outboxRepository: IOutboxRepository,
+    private readonly eventEmitter: EventEmitter,
     private readonly guard: DbGuardService,
   ) {
     super(OutboxService.name);
@@ -70,48 +64,42 @@ export class OutboxService
         `Successfully processed batch of ${messages.length} Outbox messages.`,
       );
 
-      // CONTROLLED RECURSION:
-      // If we reached the maximum limit, schedule the next execution immediately
+      // Controlled recursion: If we reached the maximum limit, schedule the next
+      // execution immediately
       if (messages.length === limit) {
         this.isProcessing = false; // Release the lock for the next execution
-        setImmediate(() => this.process());
+        setImmediate(() => void this.process());
         return;
       }
     } catch (e) {
       const error = ensureError(e);
-      this.logger.error(`Error during Outbox processing cycle: ${error.message}`);
+      this.logger.error('Error during Outbox processing cycle', {
+        cause: error,
+      });
     } finally {
       this.isProcessing = false;
     }
   }
 
-  private async dispatch(messages: Outbox[]): Promise<void> {
-    if (messages.length === 0) return;
-
-    const { orderQueueMsg, paymentQueueMsg, effectQueueMsg } =
-      OutboxDispatcher.partition(messages);
-
-    if (orderQueueMsg.length > 0) {
-      await this.orderQueue.addBulk(orderQueueMsg);
-    }
-    if (paymentQueueMsg.length > 0) {
-      await this.paymentQueue.addBulk(paymentQueueMsg);
-    }
-    if (effectQueueMsg.length > 0) {
-      await this.effectQueue.addBulk(effectQueueMsg);
-    }
-  }
-
-  async add<T extends BaseOutboxJobPayload>(outboxPayload: T): Promise<void> {
+  async add<T extends BaseEventInput>(outboxPayload: T): Promise<void> {
     const correlationId = RequestContext.getCorrelationId() ?? randomUUID();
     const outboxEntry = this.outboxRepository.createEntity({
-      type: outboxPayload.type,
       payload: outboxPayload,
       correlationId,
     });
     await this.outboxRepository.save(outboxEntry);
 
     // Trigger immediate processing after adding a new message to the outbox
-    setImmediate(() => this.process());
+    setImmediate(() => void this.process());
+  }
+
+  private async dispatch(messages: Outbox[]): Promise<void> {
+    if (messages.length === 0) return;
+
+    await Promise.all(
+      messages.map((message) =>
+        Promise.resolve(this.eventEmitter.emit(message.payload)),
+      ),
+    );
   }
 }

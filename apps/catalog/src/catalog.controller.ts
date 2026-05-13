@@ -1,19 +1,19 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { BaseController } from 'libs/contracts/controllers/base.controller';
 import {
-  AdminCreateProductContractMethod,
-  AdminFindAllProductsContractMethod,
-  AdminFindOneProductContractMethod,
-  AdminRemoveProductContractMethod,
-  AdminUpdateProductContractMethod,
-  DecrementProductsStockContractMethod,
-  FindManyProductsByIdsContractMethod,
-  IncrementProductsStockContractMethod,
-  PublicFindAllProductsContractMethod,
-  PublicFindOneProductContractMethod,
-  ValidateAndGetProductsContractMethod,
-} from 'libs/contracts/messaging/catalog-contracts';
+  AdminCreateProductRpcInput,
+  AdminFindAllProductsRpcInput,
+  AdminFindOneProductRpcInput,
+  AdminRemoveProductRpcInput,
+  AdminUpdateProductRpcInput,
+  DecrementProductsStockRpcInput,
+  FindManyProductsByIdsRpcInput,
+  IncrementProductsStockRpcInput,
+  PublicFindAllProductsRpcInput,
+  PublicFindOneProductRpcInput,
+  ValidateAndGetProductsRpcInput,
+} from 'libs/common/modules/transport/dto/catalog-rpc.input';
+import { BaseController } from 'libs/contracts/controllers/base.controller';
 import { CATALOG_SERVICE } from './constants/catalog.token';
 import type { ICatalogService } from './interfaces/catalog-service.interface';
 
@@ -25,89 +25,89 @@ export class CatalogController extends BaseController {
 
   //#region Products - Public
 
-  @MessagePattern(PublicFindAllProductsContractMethod.message)
+  @MessagePattern(PublicFindAllProductsRpcInput.pattern)
   publicFindAllProducts(
-    @Payload() data: typeof PublicFindAllProductsContractMethod.prototype.payload,
-  ): Promise<typeof PublicFindAllProductsContractMethod.prototype.response> {
-    return this.service.publicFindAllProducts(data.query);
+    @Payload() payload: PublicFindAllProductsRpcInput['payload'],
+  ): Promise<PublicFindAllProductsRpcInput['response']> {
+    return this.service.publicFindAllProducts(payload.query);
   }
 
-  @MessagePattern(PublicFindOneProductContractMethod.message)
+  @MessagePattern(PublicFindOneProductRpcInput.pattern)
   publicFindOneProduct(
-    @Payload() data: typeof PublicFindOneProductContractMethod.prototype.payload,
-  ): Promise<typeof PublicFindOneProductContractMethod.prototype.response> {
-    return this.service.publicFindOneProduct(data.id);
+    @Payload() payload: PublicFindOneProductRpcInput['payload'],
+  ): Promise<PublicFindOneProductRpcInput['response']> {
+    return this.service.publicFindOneProduct(payload.id);
   }
 
   //#endregion
 
   //#region Products - Admin
 
-  @MessagePattern(AdminCreateProductContractMethod.message)
+  @MessagePattern(AdminCreateProductRpcInput.pattern)
   adminCreateProduct(
-    @Payload() data: typeof AdminCreateProductContractMethod.prototype.payload,
-  ): Promise<typeof AdminCreateProductContractMethod.prototype.response> {
-    return this.service.adminCreateProduct(data.dto, data.idempotencyKey);
+    @Payload() payload: AdminCreateProductRpcInput['payload'],
+  ): Promise<AdminCreateProductRpcInput['response']> {
+    return this.service.adminCreateProduct(payload.dto, payload.idempotencyKey);
   }
 
-  @MessagePattern(AdminFindAllProductsContractMethod.message)
+  @MessagePattern(AdminFindAllProductsRpcInput.pattern)
   adminFindAllProducts(
-    @Payload() data: typeof AdminFindAllProductsContractMethod.prototype.payload,
-  ): Promise<typeof AdminFindAllProductsContractMethod.prototype.response> {
-    return this.service.adminFindAllProducts(data.query);
+    @Payload() payload: AdminFindAllProductsRpcInput['payload'],
+  ): Promise<AdminFindAllProductsRpcInput['response']> {
+    return this.service.adminFindAllProducts(payload.query);
   }
 
-  @MessagePattern(AdminFindOneProductContractMethod.message)
+  @MessagePattern(AdminFindOneProductRpcInput.pattern)
   adminFindOneProduct(
-    @Payload() data: typeof AdminFindOneProductContractMethod.prototype.payload,
-  ): Promise<typeof AdminFindOneProductContractMethod.prototype.response> {
-    return this.service.adminFindOneProduct(data.id);
+    @Payload() payload: AdminFindOneProductRpcInput['payload'],
+  ): Promise<AdminFindOneProductRpcInput['response']> {
+    return this.service.adminFindOneProduct(payload.id);
   }
 
-  @MessagePattern(AdminUpdateProductContractMethod.message)
+  @MessagePattern(AdminUpdateProductRpcInput.pattern)
   adminUpdateProduct(
-    @Payload() data: typeof AdminUpdateProductContractMethod.prototype.payload,
-  ): Promise<typeof AdminUpdateProductContractMethod.prototype.response> {
-    return this.service.adminUpdateProduct(data.id, data.dto);
+    @Payload() payload: AdminUpdateProductRpcInput['payload'],
+  ): Promise<AdminUpdateProductRpcInput['response']> {
+    return this.service.adminUpdateProduct(payload.id, payload.dto);
   }
 
-  @MessagePattern(AdminRemoveProductContractMethod.message)
+  @MessagePattern(AdminRemoveProductRpcInput.pattern)
   async adminRemoveProduct(
-    @Payload() data: typeof AdminRemoveProductContractMethod.prototype.payload,
-  ): Promise<typeof AdminRemoveProductContractMethod.prototype.response> {
-    await this.service.adminRemoveProduct(data.id);
+    @Payload() payload: AdminRemoveProductRpcInput['payload'],
+  ): Promise<AdminRemoveProductRpcInput['response']> {
+    await this.service.adminRemoveProduct(payload.id);
   }
 
   //#endregion
 
   //#region Products - Internals
 
-  @MessagePattern(FindManyProductsByIdsContractMethod.message)
+  @MessagePattern(FindManyProductsByIdsRpcInput.pattern)
   findManyProductsByIds(
-    @Payload() data: typeof FindManyProductsByIdsContractMethod.prototype.payload,
-  ): Promise<typeof FindManyProductsByIdsContractMethod.prototype.response> {
-    return this.service.findManyProductsByIds(data.ids);
+    @Payload() payload: FindManyProductsByIdsRpcInput['payload'],
+  ): Promise<FindManyProductsByIdsRpcInput['response']> {
+    return this.service.findManyProductsByIds(payload.ids);
   }
 
-  @MessagePattern(DecrementProductsStockContractMethod.message)
+  @MessagePattern(DecrementProductsStockRpcInput.pattern)
   decrementProductStock(
-    @Payload() data: typeof DecrementProductsStockContractMethod.prototype.payload,
-  ): Promise<typeof DecrementProductsStockContractMethod.prototype.response> {
-    return this.service.decrementProductStock(data.id, data.quantity);
+    @Payload() payload: DecrementProductsStockRpcInput['payload'],
+  ): Promise<DecrementProductsStockRpcInput['response']> {
+    return this.service.decrementProductStock(payload.id, payload.quantity);
   }
 
-  @MessagePattern(IncrementProductsStockContractMethod.message)
+  @MessagePattern(IncrementProductsStockRpcInput.pattern)
   incrementProductStock(
-    @Payload() data: typeof IncrementProductsStockContractMethod.prototype.payload,
-  ): Promise<typeof IncrementProductsStockContractMethod.prototype.response> {
-    return this.service.incrementProductStock(data.id, data.quantity);
+    @Payload() payload: IncrementProductsStockRpcInput['payload'],
+  ): Promise<IncrementProductsStockRpcInput['response']> {
+    return this.service.incrementProductStock(payload.id, payload.quantity);
   }
 
-  @MessagePattern(ValidateAndGetProductsContractMethod.message)
+  @MessagePattern(ValidateAndGetProductsRpcInput.pattern)
   validateAndGetCatalogProducts(
-    @Payload() data: typeof ValidateAndGetProductsContractMethod.prototype.payload,
-  ): Promise<typeof ValidateAndGetProductsContractMethod.prototype.response> {
-    return this.service.validateAndGetCatalogProducts(data.ids);
+    @Payload() payload: ValidateAndGetProductsRpcInput['payload'],
+  ): Promise<ValidateAndGetProductsRpcInput['response']> {
+    return this.service.validateAndGetCatalogProducts(payload.ids);
   }
 
   //#endregion

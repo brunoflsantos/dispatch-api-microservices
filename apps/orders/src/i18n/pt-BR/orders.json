@@ -1,0 +1,20 @@
+{
+  "NOTIFICATIONS": {
+    "ORDER_CREATED": "Seu pedido foi criado com sucesso. Total: {total}. Por favor, prossiga para o pagamento.",
+    "ORDER_UPDATED": "Seu pedido foi atualizado. Novo status: {status}.",
+    "ORDER_PAID": "Seu pagamento foi recebido. Estamos processando seu pedido.",
+    "ORDER_PROCESSED": "Seu pedido está sendo preparado para envio.",
+    "ORDER_SHIPPED": "Seu pedido foi enviado.",
+    "ORDER_DELIVERED": "Seu pedido foi entregue.",
+    "ORDER_CANCELED": "Seu pedido foi cancelado.",
+    "ORDER_REFUNDED": "O reembolso do seu pedido foi processado.",
+    "ORDER_FAILED": "O processamento do seu pedido falhou. Por favor, entre em contato com o suporte."
+  },
+  "ERRORS": {
+    "ORDER_NOT_FOUND": "Pedido não encontrado.",
+    "INVALID_ORDER_DATA": "Dados do pedido inválidos.",
+    "INSUFFICIENT_STOCK": "Estoque insuficiente para o produto: {productName}.",
+    "BAD_PRECONDITIONS": "Não é possível atualizar o pedido para o status {status} a partir do status atual {currentStatus}.",
+    "ACCESS_DENIED": "Acesso proibido. Você não tem permissão para acessar este pedido."
+  }
+}

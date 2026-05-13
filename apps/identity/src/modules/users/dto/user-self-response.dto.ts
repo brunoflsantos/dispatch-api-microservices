@@ -1,9 +1,9 @@
 import { Exclude, Expose } from 'class-transformer';
-import { UserSelfResponseContract } from 'libs/contracts/interfaces/users/user-response.interface';
+import { UserSelfResult } from 'libs/contracts/interfaces/users/user-result.interface';
 import { UserAddressResponseDto } from './user-address-response.dto';
 
 @Exclude()
-export class UserSelfResponseDto implements UserSelfResponseContract {
+export class UserSelfResponseDto implements UserSelfResult {
   @Expose()
   id: string;
 

@@ -1,69 +1,69 @@
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import { LoginResponseContract } from 'libs/contracts/interfaces/auth/login-response.interface';
+import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
 import { IBaseService } from 'libs/contracts/interfaces/base-service.interface';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import {
-  CreateUserRequestContract,
-  PublicCreateUserRequestContract,
-} from 'libs/contracts/interfaces/users/create-user-request.interface';
+  CreateUserInput,
+  PublicCreateUserInput,
+} from 'libs/contracts/interfaces/users/create-user-input.interface';
 import {
-  PublicUserQueryRequestContract,
-  UserQueryRequestContract,
-} from 'libs/contracts/interfaces/users/update-user-query-request.interface';
+  PublicUpdateUserInput,
+  UpdateUserInput,
+} from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUpdateUserRequestContract,
-  UpdateUserRequestContract,
-} from 'libs/contracts/interfaces/users/update-user-request.interface';
+  PublicUserQueryInput,
+  UserQueryRequestInput,
+} from 'libs/contracts/interfaces/users/update-user-query-input.interface';
 import {
-  PublicUserResponseContract,
-  UserResponseContract,
-  UserSelfResponseContract,
-} from 'libs/contracts/interfaces/users/user-response.interface';
+  PublicUserResult,
+  UserResult,
+  UserSelfResult,
+} from 'libs/contracts/interfaces/users/user-result.interface';
 
 export interface IIdentityService extends IBaseService {
   publicCreateUser(
-    dto: PublicCreateUserRequestContract,
+    dto: PublicCreateUserInput,
     idempotencyKey: string,
-  ): Promise<UserSelfResponseContract>;
+  ): Promise<UserSelfResult>;
 
-  publicFindMyUser(requestUser: RequestUser): Promise<UserSelfResponseContract>;
+  publicFindMyUser(requestUser: RequestUser): Promise<UserSelfResult>;
 
-  publicFindOneUser(id: string): Promise<PublicUserResponseContract>;
+  publicFindOneUser(id: string): Promise<PublicUserResult>;
 
   publicFindAllUsers(
-    query: PublicUserQueryRequestContract,
-  ): Promise<PagOffsetResultDto<PublicUserResponseContract>>;
+    query: PublicUserQueryInput,
+  ): Promise<PagOffsetResultDto<PublicUserResult>>;
 
   publicUpdateUser(
-    dto: PublicUpdateUserRequestContract,
+    dto: PublicUpdateUserInput,
     requestUser: RequestUser,
-  ): Promise<UserSelfResponseContract>;
+  ): Promise<UserSelfResult>;
 
   publicRemoveMyUser(requestUser: RequestUser): Promise<void>;
 
   adminCreateUser(
-    dto: CreateUserRequestContract,
+    dto: CreateUserInput,
     idempotencyKey: string,
     requestUser: RequestUser,
-  ): Promise<UserResponseContract>;
+  ): Promise<UserResult>;
 
   adminFindAllUsers(
-    query: UserQueryRequestContract,
-  ): Promise<PagOffsetResultDto<UserResponseContract>>;
+    query: UserQueryRequestInput,
+  ): Promise<PagOffsetResultDto<UserResult>>;
 
-  adminFindOneUser(id: string): Promise<UserResponseContract>;
+  adminFindOneUser(id: string): Promise<UserResult>;
 
   adminUpdateUser(
     id: string,
-    dto: UpdateUserRequestContract,
+    dto: UpdateUserInput,
     requestUser: RequestUser,
-  ): Promise<UserResponseContract>;
+  ): Promise<UserResult>;
 
   adminRemoveUser(id: string, requestUser: RequestUser): Promise<void>;
 
-  publicLogin(email: string, password: string): Promise<LoginResponseContract>;
+  publicLogin(email: string, password: string): Promise<LoginResult>;
 
-  publicRefreshSession(reqUser: RequestUser): Promise<LoginResponseContract>;
+  publicRefreshSession(reqUser: RequestUser): Promise<LoginResult>;
 
   publicLogout(reqUser: RequestUser): Promise<void>;
 }
