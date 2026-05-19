@@ -2,7 +2,7 @@ import { BaseEntity } from 'libs/contracts/entities/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Order } from './order.entity';
 
-@Entity('order_product')
+@Entity('order_products')
 export class OrderProduct extends BaseEntity {
   @Column('uuid')
   orderId: string;

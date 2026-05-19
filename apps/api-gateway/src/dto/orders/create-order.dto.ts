@@ -13,4 +13,7 @@ export class CreateOrderDto implements CreateOrderInput {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderProductDto)
   products: CreateOrderProductDto[];
+
+  // Internal property to link the order to the stock reservation, not exposed in the API
+  reserveId = crypto.randomUUID();
 }

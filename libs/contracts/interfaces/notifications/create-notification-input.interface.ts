@@ -1,11 +1,12 @@
+import { NotificationEvent } from '../../../../apps/notifications/src/enums/notification-event.enum';
+import { NotificationType } from '../../../../apps/notifications/src/enums/notification-type.enum';
+
 export interface CreateNotificationInput {
   userId: string;
 
-  type: string;
+  event: NotificationEvent;
 
-  title: string;
+  type: NotificationType;
 
-  message: string;
-
-  data?: Record<string, any>;
+  data: Record<string, any>;
 }

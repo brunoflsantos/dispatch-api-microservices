@@ -1,7 +1,8 @@
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
 import { IBaseService } from 'libs/contracts/interfaces/base-service.interface';
+import { CreateOrderProductInput } from 'libs/contracts/interfaces/orders/create-order-product-input.interface';
 import { CreateProductInput } from 'libs/contracts/interfaces/products/create-product-input.interface';
-import { ProductQueryInput } from 'libs/contracts/interfaces/products/product-query-input.interface';
+import { ProductOffsetQueryInput } from 'libs/contracts/interfaces/products/product-offset-query-input.interface';
 import {
   ProductResult,
   PublicProductResult,
@@ -10,7 +11,7 @@ import { UpdateProductInput } from 'libs/contracts/interfaces/products/update-pr
 
 export interface ICatalogService extends IBaseService {
   publicFindAllProducts(
-    query: ProductQueryInput,
+    query: ProductOffsetQueryInput,
   ): Promise<PagOffsetResultDto<PublicProductResult>>;
 
   publicFindOneProduct(id: string): Promise<PublicProductResult>;
@@ -21,7 +22,7 @@ export interface ICatalogService extends IBaseService {
   ): Promise<ProductResult>;
 
   adminFindAllProducts(
-    query: ProductQueryInput,
+    query: ProductOffsetQueryInput,
   ): Promise<PagOffsetResultDto<ProductResult>>;
 
   adminFindOneProduct(id: string): Promise<ProductResult>;
@@ -32,9 +33,13 @@ export interface ICatalogService extends IBaseService {
 
   findManyProductsByIds(ids: string[]): Promise<ProductResult[]>;
 
-  decrementProductStock(productId: string, quantity: number): Promise<void>;
+  validateAndReserveStock(
+    orderProducts: CreateOrderProductInput[],
+    reserveId: string,
+    userId: string,
+  ): Promise<ProductResult[]>;
 
-  incrementProductStock(productId: string, quantity: number): Promise<void>;
+  undoStockReservation(reserveId: string): Promise<void>;
 
-  validateAndGetCatalogProducts(ids: string[]): Promise<ProductResult[]>;
+  confirmStockReservation(reserveId: string): Promise<void>;
 }

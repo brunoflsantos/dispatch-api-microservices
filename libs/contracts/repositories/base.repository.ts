@@ -28,8 +28,14 @@ export abstract class BaseRepository<
     return manager.preload(this.repository.target, entityData as DeepPartial<T>);
   }
 
-  async findAll(): Promise<T[]> {
+  async findAll(params?: QueryOptions<T>): Promise<T[]> {
     const manager = this.getManager();
+    if (params) {
+      return manager.find(this.repository.target, {
+        where: params?.where as FindOptionsWhere<T>,
+        ...(params?.relations && { relations: params.relations }),
+      });
+    }
     return manager.find(this.repository.target);
   }
 

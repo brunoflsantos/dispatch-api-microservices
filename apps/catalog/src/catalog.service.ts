@@ -13,20 +13,26 @@ import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { runAndIgnoreError, template } from 'libs/common/utils/functions.utils';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { CreateOrderProductInput } from 'libs/contracts/interfaces/orders/create-order-product-input.interface';
 import { CreateProductInput } from 'libs/contracts/interfaces/products/create-product-input.interface';
-import { ProductQueryInput } from 'libs/contracts/interfaces/products/product-query-input.interface';
+import { ProductOffsetQueryInput } from 'libs/contracts/interfaces/products/product-offset-query-input.interface';
 import {
   ProductResult,
   PublicProductResult,
 } from 'libs/contracts/interfaces/products/product-result.interface';
 import { UpdateProductInput } from 'libs/contracts/interfaces/products/update-product-input.interface';
 import { BaseService } from 'libs/contracts/services/base.service';
-import { PRODUCT_REPOSITORY } from './constants/catalog.token';
+import {
+  CART_PRODUCT_REPOSITORY,
+  PRODUCT_REPOSITORY,
+} from './constants/catalog.token';
 import { I18N_CATALOG } from './constants/i18n.constant';
 import {
   ProductResponseDto,
   PublicProductResponseDto,
 } from './dto/product-response.dto';
+import { CartProductStatus } from './enums/cart-product-status.enum';
+import type { ICartProductRepository } from './interfaces/cart-product-repository.interface';
 import { ICatalogService } from './interfaces/catalog-service.interface';
 import type { IProductRepository } from './interfaces/product-repository.interface';
 
@@ -35,6 +41,8 @@ export class CatalogService extends BaseService implements ICatalogService {
   constructor(
     @Inject(PRODUCT_REPOSITORY)
     private readonly productRepository: IProductRepository,
+    @Inject(CART_PRODUCT_REPOSITORY)
+    private readonly cartProductRepository: ICartProductRepository,
     private readonly cacheService: CacheService,
     private readonly idempotencyService: IdempotencyService,
     private readonly guard: DbGuardService,
@@ -45,7 +53,7 @@ export class CatalogService extends BaseService implements ICatalogService {
   //#region Products - Public
 
   async publicFindAllProducts(
-    query: ProductQueryInput,
+    query: ProductOffsetQueryInput,
   ): Promise<PagOffsetResultDto<PublicProductResult>> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ALL(query);
     const cachedResult = await runAndIgnoreError(
@@ -144,7 +152,7 @@ export class CatalogService extends BaseService implements ICatalogService {
   }
 
   async adminFindAllProducts(
-    query: ProductQueryInput,
+    query: ProductOffsetQueryInput,
   ): Promise<PagOffsetResultDto<ProductResult>> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ALL(query);
     const cachedResult = await runAndIgnoreError(
@@ -257,51 +265,157 @@ export class CatalogService extends BaseService implements ICatalogService {
 
   //#endregion
 
-  //#region Products - Misc
+  //#region Products - Internal/Events
 
   async findManyProductsByIds(ids: string[]): Promise<ProductResult[]> {
     const result = await this.productRepository.findManyByIds(ids);
     return EntityMapper.mapArray(result, ProductResponseDto);
   }
 
-  async decrementProductStock(productId: string, quantity: number): Promise<void> {
-    const product = await this.productRepository.findById(productId);
-    if (!product) {
+  async validateAndReserveStock(
+    orderProducts: CreateOrderProductInput[],
+    reserveId: string,
+    userId: string,
+  ): Promise<ProductResult[]> {
+    // Check if any product is missing
+    const products = await this.productRepository.findManyByIds(
+      orderProducts.map((p) => p.productId),
+    );
+    if (orderProducts.length !== products.length) {
       throw new NotFoundException(template(I18N_CATALOG.ERRORS.NOT_FOUND));
     }
-    if (product.stock < quantity) {
-      throw new ForbiddenException(
-        template(I18N_CATALOG.ERRORS.INSUFFICIENT_STOCK, {
-          productName: product.name,
-        }),
-      );
-    }
-    return this.guard.lockAndTransaction(
-      LOCK_KEYS.PRODUCTS.UPDATE(product.id),
-      async () => this.productRepository.decrementStock(product, quantity),
+
+    // Lock items to avoid async remote updates
+    return this.guard.lockMany(
+      orderProducts.map((p) => LOCK_KEYS.PRODUCTS.UPDATE(p.productId)),
+      () =>
+        this.guard.transaction(() =>
+          this._validateAndReserveStock(orderProducts, reserveId, userId),
+        ),
     );
   }
 
-  async incrementProductStock(productId: string, quantity: number): Promise<void> {
-    const product = await this.productRepository.findById(productId);
-    if (!product) {
-      throw new NotFoundException(template(I18N_CATALOG.ERRORS.NOT_FOUND));
-    }
-    return this.guard.lockAndTransaction(
-      LOCK_KEYS.PRODUCTS.UPDATE(product.id),
-      async () => this.productRepository.incrementStock(product, quantity),
-    );
-  }
-
-  async validateAndGetCatalogProducts(ids: string[]): Promise<ProductResult[]> {
-    const products = await this.findManyProductsByIds(ids);
-    // Validate all products exist in catalog
-    for (const id of ids) {
-      if (!products.find((ci) => ci.id === id)) {
+  private async _validateAndReserveStock(
+    orderProducts: CreateOrderProductInput[],
+    reserveId: string,
+    userId: string,
+  ): Promise<ProductResult[]> {
+    // Check stock availability
+    for (const orderProduct of orderProducts) {
+      const product = await this.productRepository.findById(orderProduct.productId);
+      if (!product) {
         throw new NotFoundException(template(I18N_CATALOG.ERRORS.NOT_FOUND));
       }
+      const cartProducts = await this.cartProductRepository.findAll({
+        where: { productId: product.id, status: CartProductStatus.RESERVED },
+      });
+      const reservedStock = cartProducts.reduce((sum, cp) => sum + cp.quantity, 0);
+      if (product.stock - reservedStock < orderProduct.quantity) {
+        throw new ForbiddenException(
+          template(I18N_CATALOG.ERRORS.INSUFFICIENT_STOCK, {
+            productName: product.name,
+          }),
+        );
+      }
     }
-    return products;
+
+    // Reserve stock
+    await Promise.all(
+      orderProducts.map(async (orderProduct) => {
+        const product = await this.productRepository.findById(
+          orderProduct.productId,
+        );
+        if (!product) {
+          throw new NotFoundException(template(I18N_CATALOG.ERRORS.NOT_FOUND));
+        }
+        product.stock -= orderProduct.quantity;
+        await this.productRepository.save(product);
+
+        const cartProduct = this.cartProductRepository.createEntity({
+          productId: product.id,
+          quantity: orderProduct.quantity,
+          status: CartProductStatus.RESERVED,
+          reserveId,
+          userId,
+        });
+        await this.cartProductRepository.save(cartProduct);
+
+        this.logger.debug('Stock reserved for product', {
+          productId: product.id,
+          quantity: orderProduct.quantity,
+          reserveId,
+        });
+      }),
+    );
+
+    const productsUpdated = await this.productRepository.findManyByIds(
+      orderProducts.map((p) => p.productId),
+    );
+
+    return EntityMapper.mapArray(productsUpdated, ProductResponseDto);
+  }
+
+  async undoStockReservation(reserveId: string): Promise<void> {
+    return this.guard.transaction(() => this._undoStockReservation(reserveId));
+  }
+
+  private async _undoStockReservation(reserveId: string): Promise<void> {
+    const cartProducts = await this.cartProductRepository.findAll({
+      where: {
+        reserveId,
+        // Can undo both RESERVED and PURCHASED in case of order cancellation or
+        // payment refund
+        status: CartProductStatus.RESERVED || CartProductStatus.PURCHASED,
+      },
+      relations: ['product'],
+    });
+    const products = cartProducts.map((cp) => cp.product);
+
+    await this.guard.lockMany(
+      products.map((p) => LOCK_KEYS.PRODUCTS.UPDATE(p.id)),
+      () =>
+        Promise.all(
+          cartProducts.map(async (cartProduct) => {
+            const product = products.find((p) => p.id === cartProduct.productId);
+            if (product) {
+              // Give back the stock reserved
+              product.stock += cartProduct.quantity;
+              await this.productRepository.save(product);
+            }
+            cartProduct.status = CartProductStatus.CANCELED;
+            await this.cartProductRepository.save(cartProduct);
+
+            this.logger.debug('Stock reservation undone for product', {
+              productId: cartProduct.productId,
+              quantity: cartProduct.quantity,
+              reserveId,
+            });
+          }),
+        ),
+    );
+  }
+
+  async confirmStockReservation(reserveId: string): Promise<void> {
+    return this.guard.transaction(() => this._confirmStockReservation(reserveId));
+  }
+
+  private async _confirmStockReservation(reserveId: string): Promise<void> {
+    const cartProducts = await this.cartProductRepository.findAll({
+      where: { reserveId, status: CartProductStatus.RESERVED },
+    });
+
+    await Promise.all(
+      cartProducts.map(async (cartProduct) => {
+        cartProduct.status = CartProductStatus.PURCHASED;
+        await this.cartProductRepository.save(cartProduct);
+
+        this.logger.debug('Stock reservation confirmed for product', {
+          productId: cartProduct.productId,
+          quantity: cartProduct.quantity,
+          reserveId,
+        });
+      }),
+    );
   }
 
   //#endregion

@@ -12,16 +12,27 @@ import { IdempotencyService } from 'libs/common/modules/cache/providers/idempote
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { OUTBOX_SERVICE } from 'libs/common/modules/outbox/constants/outbox.token';
 import type { IOutboxService } from 'libs/common/modules/outbox/interfaces/outbox-service.interface';
-import { ValidateAndGetProductsRpcInput } from 'libs/common/modules/transport/dto/catalog-rpc.input';
+import { ValidateAndReserveStockRpcInput } from 'libs/common/modules/transport/dto/catalog-rpc.input';
+import {
+  OrderCanceledEventInput,
+  OrderCreatedEventInput,
+  OrderDeliveredEventInput,
+  OrderFailedEventInput,
+  OrderFailedUponCreatingEventInput,
+  OrderPaidEventInput,
+  OrderRefundedEventInput,
+  OrderShippedEventInput,
+  OrderStatusChangedEventInput,
+} from 'libs/common/modules/transport/dto/orders-event.input';
 import { CatalogRpcClient } from 'libs/common/modules/transport/providers/catalog-rpc-client';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { template } from 'libs/common/utils/functions.utils';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
 import { CreateOrderInput } from 'libs/contracts/interfaces/orders/create-order-input.interface';
 import {
-  OrderByUserQueryInput,
-  OrderQueryInput,
-} from 'libs/contracts/interfaces/orders/order-query-input.interface';
+  OrderByUserOffsetQueryInput,
+  OrderOffsetQueryInput,
+} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
 import {
   OrderResult,
   PublicOrderResult,
@@ -81,40 +92,57 @@ export class OrdersService extends BaseService implements IOrdersService {
     dto: CreateOrderInput,
     reqUser: RequestUser,
   ): Promise<PublicOrderResult> {
+    // Validate and reserve stock
+    const reserveId = crypto.randomUUID();
     const catalogProducts = await this.catalogRpcClient.call(
-      new ValidateAndGetProductsRpcInput({
-        ids: dto.products.map((i) => i.productId),
+      new ValidateAndReserveStockRpcInput({
+        userId: reqUser.id,
+        orderProducts: dto.products,
+        reserveId,
       }),
     );
 
-    // TODO: reserve products in catalog service with a lock or similar mechanism to
-    // prevent overselling, and handle rollbacks if payment fails, etc.
+    try {
+      const saved = await this.createOrderWithProducts(
+        dto,
+        reqUser.id,
+        catalogProducts,
+      );
 
-    const saved = await this.createOrderWithProducts(
-      dto,
-      reqUser.id,
-      catalogProducts,
-    );
+      // Expected side effects: notify user and confirm stock reservation
+      await this.outboxService.add(
+        new OrderCreatedEventInput({
+          orderTotal: saved.total,
+          userId: reqUser.id,
+          orderId: saved.id,
+          reserveId,
+        }),
+      );
 
-    // TODO: handle payment creation and update order with payment info
-
-    // TODO: handle stock decrement in a more robust way, considering rollbacks if
-    // payment fails, etc.
-
-    return EntityMapper.map(saved, PublicOrderResponseDto);
+      return EntityMapper.map(saved, PublicOrderResponseDto);
+    } catch (e) {
+      // Expected side effects: notify user and release reserved stock
+      await this.outboxService.add(
+        new OrderFailedUponCreatingEventInput({
+          userId: reqUser.id,
+          reserveId,
+        }),
+      );
+      throw e;
+    }
   }
 
   async publicFindByUser(
-    queryDto: OrderByUserQueryInput,
+    query: OrderByUserOffsetQueryInput,
     reqUser: RequestUser,
   ): Promise<PagOffsetResultDto<PublicOrderResult>> {
     const result = await this.orderRepository.filter({
-      ...queryDto,
+      ...query,
       userId: reqUser.id,
     });
 
     this.logger.debug(`Found ${result.items.length} orders for user ${reqUser.id}`, {
-      page: queryDto.page,
+      page: query.page,
       totalPages: result.meta.totalPages,
     });
 
@@ -158,7 +186,17 @@ export class OrdersService extends BaseService implements IOrdersService {
       );
     }
 
-    // TODO: cancel payment if already created, etc.
+    order.status = OrderStatus.CANCELED;
+    await this.orderRepository.save(order);
+
+    // Expected side effects: notify user and release reserved stock
+    await this.outboxService.add(
+      new OrderCanceledEventInput({
+        userId: order.userId,
+        orderId: order.id,
+        reserveId: order.reserveId,
+      }),
+    );
 
     this.logger.debug('Order cancel enqueued', { orderId: id });
   }
@@ -168,12 +206,12 @@ export class OrdersService extends BaseService implements IOrdersService {
   //#region Orders - Admin
 
   async adminFindAll(
-    queryDto: OrderQueryInput,
+    query: OrderOffsetQueryInput,
   ): Promise<PagOffsetResultDto<OrderResult>> {
-    const result = await this.orderRepository.filter(queryDto);
+    const result = await this.orderRepository.filter(query);
 
     this.logger.debug(`Found ${result.items.length} orders`, {
-      page: queryDto.page,
+      page: query.page,
       totalPages: result.meta.totalPages,
     });
 
@@ -208,7 +246,14 @@ export class OrdersService extends BaseService implements IOrdersService {
     Object.assign(order, dto);
     await this.orderRepository.save(order);
 
-    // TODO: notify the user about the update, if relevant (e.g. if status changed)
+    // Expected side effects: notify user
+    await this.outboxService.add(
+      new OrderStatusChangedEventInput({
+        userId: order.userId,
+        orderId: order.id,
+        orderNewStatus: order.status,
+      }),
+    );
 
     this.logger.debug('Order updated', { orderId: id });
 
@@ -254,7 +299,14 @@ export class OrdersService extends BaseService implements IOrdersService {
 
     await this.orderRepository.save(order);
 
-    // TODO: notify the user about the shipment, with tracking info, etc.
+    // Expected side effects: notify user
+    await this.outboxService.add(
+      new OrderShippedEventInput({
+        userId: order.userId,
+        orderId: order.id,
+        trackingNumber: order.trackingNumber ?? '',
+      }),
+    );
 
     this.logger.debug('Order shipped', { orderId: id });
 
@@ -284,7 +336,14 @@ export class OrdersService extends BaseService implements IOrdersService {
 
     await this.orderRepository.save(order);
 
-    // TODO: notify the user about the delivery, etc.
+    // Expected side effects: notify user
+    await this.outboxService.add(
+      new OrderDeliveredEventInput({
+        userId: order.userId,
+        orderId: order.id,
+        deliveryDate: order.deliveredAt.toISOString(),
+      }),
+    );
 
     this.logger.debug('Order delivered', { orderId: id });
     return EntityMapper.map(order, OrderResponseDto);
@@ -308,7 +367,15 @@ export class OrdersService extends BaseService implements IOrdersService {
       );
     }
 
-    // TODO: process the refund, notify the user, etc.
+    // Expected side effects: notify user and process refund in payment gateway
+    await this.outboxService.add(
+      new OrderRefundedEventInput({
+        userId: order.userId,
+        orderId: order.id,
+        reserveId: order.reserveId,
+        refundAmount: order.total,
+      }),
+    );
 
     this.logger.debug('Order refund enqueued', { orderId: id });
   }
@@ -330,12 +397,18 @@ export class OrdersService extends BaseService implements IOrdersService {
     const order = await this.getOrderOrThrow(dto.orderId);
 
     order.paymentId = dto.paymentId;
-    order.paymentStatus = dto.paymentStatus;
     order.status = OrderStatus.PAID;
-
     await this.orderRepository.save(order);
 
-    // TODO: process order after payment, notify the user, etc.
+    // Expected side effects: notify user and start order processing
+    await this.outboxService.add(
+      new OrderPaidEventInput({
+        userId: order.userId,
+        orderId: order.id,
+        paymentId: order.paymentId,
+        reserveId: order.reserveId,
+      }),
+    );
 
     return EntityMapper.map(order, OrderResponseDto);
   }
@@ -353,18 +426,24 @@ export class OrdersService extends BaseService implements IOrdersService {
     const order = await this.getOrderOrThrow(dto.orderId);
 
     order.paymentId = dto.paymentId;
-    order.paymentStatus = dto.paymentStatus;
-
+    order.status = OrderStatus.FAILED;
     await this.orderRepository.save(order);
 
-    // TODO: handle payment failure, notify the user, etc.
+    // Expected side effects: notify user and release reserved stock
+    await this.outboxService.add(
+      new OrderFailedEventInput({
+        userId: order.userId,
+        orderId: order.id,
+        reserveId: order.reserveId,
+      }),
+    );
 
     return EntityMapper.map(order, OrderResponseDto);
   }
 
   //#endregion
 
-  //#region Private helper methods
+  //#region Private
 
   private async getOrderOrThrow(id: string): Promise<Order> {
     const order = await this.orderRepository.findById(id, {
@@ -383,7 +462,11 @@ export class OrdersService extends BaseService implements IOrdersService {
   ): Promise<Order> {
     const total = calculateTotal(dto.products, catalogProducts);
 
-    const order = this.orderRepository.createEntity({ userId, total });
+    const order = this.orderRepository.createEntity({
+      userId,
+      total,
+      reserveId: dto.reserveId,
+    });
     const saved = await this.orderRepository.save(order);
 
     const orderProducts = dto.products.map((dtoProduct) =>

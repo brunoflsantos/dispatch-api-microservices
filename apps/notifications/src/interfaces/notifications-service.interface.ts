@@ -1,7 +1,8 @@
-import { CursorParams } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CreateNotificationInput } from 'libs/contracts/interfaces/notifications/create-notification-input.interface';
+import { NotificationCursorQueryInput } from 'libs/contracts/interfaces/notifications/notification-cursor-query-input.interface';
 import { NotificationResult } from 'libs/contracts/interfaces/notifications/notification-result.interface';
+import { NotificationTranslatedResult } from 'libs/contracts/interfaces/notifications/notification-translated-result.interface';
 import { IBaseService } from 'libs/contracts/services/base-service.interface';
 
 export interface INotificationsService extends IBaseService {
@@ -10,9 +11,8 @@ export interface INotificationsService extends IBaseService {
   markAsRead(id: string, userId: string): Promise<void>;
 
   findByUser(
-    userId: string,
-    cursor?: CursorParams,
-  ): Promise<PagCursorResultDto<NotificationResult>>;
+    query: NotificationCursorQueryInput,
+  ): Promise<PagCursorResultDto<NotificationTranslatedResult>>;
 
   hasNewNotifications(userId: string): Promise<boolean>;
 

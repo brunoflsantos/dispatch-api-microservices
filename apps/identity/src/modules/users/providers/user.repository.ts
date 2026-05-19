@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { col } from 'libs/common/utils/functions.utils';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import { UserQueryRequestInput } from 'libs/contracts/interfaces/users/update-user-query-input.interface';
+import { UserOffsetQueryInput } from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
 import { BaseRepository } from 'libs/contracts/repositories/base.repository';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
@@ -18,33 +18,35 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
   }
 
   async filter(
-    query: Partial<UserQueryRequestInput>,
+    query: Partial<UserOffsetQueryInput>,
   ): Promise<PagOffsetResultDto<User>> {
+    const { name, email, page, limit } = query;
+
     const queryBuilder = this.createQueryBuilder(ALIAS_USER);
 
-    if (query.name) {
+    if (name) {
       queryBuilder.andWhere(`${user('name')} ILIKE :name`, {
-        name: `%${query.name}%`,
+        name: `%${name}%`,
       });
     }
-    if (query.email) {
+    if (email) {
       queryBuilder.andWhere(`${user('email')} ILIKE :email`, {
-        email: `%${query.email}%`,
+        email: `%${email}%`,
       });
     }
 
     // Apply pagination
-    const limit = query.limit ? Math.min(query.limit, 100) : 20;
-    const skip = query.page ? (query.page - 1) * limit : 0;
+    const pageLimit = limit ? Math.min(limit, 100) : 20;
+    const skip = page ? (page - 1) * pageLimit : 0;
 
     return queryBuilder
       .skip(skip)
-      .take(limit)
+      .take(pageLimit)
       .orderBy(user('createdAt'), 'DESC')
       .getManyAndCount()
       .then(
         ([data, total]) =>
-          new PagOffsetResultDto(total, query.page || 1, limit, data),
+          new PagOffsetResultDto(total, query.page || 1, pageLimit, data),
       );
   }
 }

@@ -7,16 +7,17 @@ import {
   MinLength,
   ValidateIf,
 } from 'class-validator';
+import { UpdateAddressInput } from 'libs/contracts/interfaces/users/update-address-input.interface';
 import {
   PublicUpdateUserInput,
-  UpdateUserAddressRequestContract,
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
-import { CreateUserAddressDto, CreateUserDto } from './create-user.dto';
+import { CreateAddressDto } from './create-address.dto';
+import { CreateUserDto } from './create-user.dto';
 
-export class UpdateUserAddressDto
-  extends PartialType(CreateUserAddressDto)
-  implements UpdateUserAddressRequestContract {}
+export class UpdateAddressDto
+  extends PartialType(CreateAddressDto)
+  implements UpdateAddressInput {}
 
 export class UpdateUserDto
   extends PartialType(CreateUserDto)

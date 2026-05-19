@@ -12,7 +12,7 @@ export interface IBaseRepository<T extends BaseEntity> {
 
   preload(entityData: Partial<T>): Promise<T>;
 
-  findAll(): Promise<T[]>;
+  findAll(params?: QueryOptions<T>): Promise<T[]>;
 
   findById(id: string, params?: Omit<QueryOptions<T>, 'where'>): Promise<T>;
 

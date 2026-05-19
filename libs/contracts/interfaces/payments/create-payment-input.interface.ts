@@ -1,17 +1,9 @@
-export interface CreatePaymentMetadataInput {
-  orderId: string;
-}
+import { CreateGatewayPaymentInput } from './create-gateway-payment-input.interface';
 
 export interface CreatePaymentInput {
-  amount: number;
+  orderId: string;
 
-  currency: string;
+  userId: string;
 
-  customerId?: string;
-
-  receiptEmail?: string;
-
-  metadata?: CreatePaymentMetadataInput;
-
-  idempotencyKey: string;
+  gatewayDto: CreateGatewayPaymentInput;
 }

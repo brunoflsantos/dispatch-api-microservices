@@ -15,14 +15,11 @@ export class Notification extends BaseEntity {
   @Column({ type: 'varchar', length: 50 })
   type: string;
 
-  @Column({ type: 'varchar', length: 120 })
-  title: string;
-
-  @Column({ type: 'text' })
-  message: string;
+  @Column({ type: 'varchar', length: 255 })
+  event: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  data?: Record<string, any>;
+  data?: any;
 
   @Column({ default: false })
   read: boolean;

@@ -5,6 +5,8 @@ export class NotificationResponseDto implements NotificationResult {
 
   type: string;
 
+  event: string;
+
   title: string;
 
   message: string;

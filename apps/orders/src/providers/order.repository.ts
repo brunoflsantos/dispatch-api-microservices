@@ -5,7 +5,7 @@ import { Order } from '../entities/order.entity';
 
 import { col } from '@/shared/utils/functions.utils';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import { OrderQueryInput } from 'libs/contracts/interfaces/orders/order-query-input.interface';
+import { OrderOffsetQueryInput } from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
 import { BaseRepository } from 'libs/contracts/repositories/base.repository';
 import { IOrderRepository } from '../interfaces/order-repository.interface';
 
@@ -27,28 +27,32 @@ export class OrderRepository
     super(repository);
   }
 
-  async filter(query: Partial<OrderQueryInput>): Promise<PagOffsetResultDto<Order>> {
+  async filter(
+    query: Partial<OrderOffsetQueryInput>,
+  ): Promise<PagOffsetResultDto<Order>> {
+    const { userId, status, startDate, endDate } = query;
+
     const queryBuilder = this.createQueryBuilder(ALIAS_ORDER).leftJoinAndSelect(
       order('products'),
       ALIAS_ORDER_PRODUCT,
     );
 
-    if (query.userId) {
+    if (userId) {
       queryBuilder.andWhere(`${order('userId')} = :userId`, {
-        userId: query.userId,
+        userId,
       });
     }
-    if (query.status) {
+    if (status) {
       queryBuilder.andWhere(`${order('status')} = :status`, {
-        status: query.status,
+        status,
       });
     }
-    if (query.startDate && query.endDate) {
+    if (startDate && endDate) {
       queryBuilder.andWhere(
         `${order('createdAt')} BETWEEN :startDate AND :endDate`,
         {
-          startDate: query.startDate,
-          endDate: query.endDate,
+          startDate,
+          endDate,
         },
       );
     }

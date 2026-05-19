@@ -22,6 +22,8 @@ import { IdentityService } from './identity.service';
 export class IdentityController {
   constructor(private readonly identityService: IdentityService) {}
 
+  //#region Users - Public
+
   @MessagePattern(PublicCreateUserRpcInput.pattern)
   publicCreateUser(
     @Payload() payload: PublicCreateUserRpcInput['payload'],
@@ -67,6 +69,10 @@ export class IdentityController {
     return this.identityService.publicRemoveMyUser(payload.reqUser);
   }
 
+  //#endregion
+
+  //#region Users - Admin
+
   @MessagePattern(AdminCreateUserRpcInput.pattern)
   adminCreateUser(
     @Payload() payload: AdminCreateUserRpcInput['payload'],
@@ -110,6 +116,10 @@ export class IdentityController {
     return this.identityService.adminRemoveUser(payload.id, payload.reqUser);
   }
 
+  //#endregion
+
+  //#region Auth - Public
+
   @MessagePattern(PublicLoginRpcInput.pattern)
   publicLogin(
     @Payload() payload: PublicLoginRpcInput['payload'],
@@ -130,4 +140,6 @@ export class IdentityController {
   ): Promise<PublicLogoutRpcInput['response']> {
     return this.identityService.publicLogout(payload.reqUser);
   }
+
+  //#endregion
 }

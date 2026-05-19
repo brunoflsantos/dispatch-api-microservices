@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { col } from 'libs/common/utils/functions.utils';
-import { CursorParams } from 'libs/contracts/dto/cursor-query.dto';
+import { CursorQueryDto } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
+import { NotificationCursorQueryInput } from 'libs/contracts/interfaces/notifications/notification-cursor-query-input.interface';
 import { BaseRepository } from 'libs/contracts/repositories/base.repository';
-import { Brackets, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
 import { INotificationRepository } from '../interfaces/notification-repository.interface';
 
@@ -23,36 +24,25 @@ export class NotificationRepository
     super(repository);
   }
 
-  async filterByUser(
-    userId: string,
-    cursor?: CursorParams,
-    limit = 20,
+  async filter(
+    query: Partial<NotificationCursorQueryInput>,
   ): Promise<PagCursorResultDto<Notification>> {
+    const { userId, cursor } = query;
     const queryBuilder = this.createQueryBuilder(ALIAS_NOTIFICATION)
       .where(`${notification('userId')} = :userId`, { userId })
-      .andWhere(`${notification('deactivatedAt')} IS NULL`)
+      .andWhere(`${notification('deletedAt')} IS NULL`)
       .orderBy(`${notification('createdAt')}`, 'DESC')
       .addOrderBy(`${notification('id')}`, 'DESC')
-      .take(limit + 1);
+      .take(cursor?.limit ? cursor.limit + 1 : 21);
 
     if (cursor) {
-      queryBuilder.andWhere(
-        new Brackets((cursorQuery) => {
-          cursorQuery.where(`${notification('createdAt')} < :cursorCreatedAt`, {
-            cursorCreatedAt: cursor.startingAfter,
-          });
-          cursorQuery.orWhere(
-            `(${notification('createdAt')} = :cursorCreatedAt AND ${notification('id')} < :cursorId)`,
-            {
-              cursorCreatedAt: cursor.startingAfter,
-              cursorId: cursor.id,
-            },
-          );
-        }),
-      );
+      queryBuilder.andWhere(`${notification('createdAt')} < :cursorCreatedAt`, {
+        cursorCreatedAt: cursor.startingAfter,
+      });
     }
 
     const notifications = await queryBuilder.getMany();
+    const limit = cursor?.limit ?? 0;
     const hasNextPage = notifications.length > limit;
     const items = hasNextPage ? notifications.slice(0, limit) : notifications;
     const lastItem = items.at(-1);
@@ -60,13 +50,13 @@ export class NotificationRepository
     return {
       items,
       nextCursor: hasNextPage && lastItem ? this.encodeCursor(lastItem) : null,
+      hasMore: hasNextPage,
     };
   }
 
   private encodeCursor(notification: Notification): string {
-    const cursor: CursorParams = {
+    const cursor: CursorQueryDto = {
       startingAfter: notification.createdAt.toISOString(),
-      id: notification.id,
     };
 
     return Buffer.from(JSON.stringify(cursor)).toString('base64');

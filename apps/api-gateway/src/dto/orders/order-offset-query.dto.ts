@@ -3,11 +3,14 @@ import { IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { OrderStatus } from 'libs/common/enums/order-status.enum';
 import { OffsetQueryDto } from 'libs/contracts/dto/base-query.dto';
 import {
-  OrderByUserQueryInput,
-  OrderQueryInput,
-} from 'libs/contracts/interfaces/orders/order-query-input.interface';
+  OrderByUserOffsetQueryInput,
+  OrderOffsetQueryInput,
+} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
 
-export class OrderQueryDto extends OffsetQueryDto implements OrderQueryInput {
+export class OrderOffsetQueryDto
+  extends OffsetQueryDto
+  implements OrderOffsetQueryInput
+{
   @ApiPropertyOptional({
     description: 'User ID to filter orders',
     example: '550e8400-e29b-41d4-a716-446655440001',
@@ -42,6 +45,6 @@ export class OrderQueryDto extends OffsetQueryDto implements OrderQueryInput {
   endDate?: string;
 }
 
-export class OrderByUserQueryDto
-  extends OmitType(OrderQueryDto, ['userId'] as const)
-  implements OrderByUserQueryInput {}
+export class OrderByUserOffsetQueryDto
+  extends OmitType(OrderOffsetQueryDto, ['userId'] as const)
+  implements OrderByUserOffsetQueryInput {}

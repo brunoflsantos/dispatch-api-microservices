@@ -12,15 +12,10 @@ import {
 } from 'class-validator';
 import { Role } from 'libs/common/enums/role.enum';
 import {
-  CreateUserAddressRequestContract,
   CreateUserInput,
   PublicCreateUserInput,
 } from 'libs/contracts/interfaces/users/create-user-input.interface';
-import { BaseAddressDto } from './create-address.dto';
-
-export class CreateUserAddressDto
-  extends BaseAddressDto
-  implements CreateUserAddressRequestContract {}
+import { CreateAddressDto } from './create-address.dto';
 
 export class CreateUserDto implements CreateUserInput {
   @ApiProperty({
@@ -74,12 +69,12 @@ export class CreateUserDto implements CreateUserInput {
 
   @ApiPropertyOptional({
     description: 'User address',
-    type: CreateUserAddressDto,
+    type: CreateAddressDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => CreateUserAddressDto)
-  address?: CreateUserAddressDto;
+  @Type(() => CreateAddressDto)
+  address?: CreateAddressDto;
 }
 
 export class PublicCreateUserDto

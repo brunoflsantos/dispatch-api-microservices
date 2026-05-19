@@ -1,9 +1,9 @@
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
 import { CreateOrderInput } from 'libs/contracts/interfaces/orders/create-order-input.interface';
 import {
-  OrderByUserQueryInput,
-  OrderQueryInput,
-} from 'libs/contracts/interfaces/orders/order-query-input.interface';
+  OrderByUserOffsetQueryInput,
+  OrderOffsetQueryInput,
+} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
 import {
   OrderResult,
   PublicOrderResult,
@@ -22,7 +22,7 @@ interface OrdersTransportPayloads {
   };
 
   PUBLIC_FIND_ORDERS_BY_USER: {
-    query: OrderByUserQueryInput;
+    query: OrderByUserOffsetQueryInput;
     reqUser: RequestUser;
   };
 
@@ -31,8 +31,13 @@ interface OrdersTransportPayloads {
     reqUser: RequestUser;
   };
 
+  PUBLIC_CANCEL_ORDER: {
+    id: string;
+    reqUser: RequestUser;
+  };
+
   ADMIN_FIND_ALL_ORDERS: {
-    query: OrderQueryInput;
+    query: OrderOffsetQueryInput;
   };
 
   ADMIN_FIND_ONE_ORDER: {
@@ -54,10 +59,6 @@ interface OrdersTransportPayloads {
   };
 
   ADMIN_DELIVER_ORDER: {
-    id: string;
-  };
-
-  PUBLIC_CANCEL_ORDER: {
     id: string;
   };
 

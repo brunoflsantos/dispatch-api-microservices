@@ -10,9 +10,9 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserQueryInput,
-  UserQueryRequestInput,
-} from 'libs/contracts/interfaces/users/update-user-query-input.interface';
+  PublicUserOffsetQueryInput,
+  UserOffsetQueryInput,
+} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -30,7 +30,7 @@ export interface IUsersService extends IBaseService {
   publicFindOne(id: string): Promise<PublicUserResult>;
 
   publicFindAll(
-    query: PublicUserQueryInput,
+    query: PublicUserOffsetQueryInput,
   ): Promise<PagOffsetResultDto<PublicUserResult>>;
 
   publicUpdate(
@@ -46,9 +46,7 @@ export interface IUsersService extends IBaseService {
     requestUser: RequestUser,
   ): Promise<UserResult>;
 
-  adminFindAll(
-    query: UserQueryRequestInput,
-  ): Promise<PagOffsetResultDto<UserResult>>;
+  adminFindAll(query: UserOffsetQueryInput): Promise<PagOffsetResultDto<UserResult>>;
 
   adminFindOne(id: string): Promise<UserResult>;
 

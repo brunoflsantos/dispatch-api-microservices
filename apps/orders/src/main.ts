@@ -6,6 +6,7 @@ import {
   rmqRpcBrokerConfig,
 } from 'libs/common/config/transport.config';
 import { RpcExceptionConverterFilter } from 'libs/common/filters/rpc-exception.filter';
+import { RpcCorrelationInterceptor } from 'libs/common/interceptors/rpc-correlation.interceptor';
 import { ORDERS_RPC_QUEUE } from 'libs/common/modules/transport/constants/queues.token';
 import { Logger } from 'nestjs-pino';
 import { OrdersModule } from './orders.module';
@@ -27,6 +28,8 @@ async function bootstrap() {
   app.connectMicroservice<RmqOptions>(rmqEventBusConfig(configService));
 
   app.useGlobalFilters(new RpcExceptionConverterFilter());
+
+  app.useGlobalInterceptors(new RpcCorrelationInterceptor());
 
   await app.startAllMicroservices();
 

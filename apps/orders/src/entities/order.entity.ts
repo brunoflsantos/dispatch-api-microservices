@@ -18,14 +18,11 @@ export class Order extends BaseEntity {
   @Column('integer')
   total: number;
 
+  @Column()
+  reserveId: string;
+
   @Column({ nullable: true })
   paymentId?: string;
-
-  @Column({ nullable: true })
-  paymentStatus?: string;
-
-  @Column({ nullable: true })
-  paymentSecret?: string;
 
   @Column({ nullable: true })
   trackingNumber?: string;

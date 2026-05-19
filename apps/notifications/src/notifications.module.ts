@@ -11,6 +11,7 @@ import {
 import { Notification } from './entities/notification.entity';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
+import { NotificationOutputFactory } from './providers/notification-output.factory';
 import { NotificationRepository } from './providers/notification.repository';
 
 @Module({
@@ -36,6 +37,7 @@ import { NotificationRepository } from './providers/notification.repository';
   ],
   controllers: [NotificationsController],
   providers: [
+    NotificationOutputFactory,
     {
       provide: NOTIFICATIONS_SERVICE,
       useClass: NotificationsService,

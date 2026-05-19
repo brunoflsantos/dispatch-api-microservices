@@ -1,4 +1,16 @@
 {
+  "NOTIFICATION_TITLES": {
+    "ORDER_CREATED": "Pedido Criado",
+    "ORDER_FAILED_UPON_CREATING": "Falha na Criação do Pedido",
+    "ORDER_STATUS_CHANGED": "Status do Pedido Alterado",
+    "ORDER_CANCELED": "Pedido Cancelado"
+  },
+  "NOTIFICATION_MESSAGES": {
+    "ORDER_CREATED": "Seu pedido {{orderId}} foi criado com sucesso. Total: R${{orderTotal}}.",
+    "ORDER_FAILED_UPON_CREATING": "Seu pedido não pôde ser criado devido a um erro.",
+    "ORDER_STATUS_CHANGED": "O status do seu pedido {{orderId}} foi atualizado para {{newStatus}}.",
+    "ORDER_CANCELED": "Seu pedido {{orderId}} foi cancelado."
+  },
   "ERRORS": {
     "NOTIFICATION_NOT_FOUND": "Notificação não encontrada.",
     "ACCESS_DENIED": "Você não tem permissão para acessar esta notificação."

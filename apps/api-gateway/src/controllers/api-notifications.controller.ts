@@ -1,7 +1,9 @@
 import { Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiNoContentResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
@@ -17,8 +19,8 @@ import {
 import { NotificationsRpcClient } from 'libs/common/modules/transport/providers/notifications-rpc-client';
 import { CursorParamsPipe } from 'libs/common/pipes/cursor-params.pipe';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
-import type { CursorParams } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
+import type { CursorQueryInput } from 'libs/contracts/interfaces/cursor-query-input.interface';
 import type { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import { NotificationResponseDto } from '../dto/notifications/notification-response.dto';
 
@@ -32,20 +34,32 @@ export class ApiNotificationsController extends BaseController {
 
   @Get('public/notifications')
   @SkipThrottle()
-  @ApiOkResponse({ type: PagCursorResultDto<NotificationResponseDto> })
+  @ApiOperation({
+    summary: 'Get user notifications',
+    description:
+      'Retrieve a paginated list of notifications for the authenticated user',
+  })
   @ApiQuery({ name: 'cursor', required: false, type: String })
-  async findByUser(
+  @ApiOkResponse({ type: PagCursorResultDto<NotificationResponseDto> })
+  findByUser(
     @GetUser() user: RequestUser,
-    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
+    @Query('cursor', CursorParamsPipe) cursor: CursorQueryInput,
   ) {
     return this.notificationsRpcClient.call(
-      new FindByUserNotificationsRpcInput({ user, cursor }),
+      new FindByUserNotificationsRpcInput({
+        query: { userId: user.id, language: user.language, ...cursor },
+      }),
     );
   }
 
   @Patch('public/notifications/:id/read')
+  @ApiOperation({
+    summary: 'Mark notification as read',
+    description: 'Mark a specific notification as read for the authenticated user',
+  })
   @ApiParam({ name: 'id', description: 'Notification ID', type: String })
-  async markAsRead(@GetUser() user: RequestUser, @Param('id') id: string) {
+  @ApiNoContentResponse()
+  markAsRead(@GetUser() user: RequestUser, @Param('id') id: string) {
     return this.notificationsRpcClient.call(
       new MarkNotificationAsReadRpcInput({ userId: user.id, id }),
     );
@@ -53,8 +67,12 @@ export class ApiNotificationsController extends BaseController {
 
   @Get('public/notifications/unread/count')
   @SkipThrottle()
+  @ApiOperation({
+    summary: 'Count unread notifications',
+    description: 'Get the count of unread notifications for the authenticated user',
+  })
   @ApiOkResponse({ type: Number })
-  async countUnread(@GetUser() user: RequestUser) {
+  countUnread(@GetUser() user: RequestUser) {
     return this.notificationsRpcClient.call(
       new CountUnreadNotificationsRpcInput({ userId: user.id }),
     );
@@ -62,8 +80,13 @@ export class ApiNotificationsController extends BaseController {
 
   @Get('public/notifications/has-new')
   @SkipThrottle()
+  @ApiOperation({
+    summary: 'Check for new notifications',
+    description:
+      'Check if there are any new notifications for the authenticated user',
+  })
   @ApiOkResponse({ type: Boolean })
-  async hasNewNotifications(@GetUser() user: RequestUser) {
+  hasNewNotifications(@GetUser() user: RequestUser) {
     return this.notificationsRpcClient.call(
       new HasNewNotificationsRpcInput({ userId: user.id }),
     );

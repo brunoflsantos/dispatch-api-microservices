@@ -1,7 +1,10 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { OrderStatus } from 'libs/common/enums/order-status.enum';
-import { OrderResult } from 'libs/contracts/interfaces/orders/order-result.interface';
+import {
+  OrderResult,
+  PublicOrderResult,
+} from 'libs/contracts/interfaces/orders/order-result.interface';
 import { OrderProductResponseDto } from './order-product-response.dto';
 
 @Exclude()
@@ -51,20 +54,6 @@ export class OrderResponseDto implements OrderResult {
   paymentId: string;
 
   @Expose()
-  @ApiProperty({
-    description: 'Payment status',
-    example: 'requires_confirmation',
-  })
-  paymentStatus: string;
-
-  @Expose()
-  @ApiPropertyOptional({
-    description: 'Client secret used by the frontend to confirm payment',
-    example: 'pi_123456789_secret_123456789',
-  })
-  paymentClientSecret?: string | null;
-
-  @Expose()
   @ApiPropertyOptional({
     description: 'Shipping tracking number provided by the carrier',
     example: 'BR123456789',
@@ -106,3 +95,7 @@ export class OrderResponseDto implements OrderResult {
   })
   updatedAt: Date;
 }
+
+export class PublicOrderResponseDto
+  extends OmitType(OrderResponseDto, ['userId', 'paymentId'] as const)
+  implements PublicOrderResult {}

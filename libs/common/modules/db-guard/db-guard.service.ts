@@ -31,7 +31,23 @@ export class DbGuardService {
    * @returns The result of the work.
    */
   async lock<T>(key: string, work: () => Promise<T>, ttl?: number): Promise<T> {
-    const lock = await this.redlock.acquire([key], ttl ?? CACHE_TTL.LOCK);
+    return this.lockMany([key], work, ttl);
+  }
+
+  /**
+   * Acquires multiple locks and executes the provided work within the locks.
+   * @param keys The keys for the locks.
+   * @param work The work to be executed within the locks.
+   * @param ttl The time-to-live for the locks in milliseconds. If not provided, a
+   * default value will be used.
+   * @returns The result of the work.
+   */
+  async lockMany<T>(
+    keys: string[],
+    work: () => Promise<T>,
+    ttl?: number,
+  ): Promise<T> {
+    const locks = keys.map((k) => this.redlock.acquire([k], ttl ?? CACHE_TTL.LOCK));
     try {
       return await work();
     } finally {
@@ -39,7 +55,11 @@ export class DbGuardService {
       // already done and no duplicate execution is possible at this point.
       // Swallowing keeps the caller clean and avoids unhandled rejections when Redis
       // is flushed externally (e.g. in tests).
-      await this.redlock.release(lock).catch(() => undefined);
+      await Promise.all(
+        locks.map((lock) =>
+          lock.then((l) => this.redlock.release(l).catch(() => undefined)),
+        ),
+      );
     }
   }
 

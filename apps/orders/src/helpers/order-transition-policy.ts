@@ -7,11 +7,7 @@ export class OrderTransitionPolicy {
     [OrderStatus.PROCESSED]: [OrderStatus.PAID],
     [OrderStatus.SHIPPED]: [OrderStatus.PROCESSED],
     [OrderStatus.DELIVERED]: [OrderStatus.SHIPPED],
-    [OrderStatus.CANCELED]: [
-      OrderStatus.PENDING,
-      OrderStatus.PAID,
-      OrderStatus.PROCESSED,
-    ],
+    [OrderStatus.CANCELED]: [OrderStatus.PENDING],
     [OrderStatus.REFUNDED]: [
       OrderStatus.PAID,
       OrderStatus.PROCESSED,

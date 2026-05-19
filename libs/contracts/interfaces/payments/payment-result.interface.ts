@@ -1,7 +1,13 @@
 export interface PaymentResult {
   id: string;
 
-  status: string;
+  orderId: string;
 
-  secret?: string;
+  userId: string;
+
+  stripePaymentIntentId: string;
+
+  stripeClientSecret: string;
+
+  status: string;
 }

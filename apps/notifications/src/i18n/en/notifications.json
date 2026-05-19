@@ -1,4 +1,16 @@
 {
+  "NOTIFICATION_TITLES": {
+    "ORDER_CREATED": "Order Created",
+    "ORDER_FAILED_UPON_CREATING": "Order Creation Failed",
+    "ORDER_STATUS_CHANGED": "Order Status Changed",
+    "ORDER_CANCELED": "Order Canceled"
+  },
+  "NOTIFICATION_MESSAGES": {
+    "ORDER_CREATED": "Your order {{orderId}} has been successfully created. Total: ${{orderTotal}}.",
+    "ORDER_FAILED_UPON_CREATING": "Your order could not be created due to an error.",
+    "ORDER_STATUS_CHANGED": "Your order {{orderId}} status has been updated to {{newStatus}}.",
+    "ORDER_CANCELED": "Your order {{orderId}} has been canceled."
+  },
   "ERRORS": {
     "NOTIFICATION_NOT_FOUND": "Notification not found.",
     "ACCESS_DENIED": "You are not allowed to access this notification."

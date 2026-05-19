@@ -9,14 +9,14 @@ import type { IOutboxService } from 'libs/common/modules/outbox/interfaces/outbo
 import { ensureError, template } from 'libs/common/utils/functions.utils';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CursorQueryInput } from 'libs/contracts/interfaces/cursor-query-input.interface';
-import { CreateCustomerInput } from 'libs/contracts/interfaces/payments/create-customer-input.interface';
-import { CreatePaymentInput } from 'libs/contracts/interfaces/payments/create-payment-input.interface';
-import { CreateRefundInput } from 'libs/contracts/interfaces/payments/create-refund-input.interface';
-import { CustomerResult } from 'libs/contracts/interfaces/payments/customer-result.interface';
-import { PaymentResult } from 'libs/contracts/interfaces/payments/payment-result.interface';
-import { ProcessPaymentWebhookInput } from 'libs/contracts/interfaces/payments/process-webhook-input.interface';
-import { RefundResult } from 'libs/contracts/interfaces/payments/refund-result.interface';
-import { UpdateCustomerInput } from 'libs/contracts/interfaces/payments/update-customer-input.interface';
+import { CreateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/create-gateway-customer-input.interface';
+import { CreateGatewayPaymentInput } from 'libs/contracts/interfaces/payments/create-gateway-payment-input.interface';
+import { CreateGatewayRefundInput } from 'libs/contracts/interfaces/payments/create-gateway-refund-input.interface';
+import { GatewayCustomerResult } from 'libs/contracts/interfaces/payments/gateway-customer-result.interface';
+import { GatewayPaymentResult } from 'libs/contracts/interfaces/payments/gateway-payment-result.interface';
+import { GatewayRefundResult } from 'libs/contracts/interfaces/payments/gateway-refund-result.interface';
+import { ProcessGatewayWebhookInput } from 'libs/contracts/interfaces/payments/process-gateway-webhook-input.interface';
+import { UpdateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/update-gateway-customer-input.interface';
 import Stripe from 'stripe';
 import { STRIPE_CLIENT } from '../../../config/payments.config';
 import { I18N_PAYMENTS } from '../../../constants/i18n.constant';
@@ -39,7 +39,9 @@ export class StripePort implements PaymentsGatewayPort {
 
   //#region Customers
 
-  async createCustomer(input: CreateCustomerInput): Promise<CustomerResult> {
+  async createCustomer(
+    input: CreateGatewayCustomerInput,
+  ): Promise<GatewayCustomerResult> {
     try {
       const inputConverted = this.mapToStripeCustomerCreateParams(input);
 
@@ -59,7 +61,7 @@ export class StripePort implements PaymentsGatewayPort {
 
   async findAllCustomers(
     cursor?: CursorQueryInput,
-  ): Promise<PagCursorResultDto<CustomerResult>> {
+  ): Promise<PagCursorResultDto<GatewayCustomerResult>> {
     const limit = cursor?.limit || 20;
 
     const customers = await this.stripe.customers.list({
@@ -76,7 +78,7 @@ export class StripePort implements PaymentsGatewayPort {
     };
   }
 
-  async findOneCustomer(customerId: string): Promise<CustomerResult> {
+  async findOneCustomer(customerId: string): Promise<GatewayCustomerResult> {
     const customer = await this.stripe.customers.retrieve(customerId);
     if (customer.deleted) {
       throw new NotFoundException(
@@ -88,8 +90,8 @@ export class StripePort implements PaymentsGatewayPort {
 
   async updateCustomer(
     customerId: string,
-    input: UpdateCustomerInput,
-  ): Promise<CustomerResult> {
+    input: UpdateGatewayCustomerInput,
+  ): Promise<GatewayCustomerResult> {
     try {
       const inputConverted = this.mapToStripeCustomerCreateParams(input);
 
@@ -116,7 +118,9 @@ export class StripePort implements PaymentsGatewayPort {
 
   //#region Payments and Refunds
 
-  async createPayment(input: CreatePaymentInput): Promise<PaymentResult> {
+  async createPayment(
+    input: CreateGatewayPaymentInput,
+  ): Promise<GatewayPaymentResult> {
     const inputConverted = this.mapToStripePaymentIntentCreateParams(input);
 
     const paymentIntent = await this.stripe.paymentIntents.create(inputConverted);
@@ -124,12 +128,14 @@ export class StripePort implements PaymentsGatewayPort {
     return this.mapToPaymentResult(paymentIntent);
   }
 
-  async findOnePayment(paymentId: string): Promise<PaymentResult> {
+  async findOnePayment(paymentId: string): Promise<GatewayPaymentResult> {
     const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentId);
     return this.mapToPaymentResult(paymentIntent);
   }
 
-  async createRefundPayment(input: CreateRefundInput): Promise<RefundResult> {
+  async createRefundPayment(
+    input: CreateGatewayRefundInput,
+  ): Promise<GatewayRefundResult> {
     const inputConverted = this.mapToRefundCreateParams(input);
 
     const refund = await this.stripe.refunds.create(inputConverted);
@@ -137,7 +143,7 @@ export class StripePort implements PaymentsGatewayPort {
     return this.mapToRefundResult(refund);
   }
 
-  async findOneRefundPayment(refundId: string): Promise<RefundResult> {
+  async findOneRefundPayment(refundId: string): Promise<GatewayRefundResult> {
     const refund = await this.stripe.refunds.retrieve(refundId);
     return this.mapToRefundResult(refund);
   }
@@ -146,19 +152,22 @@ export class StripePort implements PaymentsGatewayPort {
 
   //#region Webhooks
 
-  async processWebhook(input: ProcessPaymentWebhookInput): Promise<void> {
+  async processWebhook(input: ProcessGatewayWebhookInput): Promise<void> {
     const event = this.stripe.webhooks.constructEvent(
       input.payload,
       input.signature,
       process.env.STRIPE_WEBHOOK_SECRET || '',
     );
 
-    if (event.type === 'payment_intent.succeeded') {
-      // TODO: add event to outbox for Orders microservice to mark payment as succeeded
-    }
-
-    if (event.type === 'payment_intent.payment_failed') {
-      // TODO: add event to outbox for Orders microservice to mark payment as failed
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        // TODO: add event to outbox for Orders microservice to mark payment as succeeded
+        break;
+      case 'payment_intent.payment_failed':
+        // TODO: add event to outbox for Orders microservice to mark payment as failed
+        break;
+      default:
+        console.warn(`Unhandled Stripe webhook event type: ${event.type}`);
     }
 
     return Promise.resolve();
@@ -169,7 +178,7 @@ export class StripePort implements PaymentsGatewayPort {
   //#region Private Methods
 
   private mapToStripeCustomerCreateParams(
-    input: CreateCustomerInput | UpdateCustomerInput,
+    input: CreateGatewayCustomerInput | UpdateGatewayCustomerInput,
   ): StripeCustomerCreateParams {
     return {
       email: input.email,
@@ -188,7 +197,7 @@ export class StripePort implements PaymentsGatewayPort {
     };
   }
 
-  private mapToCustomerResult(customer: StripeCustomer): CustomerResult {
+  private mapToCustomerResult(customer: StripeCustomer): GatewayCustomerResult {
     return {
       id: customer.id,
       name: customer.name || undefined,
@@ -212,7 +221,7 @@ export class StripePort implements PaymentsGatewayPort {
   }
 
   private mapToStripePaymentIntentCreateParams(
-    input: CreatePaymentInput,
+    input: CreateGatewayPaymentInput,
   ): StripePaymentIntentCreateParams {
     return {
       amount: input.amount,
@@ -224,7 +233,9 @@ export class StripePort implements PaymentsGatewayPort {
     };
   }
 
-  private mapToPaymentResult(paymentIntent: StripePaymentIntent): PaymentResult {
+  private mapToPaymentResult(
+    paymentIntent: StripePaymentIntent,
+  ): GatewayPaymentResult {
     return {
       id: paymentIntent.id,
       status: paymentIntent.status,
@@ -233,7 +244,7 @@ export class StripePort implements PaymentsGatewayPort {
   }
 
   private mapToRefundCreateParams(
-    input: CreateRefundInput,
+    input: CreateGatewayRefundInput,
   ): StripeRefundCreateParams {
     return {
       payment_intent: input.paymentId,
@@ -241,7 +252,7 @@ export class StripePort implements PaymentsGatewayPort {
     };
   }
 
-  private mapToRefundResult(refund: StripeRefund): RefundResult {
+  private mapToRefundResult(refund: StripeRefund): GatewayRefundResult {
     return {
       refundId: refund.id,
       paymentId: refund.payment_intent as string,

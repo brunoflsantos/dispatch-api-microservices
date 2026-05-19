@@ -14,10 +14,6 @@ export interface OrderResult {
 
   paymentId: string;
 
-  paymentStatus: string;
-
-  paymentClientSecret?: string | null;
-
   trackingNumber?: string;
 
   carrier?: string;
@@ -33,5 +29,5 @@ export interface OrderResult {
 
 export interface PublicOrderResult extends Omit<
   OrderResult,
-  'userId' | 'paymentId' | 'paymentStatus'
+  'userId' | 'paymentId'
 > {}

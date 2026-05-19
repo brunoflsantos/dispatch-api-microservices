@@ -1,11 +1,10 @@
+import { NotificationCursorQueryInput } from 'libs/contracts/interfaces/notifications/notification-cursor-query-input.interface';
+import { NotificationTranslatedResult } from 'libs/contracts/interfaces/notifications/notification-translated-result.interface';
 import { PagCursorResultDto } from '../../../../contracts/dto/pagination/pag-cursor-result.dto';
-import { CursorQueryInput } from '../../../../contracts/interfaces/cursor-query-input.interface';
-import { NotificationResult } from '../../../../contracts/interfaces/notifications/notification-result.interface';
-import { RequestUser } from '../../../../contracts/interfaces/request-user.interface';
 import { BaseRpcInput } from './base.input';
 
 interface NotificationsTransportPayloads {
-  FIND_BY_USER_NOTIFICATIONS: { user: RequestUser; cursor: CursorQueryInput };
+  FIND_BY_USER_NOTIFICATIONS: { query: NotificationCursorQueryInput };
 
   MARK_NOTIFICATION_AS_READ: { id: string; userId: string };
 
@@ -15,7 +14,7 @@ interface NotificationsTransportPayloads {
 }
 
 interface NotificationsTransportResponses {
-  FIND_BY_USER_NOTIFICATIONS: PagCursorResultDto<NotificationResult>;
+  FIND_BY_USER_NOTIFICATIONS: PagCursorResultDto<NotificationTranslatedResult>;
 
   MARK_NOTIFICATION_AS_READ: void;
 

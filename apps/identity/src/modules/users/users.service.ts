@@ -20,9 +20,9 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserQueryInput,
-  UserQueryRequestInput,
-} from 'libs/contracts/interfaces/users/update-user-query-input.interface';
+  PublicUserOffsetQueryInput,
+  UserOffsetQueryInput,
+} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -124,7 +124,7 @@ export class UsersService extends BaseService implements IUsersService {
   }
 
   async publicFindAll(
-    query: PublicUserQueryInput,
+    query: PublicUserOffsetQueryInput,
   ): Promise<PagOffsetResultDto<PublicUserResult>> {
     const result = await this.userRepository.filter(query);
 
@@ -252,7 +252,7 @@ export class UsersService extends BaseService implements IUsersService {
   }
 
   async adminFindAll(
-    query: UserQueryRequestInput,
+    query: UserOffsetQueryInput,
   ): Promise<PagOffsetResultDto<UserResult>> {
     const result = await this.userRepository.filter(query);
 

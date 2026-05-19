@@ -1,6 +1,7 @@
+import { CreateOrderProductInput } from 'libs/contracts/interfaces/orders/create-order-product-input.interface';
 import { PagOffsetResultDto } from '../../../../contracts/dto/pagination/pag-offset-result.dto';
 import { CreateProductInput } from '../../../../contracts/interfaces/products/create-product-input.interface';
-import { ProductQueryInput } from '../../../../contracts/interfaces/products/product-query-input.interface';
+import { ProductOffsetQueryInput } from '../../../../contracts/interfaces/products/product-offset-query-input.interface';
 import {
   ProductResult,
   PublicProductResult,
@@ -10,7 +11,7 @@ import { BaseRpcInput } from './base.input';
 
 interface CatalogTransportPayloads {
   PUBLIC_FIND_ALL_PRODUCTS: {
-    query: ProductQueryInput;
+    query: ProductOffsetQueryInput;
   };
 
   PUBLIC_FIND_ONE_PRODUCT: {
@@ -23,7 +24,7 @@ interface CatalogTransportPayloads {
   };
 
   ADMIN_FIND_ALL_PRODUCTS: {
-    query: ProductQueryInput;
+    query: ProductOffsetQueryInput;
   };
 
   ADMIN_FIND_ONE_PRODUCT: {
@@ -43,18 +44,20 @@ interface CatalogTransportPayloads {
     ids: string[];
   };
 
-  DECREMENT_PRODUCTS_STOCK: {
-    id: string;
-    quantity: number;
+  VALIDATE_AND_RESERVE_STOCK: {
+    orderProducts: CreateOrderProductInput[];
+    reserveId: string;
+    userId: string;
   };
 
-  INCREMENT_PRODUCTS_STOCK: {
-    id: string;
-    quantity: number;
+  UNDO_STOCK_RESERVATION: {
+    orderProducts: CreateOrderProductInput[];
+    reserveId: string;
   };
 
-  VALIDATE_AND_GET_PRODUCTS: {
-    ids: string[];
+  CONFIRM_STOCK_RESERVATION: {
+    orderProducts: CreateOrderProductInput[];
+    reserveId: string;
   };
 }
 
@@ -69,9 +72,9 @@ interface CatalogTransportResponses {
   ADMIN_REMOVE_PRODUCT: void;
 
   FIND_MANY_PRODUCTS_BY_IDS: ProductResult[];
-  DECREMENT_PRODUCTS_STOCK: void;
-  INCREMENT_PRODUCTS_STOCK: void;
-  VALIDATE_AND_GET_PRODUCTS: ProductResult[];
+  VALIDATE_AND_RESERVE_STOCK: ProductResult[];
+  UNDO_STOCK_RESERVATION: void;
+  CONFIRM_STOCK_RESERVATION: void;
 }
 
 class CatalogTransportPatterns {
@@ -85,9 +88,9 @@ class CatalogTransportPatterns {
   static readonly ADMIN_REMOVE_PRODUCT = 'catalog.admin-remove-product';
 
   static readonly FIND_MANY_PRODUCTS_BY_IDS = 'catalog.find-many-products-by-ids';
-  static readonly DECREMENT_PRODUCTS_STOCK = 'catalog.decrement-products-stock';
-  static readonly INCREMENT_PRODUCTS_STOCK = 'catalog.increment-products-stock';
-  static readonly VALIDATE_AND_GET_PRODUCTS = 'catalog.validate-and-get-products';
+  static readonly VALIDATE_AND_RESERVE_STOCK = 'catalog.validate-and-reserve-stock';
+  static readonly UNDO_STOCK_RESERVATION = 'catalog.undo-stock-reservation';
+  static readonly CONFIRM_STOCK_RESERVATION = 'catalog.confirm-stock-reservation';
 }
 
 export abstract class BaseCatalogRpcInput extends BaseRpcInput {}
@@ -196,40 +199,40 @@ export class FindManyProductsByIdsRpcInput extends BaseCatalogRpcInput {
   }
 }
 
-export class DecrementProductsStockRpcInput extends BaseCatalogRpcInput {
-  public static pattern = CatalogTransportPatterns.DECREMENT_PRODUCTS_STOCK;
+export class ValidateAndReserveStockRpcInput extends BaseCatalogRpcInput {
+  public static pattern = CatalogTransportPatterns.VALIDATE_AND_RESERVE_STOCK;
 
   public response =
-    null as unknown as CatalogTransportResponses['DECREMENT_PRODUCTS_STOCK'];
+    null as unknown as CatalogTransportResponses['VALIDATE_AND_RESERVE_STOCK'];
 
   constructor(
-    public readonly payload: CatalogTransportPayloads['DECREMENT_PRODUCTS_STOCK'],
+    public readonly payload: CatalogTransportPayloads['VALIDATE_AND_RESERVE_STOCK'],
   ) {
     super(payload);
   }
 }
 
-export class IncrementProductsStockRpcInput extends BaseCatalogRpcInput {
-  public static pattern = CatalogTransportPatterns.INCREMENT_PRODUCTS_STOCK;
+export class UndoStockReservationRpcInput extends BaseCatalogRpcInput {
+  public static pattern = CatalogTransportPatterns.UNDO_STOCK_RESERVATION;
 
   public response =
-    null as unknown as CatalogTransportResponses['INCREMENT_PRODUCTS_STOCK'];
+    null as unknown as CatalogTransportResponses['UNDO_STOCK_RESERVATION'];
 
   constructor(
-    public readonly payload: CatalogTransportPayloads['INCREMENT_PRODUCTS_STOCK'],
+    public readonly payload: CatalogTransportPayloads['UNDO_STOCK_RESERVATION'],
   ) {
     super(payload);
   }
 }
 
-export class ValidateAndGetProductsRpcInput extends BaseCatalogRpcInput {
-  public static pattern = CatalogTransportPatterns.VALIDATE_AND_GET_PRODUCTS;
+export class ConfirmStockReservationRpcInput extends BaseCatalogRpcInput {
+  public static pattern = CatalogTransportPatterns.CONFIRM_STOCK_RESERVATION;
 
   public response =
-    null as unknown as CatalogTransportResponses['VALIDATE_AND_GET_PRODUCTS'];
+    null as unknown as CatalogTransportResponses['CONFIRM_STOCK_RESERVATION'];
 
   constructor(
-    public readonly payload: CatalogTransportPayloads['VALIDATE_AND_GET_PRODUCTS'],
+    public readonly payload: CatalogTransportPayloads['CONFIRM_STOCK_RESERVATION'],
   ) {
     super(payload);
   }

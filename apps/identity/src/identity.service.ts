@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import type { IAuthService } from 'libs/contracts/interfaces/auth-service.interface';
 import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import {
@@ -12,9 +11,9 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserQueryInput,
-  UserQueryRequestInput,
-} from 'libs/contracts/interfaces/users/update-user-query-input.interface';
+  PublicUserOffsetQueryInput,
+  UserOffsetQueryInput,
+} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -23,6 +22,7 @@ import {
 import { BaseService } from 'libs/contracts/services/base.service';
 import { AUTH_SERVICE, USERS_SERVICE } from './constants/identity.token';
 import { IIdentityService } from './interfaces/identity-service.interface';
+import type { IAuthService } from './modules/auth/interfaces/auth-service.interface';
 import type { IUsersService } from './modules/users/interfaces/users-service.interface';
 
 @Injectable()
@@ -52,7 +52,7 @@ export class IdentityService extends BaseService implements IIdentityService {
   }
 
   publicFindAllUsers(
-    query: PublicUserQueryInput,
+    query: PublicUserOffsetQueryInput,
   ): Promise<PagOffsetResultDto<PublicUserResult>> {
     return this.usersService.publicFindAll(query);
   }
@@ -81,7 +81,7 @@ export class IdentityService extends BaseService implements IIdentityService {
   }
 
   adminFindAllUsers(
-    query: UserQueryRequestInput,
+    query: UserOffsetQueryInput,
   ): Promise<PagOffsetResultDto<UserResult>> {
     return this.usersService.adminFindAll(query);
   }
@@ -107,15 +107,15 @@ export class IdentityService extends BaseService implements IIdentityService {
   //#region Auth - Public
 
   publicLogin(email: string, password: string): Promise<LoginResult> {
-    return this.authService.login(email, password);
+    return this.authService.publicLogin(email, password);
   }
 
   publicRefreshSession(reqUser: RequestUser): Promise<LoginResult> {
-    return this.authService.refresh(reqUser);
+    return this.authService.publicRefreshSession(reqUser);
   }
 
   publicLogout(reqUser: RequestUser): Promise<void> {
-    return this.authService.logout(reqUser);
+    return this.authService.publicLogout(reqUser);
   }
 
   //#endregion

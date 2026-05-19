@@ -1,14 +1,18 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ModuleImportsFactory } from 'libs/common/factories/module-imports.factory';
 import { JwtAuthGuard } from 'libs/common/guards/jwt.guard';
 import { RolesGuard } from 'libs/common/guards/roles.guard';
+import { CorrelationIdMiddleware } from 'libs/common/middleware/correlation-id.middleware';
+import { LoggingMiddleware } from 'libs/common/middleware/logging.middleware';
 import { TransportModule } from 'libs/common/modules/transport/transport.module';
 import { join } from 'path';
 import { ApiGatewayController } from './api-gateway.controller';
 import { ApiGatewayService } from './api-gateway.service';
 import { ApiCatalogController } from './controllers/api-catalog.controller';
 import { ApiIdentityController } from './controllers/api-identity.controller';
+import { ApiNotificationsController } from './controllers/api-notifications.controller';
+import { ApiPaymentsController } from './controllers/api-payments.controller';
 
 @Module({
   imports: [
@@ -29,7 +33,13 @@ import { ApiIdentityController } from './controllers/api-identity.controller';
 
     TransportModule,
   ],
-  controllers: [ApiGatewayController, ApiIdentityController, ApiCatalogController],
+  controllers: [
+    ApiGatewayController,
+    ApiIdentityController,
+    ApiCatalogController,
+    ApiNotificationsController,
+    ApiPaymentsController,
+  ],
   providers: [
     ApiGatewayService,
 
@@ -37,4 +47,8 @@ import { ApiIdentityController } from './controllers/api-identity.controller';
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
-export class ApiGatewayModule {}
+export class ApiGatewayModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CorrelationIdMiddleware, LoggingMiddleware).forRoutes('*');
+  }
+}

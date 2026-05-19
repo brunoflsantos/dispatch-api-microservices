@@ -1,7 +1,13 @@
+import { RequestContext } from 'libs/common/utils/request-context.utils';
+
 abstract class BaseInput {
   public static pattern: string;
 
-  constructor(public readonly payload: any) {}
+  public readonly correlationId: string;
+
+  constructor(public readonly payload: any) {
+    this.correlationId = RequestContext.getCorrelationId();
+  }
 
   get pattern(): string {
     return (this.constructor as typeof BaseInput).pattern;

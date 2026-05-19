@@ -1,18 +1,21 @@
 import { Controller, Inject } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   AdminCreateProductRpcInput,
   AdminFindAllProductsRpcInput,
   AdminFindOneProductRpcInput,
   AdminRemoveProductRpcInput,
   AdminUpdateProductRpcInput,
-  DecrementProductsStockRpcInput,
   FindManyProductsByIdsRpcInput,
-  IncrementProductsStockRpcInput,
   PublicFindAllProductsRpcInput,
   PublicFindOneProductRpcInput,
-  ValidateAndGetProductsRpcInput,
+  ValidateAndReserveStockRpcInput,
 } from 'libs/common/modules/transport/dto/catalog-rpc.input';
+import {
+  OrderCanceledEventInput,
+  OrderCreatedEventInput,
+  OrderFailedUponCreatingEventInput,
+} from 'libs/common/modules/transport/dto/orders-event.input';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
 import { CATALOG_SERVICE } from './constants/catalog.token';
 import type { ICatalogService } from './interfaces/catalog-service.interface';
@@ -89,25 +92,40 @@ export class CatalogController extends BaseController {
     return this.service.findManyProductsByIds(payload.ids);
   }
 
-  @MessagePattern(DecrementProductsStockRpcInput.pattern)
-  decrementProductStock(
-    @Payload() payload: DecrementProductsStockRpcInput['payload'],
-  ): Promise<DecrementProductsStockRpcInput['response']> {
-    return this.service.decrementProductStock(payload.id, payload.quantity);
+  @MessagePattern(ValidateAndReserveStockRpcInput.pattern)
+  validateAndReserveStock(
+    @Payload() payload: ValidateAndReserveStockRpcInput['payload'],
+  ): Promise<ValidateAndReserveStockRpcInput['response']> {
+    return this.service.validateAndReserveStock(
+      payload.orderProducts,
+      payload.reserveId,
+      payload.userId,
+    );
   }
 
-  @MessagePattern(IncrementProductsStockRpcInput.pattern)
-  incrementProductStock(
-    @Payload() payload: IncrementProductsStockRpcInput['payload'],
-  ): Promise<IncrementProductsStockRpcInput['response']> {
-    return this.service.incrementProductStock(payload.id, payload.quantity);
+  //#endregion
+
+  //#region Products - Events
+
+  @EventPattern(OrderFailedUponCreatingEventInput.pattern)
+  async eventOrderFailedUponCreating(
+    @Payload() payload: OrderFailedUponCreatingEventInput['payload'],
+  ): Promise<void> {
+    await this.service.undoStockReservation(payload.reserveId);
   }
 
-  @MessagePattern(ValidateAndGetProductsRpcInput.pattern)
-  validateAndGetCatalogProducts(
-    @Payload() payload: ValidateAndGetProductsRpcInput['payload'],
-  ): Promise<ValidateAndGetProductsRpcInput['response']> {
-    return this.service.validateAndGetCatalogProducts(payload.ids);
+  @EventPattern(OrderCanceledEventInput.pattern)
+  async eventOrderCanceled(
+    @Payload() payload: OrderCanceledEventInput['payload'],
+  ): Promise<void> {
+    await this.service.undoStockReservation(payload.reserveId);
+  }
+
+  @EventPattern(OrderCreatedEventInput.pattern)
+  async eventOrderCreated(
+    @Payload() payload: OrderCreatedEventInput['payload'],
+  ): Promise<void> {
+    await this.service.confirmStockReservation(payload.reserveId);
   }
 
   //#endregion

@@ -1,4 +1,4 @@
-export interface ProcessPaymentWebhookInput {
+export interface ProcessGatewayWebhookInput {
   eventType: string;
 
   payload: any;

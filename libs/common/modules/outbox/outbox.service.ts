@@ -67,7 +67,6 @@ export class OutboxService
       // Controlled recursion: If we reached the maximum limit, schedule the next
       // execution immediately
       if (messages.length === limit) {
-        this.isProcessing = false; // Release the lock for the next execution
         setImmediate(() => void this.process());
         return;
       }
@@ -77,7 +76,7 @@ export class OutboxService
         cause: error,
       });
     } finally {
-      this.isProcessing = false;
+      this.isProcessing = false; // Release the lock for the next execution
     }
   }
 

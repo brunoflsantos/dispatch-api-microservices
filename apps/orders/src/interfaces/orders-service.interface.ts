@@ -1,9 +1,9 @@
 import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
 import { CreateOrderInput } from 'libs/contracts/interfaces/orders/create-order-input.interface';
 import {
-  OrderByUserQueryInput,
-  OrderQueryInput,
-} from 'libs/contracts/interfaces/orders/order-query-input.interface';
+  OrderByUserOffsetQueryInput,
+  OrderOffsetQueryInput,
+} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
 import {
   OrderResult,
   PublicOrderResult,
@@ -22,15 +22,19 @@ export interface IOrdersService extends IBaseService {
   ): Promise<PublicOrderResult>;
 
   publicFindByUser(
-    query: OrderByUserQueryInput,
+    query: OrderByUserOffsetQueryInput,
     reqUser: RequestUser,
   ): Promise<PagOffsetResultDto<PublicOrderResult>>;
 
   publicFindOne(id: string, reqUser: RequestUser): Promise<PublicOrderResult>;
 
-  adminFindAll(query: OrderQueryInput): Promise<PagOffsetResultDto<OrderResult>>;
+  adminFindAll(
+    query: OrderOffsetQueryInput,
+  ): Promise<PagOffsetResultDto<OrderResult>>;
 
   adminFindOne(id: string): Promise<OrderResult>;
+
+  publicCancel(id: string): Promise<void>;
 
   adminUpdate(id: string, dto: UpdateOrderInput): Promise<OrderResult>;
 
@@ -39,8 +43,6 @@ export interface IOrdersService extends IBaseService {
   adminShip(id: string, dto: ShipOrderInput): Promise<OrderResult>;
 
   adminDeliver(id: string): Promise<OrderResult>;
-
-  publicCancel(id: string): Promise<void>;
 
   adminRefund(id: string): Promise<void>;
 

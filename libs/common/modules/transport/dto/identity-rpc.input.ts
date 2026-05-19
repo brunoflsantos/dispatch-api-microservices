@@ -9,7 +9,7 @@ import {
   PublicUpdateUserInput,
   UpdateUserInput,
 } from '../../../../contracts/interfaces/users/update-user-input.interface';
-import { PublicUserQueryInput } from '../../../../contracts/interfaces/users/update-user-query-input.interface';
+import { PublicUserOffsetQueryInput } from '../../../../contracts/interfaces/users/user-offset-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -32,7 +32,7 @@ interface IdentityTransportPayloads {
   };
 
   PUBLIC_FIND_ALL_USERS: {
-    query: PublicUserQueryInput;
+    query: PublicUserOffsetQueryInput;
   };
 
   PUBLIC_UPDATE_USER: {
@@ -45,7 +45,7 @@ interface IdentityTransportPayloads {
   };
 
   ADMIN_FIND_ALL_USERS: {
-    query: PublicUserQueryInput;
+    query: PublicUserOffsetQueryInput;
     reqUser: RequestUser;
   };
 

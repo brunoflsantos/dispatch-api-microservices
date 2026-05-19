@@ -3,9 +3,7 @@ export interface NotificationResult {
 
   type: string;
 
-  title: string;
-
-  message: string;
+  event: string;
 
   data?: Record<string, any>;
 

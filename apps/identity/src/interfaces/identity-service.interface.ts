@@ -11,9 +11,9 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserQueryInput,
-  UserQueryRequestInput,
-} from 'libs/contracts/interfaces/users/update-user-query-input.interface';
+  PublicUserOffsetQueryInput,
+  UserOffsetQueryInput,
+} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -31,7 +31,7 @@ export interface IIdentityService extends IBaseService {
   publicFindOneUser(id: string): Promise<PublicUserResult>;
 
   publicFindAllUsers(
-    query: PublicUserQueryInput,
+    query: PublicUserOffsetQueryInput,
   ): Promise<PagOffsetResultDto<PublicUserResult>>;
 
   publicUpdateUser(
@@ -48,7 +48,7 @@ export interface IIdentityService extends IBaseService {
   ): Promise<UserResult>;
 
   adminFindAllUsers(
-    query: UserQueryRequestInput,
+    query: UserOffsetQueryInput,
   ): Promise<PagOffsetResultDto<UserResult>>;
 
   adminFindOneUser(id: string): Promise<UserResult>;

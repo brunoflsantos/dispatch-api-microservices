@@ -8,16 +8,20 @@ import { LOCK_KEYS } from 'libs/common/modules/cache/constants/lock-keys.constan
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { template } from 'libs/common/utils/functions.utils';
-import { CursorParams } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CreateNotificationInput } from 'libs/contracts/interfaces/notifications/create-notification-input.interface';
+import { NotificationCursorQueryInput } from 'libs/contracts/interfaces/notifications/notification-cursor-query-input.interface';
 import { NotificationResult } from 'libs/contracts/interfaces/notifications/notification-result.interface';
+import { NotificationTranslatedResult } from 'libs/contracts/interfaces/notifications/notification-translated-result.interface';
 import { BaseService } from 'libs/contracts/services/base.service';
 import { I18N_NOTIFICATIONS } from './constants/i18n.constant';
 import { NOTIFICATION_REPOSITORY } from './constants/notifications.token';
 import { NotificationResponseDto } from './dto/notification-response.dto';
+import { Notification } from './entities/notification.entity';
+import { NotificationEvent } from './enums/notification-event.enum';
 import type { INotificationRepository } from './interfaces/notification-repository.interface';
 import { INotificationsService } from './interfaces/notifications-service.interface';
+import { NotificationOutputFactory } from './providers/notification-output.factory';
 
 @Injectable()
 export class NotificationsService
@@ -27,17 +31,19 @@ export class NotificationsService
   constructor(
     @Inject(NOTIFICATION_REPOSITORY)
     private readonly notificationRepository: INotificationRepository,
+    private readonly notificationOutputFactory: NotificationOutputFactory,
     private readonly guard: DbGuardService,
   ) {
     super(NotificationsService.name);
   }
 
+  //#region Notifications - Public
+
   async create(dto: CreateNotificationInput): Promise<NotificationResult> {
     const notification = this.notificationRepository.createEntity({
       userId: dto.userId,
       type: dto.type,
-      title: dto.title,
-      message: dto.message,
+      event: dto.event,
       data: dto.data,
     });
     const saved = await this.notificationRepository.save(notification);
@@ -73,11 +79,19 @@ export class NotificationsService
     await this.notificationRepository.save(notification);
   }
 
-  findByUser(
-    userId: string,
-    cursor?: CursorParams,
-  ): Promise<PagCursorResultDto<NotificationResult>> {
-    return this.notificationRepository.filterByUser(userId, cursor);
+  async findByUser(
+    query: NotificationCursorQueryInput,
+  ): Promise<PagCursorResultDto<NotificationTranslatedResult>> {
+    const result = await this.notificationRepository.filter(query);
+    const notificationsTranslated = await this.translate(
+      result.items,
+      query.language,
+    );
+    return new PagCursorResultDto<NotificationTranslatedResult>(
+      notificationsTranslated,
+      result.nextCursor,
+      result.hasMore,
+    );
   }
 
   hasNewNotifications(userId: string): Promise<boolean> {
@@ -91,4 +105,30 @@ export class NotificationsService
       where: { userId, read: false },
     });
   }
+
+  //#endregion
+
+  //#region Private Helpers
+
+  private async translate(
+    notifications: Notification[],
+    language: string,
+  ): Promise<NotificationTranslatedResult[]> {
+    return Promise.all(
+      notifications.map(async (notification) => {
+        const { title, message } = await this.notificationOutputFactory.create(
+          notification.event as NotificationEvent,
+          notification.data,
+          language,
+        );
+        return {
+          ...notification,
+          title,
+          message,
+        };
+      }),
+    );
+  }
+
+  //#endregion
 }

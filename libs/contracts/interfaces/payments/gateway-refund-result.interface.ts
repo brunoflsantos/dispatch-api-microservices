@@ -1,4 +1,4 @@
-export interface RefundResult {
+export interface GatewayRefundResult {
   refundId: string;
 
   paymentId: string;

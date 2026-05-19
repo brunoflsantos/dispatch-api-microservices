@@ -16,5 +16,5 @@ export abstract class BaseEntity {
   updatedAt: Date;
 
   @DeleteDateColumn({ nullable: true })
-  deactivatedAt?: Date;
+  deletedAt?: Date;
 }

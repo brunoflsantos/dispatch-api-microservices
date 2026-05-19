@@ -1,7 +1,8 @@
 import { BaseEntity } from 'libs/contracts/entities/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { CartProduct } from './cart-product.entity';
 
-@Entity('product')
+@Entity('products')
 export class Product extends BaseEntity {
   @Column({ nullable: false })
   name: string;
@@ -14,4 +15,7 @@ export class Product extends BaseEntity {
 
   @Column('integer')
   price: number;
+
+  @OneToMany(() => CartProduct, (cartProduct) => cartProduct.product)
+  cartProducts: CartProduct[];
 }

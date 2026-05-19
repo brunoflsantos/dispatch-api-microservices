@@ -14,4 +14,10 @@ export class PagCursorResultDto<T> extends BasePaginationResultDto<T> {
     example: true,
   })
   hasMore: boolean;
+
+  constructor(items: T[], nextCursor?: string, hasMore = false) {
+    super(items);
+    this.nextCursor = nextCursor;
+    this.hasMore = hasMore;
+  }
 }

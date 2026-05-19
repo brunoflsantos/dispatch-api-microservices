@@ -1,12 +1,10 @@
-import { CursorParams } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
+import { NotificationCursorQueryInput } from 'libs/contracts/interfaces/notifications/notification-cursor-query-input.interface';
 import { IBaseRepository } from 'libs/contracts/repositories/base-repository.interface';
 import { Notification } from '../entities/notification.entity';
 
 export interface INotificationRepository extends IBaseRepository<Notification> {
-  filterByUser(
-    userId: string,
-    cursor?: CursorParams,
-    limit?: number,
+  filter(
+    query: NotificationCursorQueryInput,
   ): Promise<PagCursorResultDto<Notification>>;
 }

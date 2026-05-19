@@ -1,37 +1,37 @@
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CursorQueryInput } from 'libs/contracts/interfaces/cursor-query-input.interface';
-import { CreateCustomerInput } from 'libs/contracts/interfaces/payments/create-customer-input.interface';
-import { CreatePaymentInput } from 'libs/contracts/interfaces/payments/create-payment-input.interface';
-import { CreateRefundInput } from 'libs/contracts/interfaces/payments/create-refund-input.interface';
-import { CustomerResult } from 'libs/contracts/interfaces/payments/customer-result.interface';
-import { PaymentResult } from 'libs/contracts/interfaces/payments/payment-result.interface';
-import { ProcessPaymentWebhookInput } from 'libs/contracts/interfaces/payments/process-webhook-input.interface';
-import { RefundResult } from 'libs/contracts/interfaces/payments/refund-result.interface';
-import { UpdateCustomerInput } from 'libs/contracts/interfaces/payments/update-customer-input.interface';
+import { CreateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/create-gateway-customer-input.interface';
+import { CreateGatewayPaymentInput } from 'libs/contracts/interfaces/payments/create-gateway-payment-input.interface';
+import { CreateGatewayRefundInput } from 'libs/contracts/interfaces/payments/create-gateway-refund-input.interface';
+import { GatewayCustomerResult } from 'libs/contracts/interfaces/payments/gateway-customer-result.interface';
+import { GatewayPaymentResult } from 'libs/contracts/interfaces/payments/gateway-payment-result.interface';
+import { GatewayRefundResult } from 'libs/contracts/interfaces/payments/gateway-refund-result.interface';
+import { ProcessGatewayWebhookInput } from 'libs/contracts/interfaces/payments/process-gateway-webhook-input.interface';
+import { UpdateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/update-gateway-customer-input.interface';
 
 export interface PaymentsGatewayPort {
-  createCustomer(input: CreateCustomerInput): Promise<CustomerResult>;
+  createCustomer(input: CreateGatewayCustomerInput): Promise<GatewayCustomerResult>;
 
   findAllCustomers(
     cursor?: CursorQueryInput,
-  ): Promise<PagCursorResultDto<CustomerResult>>;
+  ): Promise<PagCursorResultDto<GatewayCustomerResult>>;
 
-  findOneCustomer(customerId: string): Promise<CustomerResult>;
+  findOneCustomer(customerId: string): Promise<GatewayCustomerResult>;
 
   updateCustomer(
     customerId: string,
-    input: UpdateCustomerInput,
-  ): Promise<CustomerResult>;
+    input: UpdateGatewayCustomerInput,
+  ): Promise<GatewayCustomerResult>;
 
   deleteCustomer(customerId: string): Promise<void>;
 
-  createPayment(input: CreatePaymentInput): Promise<PaymentResult>;
+  createPayment(input: CreateGatewayPaymentInput): Promise<GatewayPaymentResult>;
 
-  findOnePayment(paymentId: string): Promise<PaymentResult>;
+  findOnePayment(paymentId: string): Promise<GatewayPaymentResult>;
 
-  createRefundPayment(input: CreateRefundInput): Promise<RefundResult>;
+  createRefundPayment(input: CreateGatewayRefundInput): Promise<GatewayRefundResult>;
 
-  findOneRefundPayment(refundId: string): Promise<RefundResult>;
+  findOneRefundPayment(refundId: string): Promise<GatewayRefundResult>;
 
-  processWebhook(input: ProcessPaymentWebhookInput): Promise<void>;
+  processWebhook(input: ProcessGatewayWebhookInput): Promise<void>;
 }

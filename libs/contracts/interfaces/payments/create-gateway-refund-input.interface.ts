@@ -1,4 +1,4 @@
-export interface CreateRefundInput {
+export interface CreateGatewayRefundInput {
   paymentId: string;
 
   amount: number;
