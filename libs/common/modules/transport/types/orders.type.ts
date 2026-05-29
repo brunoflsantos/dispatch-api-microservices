@@ -38,6 +38,8 @@ export type OrderRefundEventType = {
   reserveId: string;
 
   refundAmount: number;
+
+  idempotencyKey: string;
 };
 
 export type OrderPaidEventType = {

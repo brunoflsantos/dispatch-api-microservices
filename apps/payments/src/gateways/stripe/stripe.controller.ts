@@ -1,20 +1,32 @@
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ProcessStripeWebhookRpcInput } from 'libs/common/modules/transport/dto/payments-rpc.input';
+import {
+  BadRequestException,
+  Controller,
+  Headers,
+  HttpCode,
+  Post,
+  RawBody,
+} from '@nestjs/common';
+import { Public } from 'libs/common/decorators/public.decorator';
 import { StripePort } from './providers/stripe-port';
 
-@Controller()
+@Controller('stripe')
 export class StripeController {
   constructor(private readonly stripePort: StripePort) {}
 
-  @MessagePattern(ProcessStripeWebhookRpcInput.pattern)
+  @Post('webhook')
+  @Public()
+  @HttpCode(200)
   async processWebhook(
-    @Payload() payload: ProcessStripeWebhookRpcInput['payload'],
-  ): Promise<ProcessStripeWebhookRpcInput['response']> {
+    @RawBody() rawBody: Buffer,
+    @Headers('stripe-signature') signature: string,
+  ): Promise<void> {
+    if (!signature) {
+      throw new BadRequestException("The 'stripe-signature' header is required.");
+    }
     return this.stripePort.processWebhook({
       eventType: 'stripe-webhook',
-      payload: payload.request.rawBody,
-      signature: payload.signature,
+      payload: rawBody,
+      signature,
     });
   }
 }

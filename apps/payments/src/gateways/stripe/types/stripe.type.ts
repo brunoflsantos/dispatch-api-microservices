@@ -31,4 +31,12 @@ export type StripeEvent = Awaited<
   ReturnType<Stripe.Stripe['webhooks']['constructEvent']>
 >;
 
+export type StripWebhookParams = {
+  eventType: string;
+
+  payload: Parameters<Stripe.Stripe['webhooks']['constructEvent']>[0];
+
+  signature: Parameters<Stripe.Stripe['webhooks']['constructEvent']>[1];
+};
+
 export type StripeWebhookResult = { received: true };

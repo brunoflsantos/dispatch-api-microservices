@@ -22,6 +22,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { I18N_COMMON } from 'libs/common/constants/i18n.constant';
 import { Public } from 'libs/common/decorators/public.decorator';
 import { Roles } from 'libs/common/decorators/roles.decorator';
@@ -56,6 +57,7 @@ export class ApiCatalogController extends BaseController {
 
   @Get('public/products')
   @Public()
+  @SkipThrottle()
   @ApiOperation({
     summary: 'Get all products',
     description: 'Retrieve a paginated list of all products',
@@ -71,6 +73,7 @@ export class ApiCatalogController extends BaseController {
 
   @Get('public/products/:id')
   @Public()
+  @SkipThrottle()
   @ApiOperation({
     summary: 'Get product by ID',
     description: 'Retrieve a specific product by its unique identifier',
@@ -172,7 +175,7 @@ export class ApiCatalogController extends BaseController {
     description: 'Remove an existing product by its unique identifier',
   })
   @ApiParam({ name: 'id', description: 'Product unique identifier (UUID)' })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'Product successfully deleted' })
   adminRemoveProduct(@Param('id') id: string) {
     return this.catalogRpcClient.call(new AdminRemoveProductRpcInput({ id }));
   }

@@ -177,14 +177,7 @@ export class OrdersService extends BaseService implements IOrdersService {
   private async _publicCancel(id: string): Promise<void> {
     const order = await this.getOrderOrThrow(id);
 
-    if (!OrderTransitionPolicy.canTransition(order.status, OrderStatus.CANCELED)) {
-      throw new BadRequestException(
-        template(I18N_ORDERS.ERRORS.BAD_PRECONDITIONS, {
-          status: OrderStatus.CANCELED,
-          currentStatus: order.status,
-        }),
-      );
-    }
+    this.assertOrderTransitionIsValid(order, OrderStatus.CANCELED);
 
     order.status = OrderStatus.CANCELED;
     await this.orderRepository.save(order);
@@ -283,14 +276,7 @@ export class OrdersService extends BaseService implements IOrdersService {
   private async _adminShip(id: string, dto: ShipOrderInput): Promise<OrderResult> {
     const order = await this.getOrderOrThrow(id);
 
-    if (!OrderTransitionPolicy.canTransition(order.status, OrderStatus.SHIPPED)) {
-      throw new BadRequestException(
-        template(I18N_ORDERS.ERRORS.BAD_PRECONDITIONS, {
-          status: OrderStatus.SHIPPED,
-          currentStatus: order.status,
-        }),
-      );
-    }
+    this.assertOrderTransitionIsValid(order, OrderStatus.SHIPPED);
 
     order.status = OrderStatus.SHIPPED;
     order.shippedAt = new Date();
@@ -322,14 +308,7 @@ export class OrdersService extends BaseService implements IOrdersService {
   private async _adminDeliver(id: string): Promise<OrderResponseDto> {
     const order = await this.getOrderOrThrow(id);
 
-    if (!OrderTransitionPolicy.canTransition(order.status, OrderStatus.DELIVERED)) {
-      throw new BadRequestException(
-        template(I18N_ORDERS.ERRORS.BAD_PRECONDITIONS, {
-          status: OrderStatus.DELIVERED,
-          currentStatus: order.status,
-        }),
-      );
-    }
+    this.assertOrderTransitionIsValid(order, OrderStatus.DELIVERED);
 
     order.status = OrderStatus.DELIVERED;
     order.deliveredAt = new Date();
@@ -358,14 +337,7 @@ export class OrdersService extends BaseService implements IOrdersService {
   private async _adminRefund(id: string): Promise<void> {
     const order = await this.getOrderOrThrow(id);
 
-    if (!OrderTransitionPolicy.canTransition(order.status, OrderStatus.REFUNDED)) {
-      throw new BadRequestException(
-        template(I18N_ORDERS.ERRORS.BAD_PRECONDITIONS, {
-          status: OrderStatus.REFUNDED,
-          currentStatus: order.status,
-        }),
-      );
-    }
+    this.assertOrderTransitionIsValid(order, OrderStatus.REFUNDED);
 
     // Expected side effects: notify user and process refund in payment gateway
     await this.outboxService.add(
@@ -374,6 +346,7 @@ export class OrdersService extends BaseService implements IOrdersService {
         orderId: order.id,
         reserveId: order.reserveId,
         refundAmount: order.total,
+        idempotencyKey: crypto.randomUUID(),
       }),
     );
 
@@ -480,6 +453,17 @@ export class OrdersService extends BaseService implements IOrdersService {
     saved.products = await this.orderProductRepository.saveBulk(orderProducts);
 
     return saved;
+  }
+
+  private assertOrderTransitionIsValid(order: Order, newStatus: OrderStatus): void {
+    if (!OrderTransitionPolicy.canTransition(order.status, newStatus)) {
+      throw new BadRequestException(
+        template(I18N_ORDERS.ERRORS.BAD_PRECONDITIONS, {
+          status: newStatus,
+          currentStatus: order.status,
+        }),
+      );
+    }
   }
 
   //#endregion

@@ -16,7 +16,9 @@ export const cacheConfig = (configService: ConfigService): CacheModuleOptions =>
 });
 
 export const redisClient = (configService: ConfigService): Redis => {
-  const redisUrl = configService.get('REDIS_URL');
+  const redisUrl =
+    configService.get('REDIS_URL') ||
+    `redis://${configService.get('REDIS_HOST') || 'localhost'}:${configService.get('REDIS_PORT') || 6379}`;
   if (redisUrl) {
     return new Redis(redisUrl);
   }

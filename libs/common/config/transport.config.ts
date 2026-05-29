@@ -5,7 +5,7 @@ import { EVENT_BUS_QUEUE } from '../modules/transport/constants/queues.token';
 export const rmqEventBusConfig = (configService: ConfigService): RmqOptions => ({
   transport: Transport.RMQ,
   options: {
-    urls: [configService.get<string>('BROKER_URL')],
+    urls: [configService.getOrThrow<string>('BROKER_URL')],
     queue: EVENT_BUS_QUEUE,
     queueOptions: {
       durable: false,
@@ -18,7 +18,7 @@ export const rmqRpcBrokerConfig =
   (configService: ConfigService): RmqOptions => ({
     transport: Transport.RMQ,
     options: {
-      urls: [configService.get<string>('BROKER_URL')],
+      urls: [configService.getOrThrow<string>('BROKER_URL')],
       queue,
       queueOptions: {
         durable: false,

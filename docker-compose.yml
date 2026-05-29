@@ -1,0 +1,264 @@
+# =============================================================================
+# Dispatch API — Docker Compose
+#
+# Prerequisites:
+#   Copy each example env to its production counterpart before first run:
+#     cp apps/api-gateway/.env.example.production apps/api-gateway/.env.production
+#     cp apps/catalog/.env.example.production     apps/catalog/.env.production
+#     cp apps/identity/.env.example.production    apps/identity/.env.production
+#     cp apps/orders/.env.example.production      apps/orders/.env.production
+#     cp apps/notifications/.env.example.production apps/notifications/.env.production
+#     cp apps/payments/.env.example.production    apps/payments/.env.production
+#
+# Usage:
+#   docker compose up -d          # start all services
+#   docker compose logs -f        # follow logs
+#   docker compose down -v        # stop and remove volumes
+# =============================================================================
+
+networks:
+  dispatch-network:
+    name: dispatch-api_dispatch-network
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  loki_data:
+  grafana_data:
+
+# ---------------------------------------------------------------------------
+# Reusable build snippet (YAML anchor)
+# ---------------------------------------------------------------------------
+x-app-build: &app-build
+  context: .
+  dockerfile: Dockerfile
+
+# ---------------------------------------------------------------------------
+# Shared healthcheck dependency block
+# ---------------------------------------------------------------------------
+x-infra-depends: &infra-depends
+  postgres:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  rabbitmq:
+    condition: service_healthy
+
+services:
+  # ===========================================================================
+  # Infrastructure
+  # ===========================================================================
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: dispatch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-multiple-db.sh:/docker-entrypoint-initdb.d/init-multiple-db.sh:ro
+    ports:
+      - '5432:5432'
+    networks:
+      - dispatch-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: dispatch-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    networks:
+      - dispatch-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: dispatch-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672' # Management UI
+    networks:
+      - dispatch-network
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ===========================================================================
+  # Observability (Grafana stack)
+  # ===========================================================================
+
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: dispatch-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/loki.yml
+    volumes:
+      - ./docker/loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+    ports:
+      - '3100:3100'
+    networks:
+      - dispatch-network
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q --spider http://localhost:3100/ready || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    container_name: dispatch-promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/promtail.yml
+    volumes:
+      - ./docker/promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dispatch-network
+    depends_on:
+      loki:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: dispatch-grafana
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - '3001:3000' # Grafana UI at http://localhost:3001
+    networks:
+      - dispatch-network
+    depends_on:
+      loki:
+        condition: service_healthy
+
+  # ===========================================================================
+  # Application services
+  # ===========================================================================
+
+  api-gateway:
+    build:
+      <<: *app-build
+      args:
+        APP_NAME: api-gateway
+    image: dispatch/api-gateway:local
+    container_name: dispatch-api-gateway
+    restart: unless-stopped
+    env_file:
+      - apps/api-gateway/.env.production
+    environment:
+      APP_PORT: '3000'
+    ports:
+      - '3000:3000'
+    networks:
+      - dispatch-network
+    depends_on:
+      <<: *infra-depends
+
+  catalog:
+    build:
+      <<: *app-build
+      args:
+        APP_NAME: catalog
+    image: dispatch/catalog:local
+    container_name: dispatch-catalog
+    restart: unless-stopped
+    env_file:
+      - apps/catalog/.env.production
+    networks:
+      - dispatch-network
+    depends_on:
+      <<: *infra-depends
+
+  identity:
+    build:
+      <<: *app-build
+      args:
+        APP_NAME: identity
+    image: dispatch/identity:local
+    container_name: dispatch-identity
+    restart: unless-stopped
+    env_file:
+      - apps/identity/.env.production
+    networks:
+      - dispatch-network
+    depends_on:
+      <<: *infra-depends
+
+  orders:
+    build:
+      <<: *app-build
+      args:
+        APP_NAME: orders
+    image: dispatch/orders:local
+    container_name: dispatch-orders
+    restart: unless-stopped
+    env_file:
+      - apps/orders/.env.production
+    networks:
+      - dispatch-network
+    depends_on:
+      <<: *infra-depends
+
+  notifications:
+    build:
+      <<: *app-build
+      args:
+        APP_NAME: notifications
+    image: dispatch/notifications:local
+    container_name: dispatch-notifications
+    restart: unless-stopped
+    env_file:
+      - apps/notifications/.env.production
+    networks:
+      - dispatch-network
+    depends_on:
+      <<: *infra-depends
+
+  payments:
+    build:
+      <<: *app-build
+      args:
+        APP_NAME: payments
+    image: dispatch/payments:local
+    container_name: dispatch-payments
+    restart: unless-stopped
+    env_file:
+      - apps/payments/.env.production
+    ports:
+      - '3002:3002'
+    networks:
+      - dispatch-network
+    depends_on:
+      <<: *infra-depends

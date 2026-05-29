@@ -2,7 +2,8 @@
   "ERRORS": {
     "CREATE_CUSTOMER_FAILED": "Falha ao criar cliente: Nenhum ID de cliente retornado.",
     "UPDATE_CUSTOMER_FAILED": "Falha ao atualizar cliente: Nenhum ID de cliente retornado.",
-    "CUSTOMER_DELETED": "Cliente {customerId} foi deletado.",
-    "CUSTOMER_NOT_FOUND": "Cliente {customerId} não encontrado."
+    "CUSTOMER_DELETED": "Cliente para o usuário {userId} foi deletado.",
+    "CUSTOMER_NOT_FOUND": "Cliente para o usuário {userId} não encontrado.",
+    "PAYMENT_NOT_FOUND": "Pagamento para o pedido {orderId} não encontrado."
   }
 }

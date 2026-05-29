@@ -6,7 +6,6 @@ import { CreateGatewayRefundInput } from 'libs/contracts/interfaces/payments/cre
 import { GatewayCustomerResult } from 'libs/contracts/interfaces/payments/gateway-customer-result.interface';
 import { GatewayPaymentResult } from 'libs/contracts/interfaces/payments/gateway-payment-result.interface';
 import { GatewayRefundResult } from 'libs/contracts/interfaces/payments/gateway-refund-result.interface';
-import { ProcessGatewayWebhookInput } from 'libs/contracts/interfaces/payments/process-gateway-webhook-input.interface';
 import { UpdateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/update-gateway-customer-input.interface';
 
 export interface PaymentsGatewayPort {
@@ -32,6 +31,4 @@ export interface PaymentsGatewayPort {
   createRefundPayment(input: CreateGatewayRefundInput): Promise<GatewayRefundResult>;
 
   findOneRefundPayment(refundId: string): Promise<GatewayRefundResult>;
-
-  processWebhook(input: ProcessGatewayWebhookInput): Promise<void>;
 }

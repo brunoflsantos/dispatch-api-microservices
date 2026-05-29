@@ -5,8 +5,6 @@ import {
   Delete,
   Get,
   Headers,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -18,11 +16,11 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiHeader,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
@@ -72,7 +70,6 @@ export class ApiOrdersController extends BaseController {
   //#region Orders - Public
 
   @Post('public/orders')
-  @HttpCode(HttpStatus.CREATED)
   @Throttle({ default: { limit: resolveThrottleLimit(10) } })
   @ApiOperation({
     summary: 'Create a new order',
@@ -254,10 +251,7 @@ export class ApiOrdersController extends BaseController {
     name: 'id',
     description: 'Order unique identifier (UUID)',
   })
-  @ApiResponse({
-    status: 204,
-    description: 'Order successfully deleted',
-  })
+  @ApiNoContentResponse({ description: 'Order successfully deleted' })
   adminRemoveOrder(@Param('id', ParseUUIDPipe) id: string) {
     return this.ordersRpcClient.call(new AdminRemoveOrderRpcInput({ id }));
   }

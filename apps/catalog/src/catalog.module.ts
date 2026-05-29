@@ -1,9 +1,9 @@
-import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ModuleImportsFactory } from 'libs/common/factories/module-imports.factory';
-import { InternalAuthGuard } from 'libs/common/guards/internal-auth.guard';
+import { CacheModule } from 'libs/common/modules/cache/cache.module';
 import { DbGuardModule } from 'libs/common/modules/db-guard/db-guard.module';
+import { TransportModule } from 'libs/common/modules/transport/transport.module';
 import { join, resolve } from 'path';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
@@ -32,15 +32,16 @@ import { ProductRepository } from './providers/product.repository';
     }),
 
     DbGuardModule,
+
     CacheModule,
+
+    TransportModule,
   ],
   controllers: [CatalogController],
   providers: [
     { provide: CATALOG_SERVICE, useClass: CatalogService },
 
     { provide: PRODUCT_REPOSITORY, useClass: ProductRepository },
-
-    InternalAuthGuard,
   ],
 })
 export class CatalogModule {}

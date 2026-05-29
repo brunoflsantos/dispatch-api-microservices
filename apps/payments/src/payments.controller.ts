@@ -1,19 +1,15 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import {
-  CreateGatewayCustomerRpcInput,
-  CreateGatewayPaymentRpcInput,
-  CreateGatewayRefundPaymentRpcInput,
+  UserCreatedEventInput,
+  UserUpdatedEventInput,
+} from 'libs/common/modules/transport/dto/identity-event.input';
+import { OrderRefundedEventInput } from 'libs/common/modules/transport/dto/orders-event.input';
+import {
   CreatePaymentRpcInput,
-  DeleteGatewayCustomerRpcInput,
-  FindAllGatewayCustomersRpcInput,
   FindAllPaymentsRpcInput,
-  FindOneGatewayCustomerRpcInput,
-  FindOneGatewayPaymentRpcInput,
-  FindOneGatewayRefundPaymentRpcInput,
   FindOnePaymentRpcInput,
   FindPaymentByOrderIdRpcInput,
-  UpdateGatewayCustomerRpcInput,
 } from 'libs/common/modules/transport/dto/payments-rpc.input';
 import { PaymentsService } from './payments.service';
 
@@ -21,77 +17,7 @@ import { PaymentsService } from './payments.service';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  //#region Gateway handlers
-
-  @MessagePattern(CreateGatewayCustomerRpcInput.pattern)
-  createGatewayCustomer(
-    @Payload() payload: CreateGatewayCustomerRpcInput['payload'],
-  ): Promise<CreateGatewayCustomerRpcInput['response']> {
-    return this.paymentsService.createGatewayCustomer(payload.input);
-  }
-
-  @MessagePattern(FindAllGatewayCustomersRpcInput.pattern)
-  findAllGatewayCustomers(
-    @Payload() payload: FindAllGatewayCustomersRpcInput['payload'],
-  ): Promise<FindAllGatewayCustomersRpcInput['response']> {
-    return this.paymentsService.findAllGatewayCustomers(payload.cursor);
-  }
-
-  @MessagePattern(FindOneGatewayCustomerRpcInput.pattern)
-  findOneGatewayCustomer(
-    @Payload() payload: FindOneGatewayCustomerRpcInput['payload'],
-  ): Promise<FindOneGatewayCustomerRpcInput['response']> {
-    return this.paymentsService.findOneGatewayCustomer(payload.customerId);
-  }
-
-  @MessagePattern(UpdateGatewayCustomerRpcInput.pattern)
-  updateGatewayCustomer(
-    @Payload() payload: UpdateGatewayCustomerRpcInput['payload'],
-  ): Promise<UpdateGatewayCustomerRpcInput['response']> {
-    return this.paymentsService.updateGatewayCustomer(
-      payload.customerId,
-      payload.input,
-    );
-  }
-
-  @MessagePattern(DeleteGatewayCustomerRpcInput.pattern)
-  deleteGatewayCustomer(
-    @Payload() payload: DeleteGatewayCustomerRpcInput['payload'],
-  ): Promise<DeleteGatewayCustomerRpcInput['response']> {
-    return this.paymentsService.deleteGatewayCustomer(payload.customerId);
-  }
-
-  @MessagePattern(CreateGatewayPaymentRpcInput.pattern)
-  createGatewayPayment(
-    @Payload() payload: CreateGatewayPaymentRpcInput['payload'],
-  ): Promise<CreateGatewayPaymentRpcInput['response']> {
-    return this.paymentsService.createGatewayPayment(payload.input);
-  }
-
-  @MessagePattern(FindOneGatewayPaymentRpcInput.pattern)
-  findOneGatewayPayment(
-    @Payload() payload: FindOneGatewayPaymentRpcInput['payload'],
-  ): Promise<FindOneGatewayPaymentRpcInput['response']> {
-    return this.paymentsService.findOneGatewayPayment(payload.paymentId);
-  }
-
-  @MessagePattern(CreateGatewayRefundPaymentRpcInput.pattern)
-  createGatewayRefundPayment(
-    @Payload() payload: CreateGatewayRefundPaymentRpcInput['payload'],
-  ): Promise<CreateGatewayRefundPaymentRpcInput['response']> {
-    return this.paymentsService.createGatewayRefundPayment(payload.input);
-  }
-
-  @MessagePattern(FindOneGatewayRefundPaymentRpcInput.pattern)
-  findOneGatewayRefundPayment(
-    @Payload() payload: FindOneGatewayRefundPaymentRpcInput['payload'],
-  ): Promise<FindOneGatewayRefundPaymentRpcInput['response']> {
-    return this.paymentsService.findOneGatewayRefundPayment(payload.refundId);
-  }
-
-  //#endregion
-
-  //#region Entity handlers
+  //#region RPC
 
   @MessagePattern(CreatePaymentRpcInput.pattern)
   createPayment(
@@ -119,6 +45,48 @@ export class PaymentsController {
     @Payload() payload: FindPaymentByOrderIdRpcInput['payload'],
   ): Promise<FindPaymentByOrderIdRpcInput['response']> {
     return this.paymentsService.findPaymentByOrderId(payload.orderId);
+  }
+
+  //#endregion
+
+  //#region Events
+
+  @EventPattern(UserCreatedEventInput.pattern)
+  async eventUserCreated(
+    @Payload() payload: UserCreatedEventInput['payload'],
+  ): Promise<void> {
+    await this.paymentsService.createCustomer(
+      {
+        userId: payload.userId,
+        email: payload.email,
+        name: payload.name,
+      },
+      payload.idempotencyKey,
+    );
+  }
+
+  @EventPattern(UserUpdatedEventInput.pattern)
+  async eventUserUpdated(
+    @Payload() payload: UserUpdatedEventInput['payload'],
+  ): Promise<void> {
+    await this.paymentsService.updateCustomer({
+      userId: payload.userId,
+      email: payload.email,
+      name: payload.name,
+    });
+  }
+
+  @EventPattern(OrderRefundedEventInput.pattern)
+  async eventOrderRefunded(
+    @Payload() payload: OrderRefundedEventInput['payload'],
+  ): Promise<void> {
+    await this.paymentsService.createRefund(
+      {
+        orderId: payload.orderId,
+        amount: payload.refundAmount,
+      },
+      payload.idempotencyKey,
+    );
   }
 
   //#endregion

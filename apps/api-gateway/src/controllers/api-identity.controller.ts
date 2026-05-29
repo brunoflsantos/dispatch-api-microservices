@@ -23,6 +23,8 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { resolveThrottleLimit } from 'libs/common/config/throttle.config';
 import { GetUser } from 'libs/common/decorators/get-user.decorator';
 import { Public } from 'libs/common/decorators/public.decorator';
 import { Roles } from 'libs/common/decorators/roles.decorator';
@@ -107,7 +109,7 @@ export class ApiIdentityController extends BaseController {
     summary: 'User logout',
     description: 'Invalidate the current user session and tokens',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'User logged out successfully' })
   publicLogout(@GetUser() reqUser: RequestUser) {
     return this.identityRpcClient.call(new PublicLogoutRpcInput({ reqUser }));
   }
@@ -118,6 +120,7 @@ export class ApiIdentityController extends BaseController {
 
   @Post('public/users')
   @Public()
+  @Throttle({ default: { limit: resolveThrottleLimit(5) } })
   @ApiOperation({
     summary: 'Create a new user',
     description: 'Create a new user account with the provided details',
@@ -185,6 +188,7 @@ export class ApiIdentityController extends BaseController {
   }
 
   @Patch('public/users/me')
+  @Throttle({ default: { limit: resolveThrottleLimit(10) } })
   @ApiOperation({
     summary: 'Update current user',
     description: 'Update the details of the currently authenticated user',
@@ -204,11 +208,12 @@ export class ApiIdentityController extends BaseController {
   }
 
   @Delete('public/users/me')
+  @Throttle({ default: { limit: resolveThrottleLimit(10) } })
   @ApiOperation({
     summary: 'Delete current user',
     description: 'Delete the currently authenticated user',
   })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'User deleted successfully' })
   publicRemoveMyUser(@GetUser() reqUser: RequestUser) {
     return this.identityRpcClient.call(new PublicRemoveMyUserRpcInput({ reqUser }));
   }
@@ -309,7 +314,7 @@ export class ApiIdentityController extends BaseController {
     description: 'Delete a specific user by ID (admin)',
   })
   @ApiParam({ name: 'id', description: 'ID of the user to delete' })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'User deleted successfully' })
   adminRemoveUser(@Param('id') id: string, @GetUser() reqUser: RequestUser) {
     return this.identityRpcClient.call(new AdminRemoveUserRpcInput({ id, reqUser }));
   }

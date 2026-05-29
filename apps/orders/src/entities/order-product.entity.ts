@@ -1,9 +1,11 @@
 import { BaseEntity } from 'libs/contracts/entities/base.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { Order } from './order.entity';
 
 @Entity('order_products')
 export class OrderProduct extends BaseEntity {
+  // orderId is the primary FK lookup: "which products are in order X".
+  @Index()
   @Column('uuid')
   orderId: string;
 
@@ -16,6 +18,8 @@ export class OrderProduct extends BaseEntity {
   @Column('integer')
   quantity: number;
 
+  // productId enables reporting queries such as "top-selling products".
+  @Index()
   @Column('uuid')
   productId: string;
 

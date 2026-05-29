@@ -2,16 +2,20 @@ import { BaseEntity } from 'libs/contracts/entities/base.entity';
 import { Column, Entity, Index } from 'typeorm';
 
 @Entity('notifications')
-@Index('IDX_notifications_user_read', ['userId'], {
-  where: '"read" = false AND "deactivatedAt" IS NULL',
+// Covers "fetch unread notifications for user" — the most frequent read path.
+@Index('IDX_notifications_userId_unread', ['userId'], {
+  where: '"read" = false AND "deletedAt" IS NULL',
 })
-@Index('IDX_notifications_user_createdAt_id_active', ['userId', 'createdAt', 'id'], {
-  where: '"deactivatedAt" IS NULL',
+// Supports cursor-based pagination over active notifications per user.
+@Index('IDX_notifications_userId_createdAt_id', ['userId', 'createdAt', 'id'], {
+  where: '"deletedAt" IS NULL',
 })
 export class Notification extends BaseEntity {
   @Column('uuid')
   userId: string;
 
+  // Indexed to allow filtering notifications by type (e.g. ORDER, PAYMENT).
+  @Index()
   @Column({ type: 'varchar', length: 50 })
   type: string;
 

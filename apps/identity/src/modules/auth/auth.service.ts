@@ -1,4 +1,4 @@
-import { Inject, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CacheService } from 'libs/common/modules/cache/cache.service';
@@ -6,8 +6,6 @@ import { CACHE_KEYS } from 'libs/common/modules/cache/constants/cache-keys.const
 import { CACHE_TTL } from 'libs/common/modules/cache/constants/cache-ttl.constant';
 import { LOCK_KEYS } from 'libs/common/modules/cache/constants/lock-keys.constant';
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
-import { OUTBOX_SERVICE } from 'libs/common/modules/outbox/constants/outbox.token';
-import type { IOutboxService } from 'libs/common/modules/outbox/interfaces/outbox-service.interface';
 import { template } from 'libs/common/utils/functions.utils';
 import { HashAdapter } from 'libs/common/utils/hash-adapter.utils';
 import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
@@ -20,11 +18,10 @@ import { User } from '../users/entities/user.entity';
 import type { IUserRepository } from '../users/interfaces/user-repository.interface';
 import { IAuthService } from './interfaces/auth-service.interface';
 
+@Injectable()
 export class AuthService extends BaseService implements IAuthService {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
-    @Inject(OUTBOX_SERVICE)
-    private readonly outboxService: IOutboxService,
     private readonly configService: ConfigService,
     private readonly cacheService: CacheService,
     private readonly jwtService: JwtService,
@@ -57,8 +54,6 @@ export class AuthService extends BaseService implements IAuthService {
 
     const result = this.generateTokens(user);
     await this.updateRefreshToken(user.id, result.refreshToken);
-
-    // TODO: call OutboxService to create login event for analytics
 
     return result;
   }

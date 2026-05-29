@@ -1,4 +1,9 @@
-import { ConflictException, Inject, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Role } from 'libs/common/enums/role.enum';
 import { CACHE_KEYS } from 'libs/common/modules/cache/constants/cache-keys.constant';
 import { LOCK_KEYS } from 'libs/common/modules/cache/constants/lock-keys.constant';
@@ -6,6 +11,11 @@ import { IdempotencyService } from 'libs/common/modules/cache/providers/idempote
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { OUTBOX_SERVICE } from 'libs/common/modules/outbox/constants/outbox.token';
 import type { IOutboxService } from 'libs/common/modules/outbox/interfaces/outbox-service.interface';
+import {
+  UserCreatedEventInput,
+  UserDeletedEventInput,
+  UserUpdatedEventInput,
+} from 'libs/common/modules/transport/dto/identity-event.input';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { template } from 'libs/common/utils/functions.utils';
 import { HashAdapter } from 'libs/common/utils/hash-adapter.utils';
@@ -42,6 +52,7 @@ import type { IAddressRepository } from './interfaces/address-repository.interfa
 import type { IUserRepository } from './interfaces/user-repository.interface';
 import { IUsersService } from './interfaces/users-service.interface';
 
+@Injectable()
 export class UsersService extends BaseService implements IUsersService {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: IUserRepository,
@@ -83,7 +94,15 @@ export class UsersService extends BaseService implements IUsersService {
     const saved = await this.userRepository.save(user);
     const userMapped = EntityMapper.map(saved, UserSelfResponseDto);
 
-    // TODO: call OutboxService to create customer in payments gateway
+    // Expected side effects: create customer in payments gateway
+    await this.outboxService.add(
+      new UserCreatedEventInput({
+        userId: saved.id,
+        email: saved.email,
+        name: saved.name,
+        idempotencyKey: crypto.randomUUID(),
+      }),
+    );
 
     this.logger.debug('User created', {
       userId: saved.id,
@@ -174,7 +193,14 @@ export class UsersService extends BaseService implements IUsersService {
     Object.assign(user, dto);
     const updatedUser = await this.userRepository.save(user);
 
-    // TODO: call OutboxService to update customer in payments gateway
+    // Expected side effects: update customer in payments gateway
+    await this.outboxService.add(
+      new UserUpdatedEventInput({
+        userId: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+      }),
+    );
 
     this.logger.debug(`User updated successfully: ${updatedUser.id}`);
 
@@ -200,9 +226,14 @@ export class UsersService extends BaseService implements IUsersService {
 
     await this.userRepository.softRemove(user);
 
-    this.logger.debug(`User removed successfully: ${user.id}`);
+    // Expected side effects: delete customer in payments gateway
+    await this.outboxService.add(
+      new UserDeletedEventInput({
+        userId: user.id,
+      }),
+    );
 
-    // TODO: call OutboxService to delete customer in payments gateway
+    this.logger.debug(`User removed successfully: ${user.id}`);
   }
 
   //#endregion
@@ -242,7 +273,15 @@ export class UsersService extends BaseService implements IUsersService {
     const saved = await this.userRepository.save(user);
     const userMapped = EntityMapper.map(saved, UserResponseDto);
 
-    // TODO: call OutboxService to create customer in payments gateway
+    // Expected side effects: create customer in payments gateway
+    await this.outboxService.add(
+      new UserCreatedEventInput({
+        userId: saved.id,
+        email: saved.email,
+        name: saved.name,
+        idempotencyKey: crypto.randomUUID(),
+      }),
+    );
 
     this.logger.debug('User created', {
       userId: saved.id,
@@ -318,7 +357,14 @@ export class UsersService extends BaseService implements IUsersService {
     Object.assign(user, dto);
     const updated = await this.userRepository.save(user);
 
-    // TODO: call OutboxService to update customer in payments gateway
+    // Expected side effects: update customer in payments gateway
+    await this.outboxService.add(
+      new UserUpdatedEventInput({
+        userId: updated.id,
+        email: updated.email,
+        name: updated.name,
+      }),
+    );
 
     this.logger.debug(`User updated successfully: ${updated.id}`);
 
@@ -343,7 +389,12 @@ export class UsersService extends BaseService implements IUsersService {
 
     await this.userRepository.softRemove(user);
 
-    // TODO: call OutboxService to delete customer in payments gateway
+    // Expected side effects: delete customer in payments gateway
+    await this.outboxService.add(
+      new UserDeletedEventInput({
+        userId: user.id,
+      }),
+    );
 
     this.logger.debug('User removed successfully', { userId: id });
   }

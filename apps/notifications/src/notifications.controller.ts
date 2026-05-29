@@ -31,7 +31,7 @@ export class NotificationsController extends BaseController {
     super(NotificationsController.name);
   }
 
-  //#region Notifications - Internals
+  //#region Notifications - RPC
 
   @MessagePattern(FindByUserNotificationsRpcInput.pattern)
   findByUser(

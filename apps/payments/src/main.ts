@@ -12,7 +12,8 @@ import { Logger } from 'nestjs-pino';
 import { PaymentsModule } from './payments.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(PaymentsModule);
+  // rawBody: true is required so StripeController can verify the webhook signature.
+  const app = await NestFactory.create(PaymentsModule, { rawBody: true });
 
   const configService = app.get(ConfigService);
 
@@ -33,7 +34,10 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  logger.log('Payments microservice is running');
+  const httpPort = configService.get<number>('PAYMENTS_HTTP_PORT', 3002);
+  await app.listen(httpPort);
+
+  logger.log(`Payments microservice is running (HTTP: ${httpPort})`);
 }
 
 void bootstrap();

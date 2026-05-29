@@ -15,13 +15,13 @@ import { CreateGatewayRefundInput } from 'libs/contracts/interfaces/payments/cre
 import { GatewayCustomerResult } from 'libs/contracts/interfaces/payments/gateway-customer-result.interface';
 import { GatewayPaymentResult } from 'libs/contracts/interfaces/payments/gateway-payment-result.interface';
 import { GatewayRefundResult } from 'libs/contracts/interfaces/payments/gateway-refund-result.interface';
-import { ProcessGatewayWebhookInput } from 'libs/contracts/interfaces/payments/process-gateway-webhook-input.interface';
 import { UpdateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/update-gateway-customer-input.interface';
 import Stripe from 'stripe';
 import { STRIPE_CLIENT } from '../../../config/payments.config';
 import { I18N_PAYMENTS } from '../../../constants/i18n.constant';
 import { PaymentsGatewayPort } from '../../../interfaces/payments-gateway-port.interface';
 import {
+  StripWebhookParams,
   StripeCustomer,
   StripeCustomerCreateParams,
   StripePaymentIntent,
@@ -152,7 +152,7 @@ export class StripePort implements PaymentsGatewayPort {
 
   //#region Webhooks
 
-  async processWebhook(input: ProcessGatewayWebhookInput): Promise<void> {
+  async processWebhook(input: StripWebhookParams): Promise<void> {
     const event = this.stripe.webhooks.constructEvent(
       input.payload,
       input.signature,

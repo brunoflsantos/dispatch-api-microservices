@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ModuleImportsFactory } from 'libs/common/factories/module-imports.factory';
 import { DbGuardModule } from 'libs/common/modules/db-guard/db-guard.module';
+import { TransportModule } from 'libs/common/modules/transport/transport.module';
 import { join, resolve } from 'path';
 import { typeOrmNotificationsConfig } from './config/orm.notifications.config';
 import {
@@ -34,6 +35,8 @@ import { NotificationRepository } from './providers/notification.repository';
     }),
 
     DbGuardModule,
+
+    TransportModule,
   ],
   controllers: [NotificationsController],
   providers: [

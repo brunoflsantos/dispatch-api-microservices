@@ -1,9 +1,10 @@
 import { BaseEntity } from 'libs/contracts/entities/base.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('addresses')
 export class Address extends BaseEntity {
+  @Index()
   @Column('uuid')
   userId: string;
 

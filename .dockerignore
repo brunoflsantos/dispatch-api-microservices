@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.gitignore
+**/*.md
+**/*.log
+**/.env*
+docker/
+tmp/
+test/
+**/*.spec.ts
+**/*.e2e-spec.ts
+coverage/
