@@ -1,17 +1,17 @@
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CreateOrderProductInput } from 'libs/contracts/interfaces/orders/create-order-product-input.interface';
-import { PagOffsetResultDto } from '../../../../contracts/dto/pagination/pag-offset-result.dto';
-import { CreateProductInput } from '../../../../contracts/interfaces/products/create-product-input.interface';
-import { ProductOffsetQueryInput } from '../../../../contracts/interfaces/products/product-offset-query-input.interface';
+import { CreateProductInput } from 'libs/contracts/interfaces/products/create-product-input.interface';
+import { ProductCursorQueryInput } from 'libs/contracts/interfaces/products/product-cursor-query-input.interface';
 import {
   ProductResult,
   PublicProductResult,
-} from '../../../../contracts/interfaces/products/product-result.interface';
-import { UpdateProductInput } from '../../../../contracts/interfaces/products/update-product-input.interface';
+} from 'libs/contracts/interfaces/products/product-result.interface';
+import { UpdateProductInput } from 'libs/contracts/interfaces/products/update-product-input.interface';
 import { BaseRpcInput } from './base.input';
 
 interface CatalogTransportPayloads {
   PUBLIC_FIND_ALL_PRODUCTS: {
-    query: ProductOffsetQueryInput;
+    query: ProductCursorQueryInput;
   };
 
   PUBLIC_FIND_ONE_PRODUCT: {
@@ -24,7 +24,7 @@ interface CatalogTransportPayloads {
   };
 
   ADMIN_FIND_ALL_PRODUCTS: {
-    query: ProductOffsetQueryInput;
+    query: ProductCursorQueryInput;
   };
 
   ADMIN_FIND_ONE_PRODUCT: {
@@ -62,11 +62,11 @@ interface CatalogTransportPayloads {
 }
 
 interface CatalogTransportResponses {
-  PUBLIC_FIND_ALL_PRODUCTS: PagOffsetResultDto<PublicProductResult>;
+  PUBLIC_FIND_ALL_PRODUCTS: PagCursorResultDto<PublicProductResult>;
   PUBLIC_FIND_ONE_PRODUCT: PublicProductResult;
 
   ADMIN_CREATE_PRODUCT: ProductResult;
-  ADMIN_FIND_ALL_PRODUCTS: PagOffsetResultDto<ProductResult>;
+  ADMIN_FIND_ALL_PRODUCTS: PagCursorResultDto<ProductResult>;
   ADMIN_FIND_ONE_PRODUCT: ProductResult;
   ADMIN_UPDATE_PRODUCT: ProductResult;
   ADMIN_REMOVE_PRODUCT: void;

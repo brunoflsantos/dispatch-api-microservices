@@ -3,11 +3,9 @@ import { ModuleImportsFactory } from 'libs/common/factories/module-imports.facto
 import { TransportModule } from 'libs/common/modules/transport/transport.module';
 import { join, resolve } from 'path';
 import { typeOrmIdentityConfig } from './config/orm.identity.config';
-import { IDENTITY_SERVICE, USER_REPOSITORY } from './constants/identity.token';
 import { IdentityController } from './identity.controller';
 import { IdentityService } from './identity.service';
 import { AuthModule } from './modules/auth/auth.module';
-import { UserRepository } from './modules/users/providers/user.repository';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
@@ -34,12 +32,6 @@ import { UsersModule } from './modules/users/users.module';
     TransportModule,
   ],
   controllers: [IdentityController],
-  providers: [
-    { provide: IDENTITY_SERVICE, useClass: IdentityService },
-    {
-      provide: USER_REPOSITORY,
-      useClass: UserRepository,
-    },
-  ],
+  providers: [IdentityService],
 })
 export class IdentityModule {}

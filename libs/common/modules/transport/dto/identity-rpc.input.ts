@@ -1,20 +1,23 @@
-import { PagOffsetResultDto } from '../../../../contracts/dto/pagination/pag-offset-result.dto';
-import { LoginResult } from '../../../../contracts/interfaces/auth/login-result.interface';
-import { RequestUser } from '../../../../contracts/interfaces/request-user.interface';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
+import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
+import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import {
   CreateUserInput,
   PublicCreateUserInput,
-} from '../../../../contracts/interfaces/users/create-user-input.interface';
+} from 'libs/contracts/interfaces/users/create-user-input.interface';
 import {
   PublicUpdateUserInput,
   UpdateUserInput,
-} from '../../../../contracts/interfaces/users/update-user-input.interface';
-import { PublicUserOffsetQueryInput } from '../../../../contracts/interfaces/users/user-offset-query-input.interface';
+} from 'libs/contracts/interfaces/users/update-user-input.interface';
+import {
+  PublicUserCursorQueryInput,
+  UserCursorQueryInput,
+} from 'libs/contracts/interfaces/users/user-cursor-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
   UserSelfResult,
-} from '../../../../contracts/interfaces/users/user-result.interface';
+} from 'libs/contracts/interfaces/users/user-result.interface';
 import { BaseRpcInput } from './base.input';
 
 interface IdentityTransportPayloads {
@@ -32,7 +35,7 @@ interface IdentityTransportPayloads {
   };
 
   PUBLIC_FIND_ALL_USERS: {
-    query: PublicUserOffsetQueryInput;
+    query: PublicUserCursorQueryInput;
   };
 
   PUBLIC_UPDATE_USER: {
@@ -45,7 +48,7 @@ interface IdentityTransportPayloads {
   };
 
   ADMIN_FIND_ALL_USERS: {
-    query: PublicUserOffsetQueryInput;
+    query: UserCursorQueryInput;
     reqUser: RequestUser;
   };
 
@@ -89,11 +92,11 @@ interface IdentityTransportResponses {
   PUBLIC_CREATE_USER: UserSelfResult;
   PUBLIC_FIND_MY_USER: UserSelfResult;
   PUBLIC_FIND_ONE_USER: PublicUserResult;
-  PUBLIC_FIND_ALL_USERS: PagOffsetResultDto<PublicUserResult>;
+  PUBLIC_FIND_ALL_USERS: PagCursorResultDto<PublicUserResult>;
   PUBLIC_UPDATE_USER: UserSelfResult;
   PUBLIC_REMOVE_MY_USER: void;
 
-  ADMIN_FIND_ALL_USERS: PagOffsetResultDto<UserResult>;
+  ADMIN_FIND_ALL_USERS: PagCursorResultDto<UserResult>;
   ADMIN_FIND_ONE_USER: UserResult;
   ADMIN_CREATE_USER: UserResult;
   ADMIN_UPDATE_USER: UserResult;

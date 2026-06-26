@@ -1,8 +1,8 @@
 import { Exclude, Expose } from 'class-transformer';
-import { UserAddressResponseContract } from 'libs/contracts/interfaces/users/user-result.interface';
+import { AddressResult } from 'libs/contracts/interfaces/users/address-result.interface';
 
 @Exclude()
-export class UserAddressResponseDto implements UserAddressResponseContract {
+export class UserAddressResponseDto implements AddressResult {
   @Expose()
   line1: string;
 

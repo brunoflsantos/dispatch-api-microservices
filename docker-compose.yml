@@ -53,7 +53,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: dispatch-postgres
+    container_name: dispatch-ms-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
@@ -74,7 +74,7 @@ services:
 
   redis:
     image: redis:7.4-alpine
-    container_name: dispatch-redis
+    container_name: dispatch-ms-redis
     restart: unless-stopped
     volumes:
       - redis_data:/data
@@ -90,7 +90,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: dispatch-rabbitmq
+    container_name: dispatch-ms-rabbitmq
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: guest
@@ -108,13 +108,21 @@ services:
       timeout: 10s
       retries: 5
 
+  stripe-mock:
+    image: stripe/stripe-mock:v0.197.0
+    container_name: dispatch-ms-stripe-mock
+    ports:
+      - '12111:12111'
+    networks:
+      - dispatch-network
+
   # ===========================================================================
   # Observability (Grafana stack)
   # ===========================================================================
 
   loki:
     image: grafana/loki:3.0.0
-    container_name: dispatch-loki
+    container_name: dispatch-ms-loki
     restart: unless-stopped
     command: -config.file=/etc/loki/loki.yml
     volumes:
@@ -132,7 +140,7 @@ services:
 
   promtail:
     image: grafana/promtail:3.0.0
-    container_name: dispatch-promtail
+    container_name: dispatch-ms-promtail
     restart: unless-stopped
     command: -config.file=/etc/promtail/promtail.yml
     volumes:
@@ -146,7 +154,7 @@ services:
 
   grafana:
     image: grafana/grafana:11.1.0
-    container_name: dispatch-grafana
+    container_name: dispatch-ms-grafana
     restart: unless-stopped
     environment:
       GF_AUTH_ANONYMOUS_ENABLED: 'true'
@@ -173,7 +181,7 @@ services:
       args:
         APP_NAME: api-gateway
     image: dispatch/api-gateway:local
-    container_name: dispatch-api-gateway
+    container_name: dispatch-ms-api-gateway
     restart: unless-stopped
     env_file:
       - apps/api-gateway/.env.production
@@ -192,7 +200,7 @@ services:
       args:
         APP_NAME: catalog
     image: dispatch/catalog:local
-    container_name: dispatch-catalog
+    container_name: dispatch-ms-catalog
     restart: unless-stopped
     env_file:
       - apps/catalog/.env.production
@@ -207,7 +215,7 @@ services:
       args:
         APP_NAME: identity
     image: dispatch/identity:local
-    container_name: dispatch-identity
+    container_name: dispatch-ms-identity
     restart: unless-stopped
     env_file:
       - apps/identity/.env.production
@@ -222,7 +230,7 @@ services:
       args:
         APP_NAME: orders
     image: dispatch/orders:local
-    container_name: dispatch-orders
+    container_name: dispatch-ms-orders
     restart: unless-stopped
     env_file:
       - apps/orders/.env.production
@@ -237,7 +245,7 @@ services:
       args:
         APP_NAME: notifications
     image: dispatch/notifications:local
-    container_name: dispatch-notifications
+    container_name: dispatch-ms-notifications
     restart: unless-stopped
     env_file:
       - apps/notifications/.env.production
@@ -252,7 +260,7 @@ services:
       args:
         APP_NAME: payments
     image: dispatch/payments:local
-    container_name: dispatch-payments
+    container_name: dispatch-ms-payments
     restart: unless-stopped
     env_file:
       - apps/payments/.env.production

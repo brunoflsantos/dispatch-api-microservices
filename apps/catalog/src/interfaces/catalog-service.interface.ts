@@ -1,8 +1,8 @@
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { IBaseService } from 'libs/contracts/interfaces/base-service.interface';
 import { CreateOrderProductInput } from 'libs/contracts/interfaces/orders/create-order-product-input.interface';
 import { CreateProductInput } from 'libs/contracts/interfaces/products/create-product-input.interface';
-import { ProductOffsetQueryInput } from 'libs/contracts/interfaces/products/product-offset-query-input.interface';
+import { ProductCursorQueryInput } from 'libs/contracts/interfaces/products/product-cursor-query-input.interface';
 import {
   ProductResult,
   PublicProductResult,
@@ -11,8 +11,8 @@ import { UpdateProductInput } from 'libs/contracts/interfaces/products/update-pr
 
 export interface ICatalogService extends IBaseService {
   publicFindAllProducts(
-    query: ProductOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<PublicProductResult>>;
+    query: ProductCursorQueryInput,
+  ): Promise<PagCursorResultDto<PublicProductResult>>;
 
   publicFindOneProduct(id: string): Promise<PublicProductResult>;
 
@@ -22,8 +22,8 @@ export interface ICatalogService extends IBaseService {
   ): Promise<ProductResult>;
 
   adminFindAllProducts(
-    query: ProductOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<ProductResult>>;
+    query: ProductCursorQueryInput,
+  ): Promise<PagCursorResultDto<ProductResult>>;
 
   adminFindOneProduct(id: string): Promise<ProductResult>;
 

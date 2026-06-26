@@ -1,9 +1,9 @@
 import { ForbiddenException } from '@nestjs/common';
+import { I18N_IDENTITY } from 'apps/identity/src/constants/i18n.constant';
 import { ROLE_LEVELS } from 'libs/common/constants/role-levels.constant';
 import { Role } from 'libs/common/enums/role.enum';
 import { template } from 'libs/common/utils/functions.utils';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
-import { I18N_IDENTITY } from '../../../constants/i18n.constant';
 import { User } from '../entities/user.entity';
 
 export function assertWriteAccess(targetUser: User, requestUser?: RequestUser) {

@@ -1,9 +1,9 @@
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CreateOrderInput } from 'libs/contracts/interfaces/orders/create-order-input.interface';
 import {
-  OrderByUserOffsetQueryInput,
-  OrderOffsetQueryInput,
-} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
+  OrderByUserCursorQueryInput,
+  OrderCursorQueryInput,
+} from 'libs/contracts/interfaces/orders/order-cursor-query-input.interface';
 import {
   OrderResult,
   PublicOrderResult,
@@ -22,15 +22,15 @@ export interface IOrdersService extends IBaseService {
   ): Promise<PublicOrderResult>;
 
   publicFindByUser(
-    query: OrderByUserOffsetQueryInput,
+    query: OrderByUserCursorQueryInput,
     reqUser: RequestUser,
-  ): Promise<PagOffsetResultDto<PublicOrderResult>>;
+  ): Promise<PagCursorResultDto<PublicOrderResult>>;
 
   publicFindOne(id: string, reqUser: RequestUser): Promise<PublicOrderResult>;
 
   adminFindAll(
-    query: OrderOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<OrderResult>>;
+    query: OrderCursorQueryInput,
+  ): Promise<PagCursorResultDto<OrderResult>>;
 
   adminFindOne(id: string): Promise<OrderResult>;
 

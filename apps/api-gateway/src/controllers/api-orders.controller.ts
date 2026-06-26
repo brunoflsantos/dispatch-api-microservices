@@ -43,15 +43,14 @@ import {
   PublicFindOrdersByUserRpcInput,
 } from 'libs/common/modules/transport/dto/orders-rpc.input';
 import { OrdersRpcClient } from 'libs/common/modules/transport/providers/orders-rpc-client';
+import { CursorParamsPipe } from 'libs/common/pipes/cursor-params.pipe';
 import { template } from 'libs/common/utils/functions.utils';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import type { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
+import type { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { CreateOrderDto } from '../dto/orders/create-order.dto';
-import {
-  OrderByUserOffsetQueryDto,
-  OrderOffsetQueryDto,
-} from '../dto/orders/order-offset-query.dto';
+import { OrderByUserQueryDto, OrderQueryDto } from '../dto/orders/order-query.dto';
 import {
   OrderResponseDto,
   PublicOrderResponseDto,
@@ -117,17 +116,22 @@ export class ApiOrdersController extends BaseController {
     description:
       'Retrieve a paginated list of orders belonging to the authenticated user',
   })
-  @ApiQuery({ type: OrderByUserOffsetQueryDto })
+  @ApiQuery({ type: OrderByUserQueryDto })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Orders retrieved successfully',
-    type: PagOffsetResultDto<PublicOrderResponseDto>,
+    type: PagCursorResultDto<PublicOrderResponseDto>,
   })
   publicFindOrdersByUser(
-    @Query() queryDto: OrderByUserOffsetQueryDto,
+    @Query() queryDto: OrderByUserQueryDto,
     @GetUser() user: RequestUser,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
   ) {
     return this.ordersRpcClient.call(
-      new PublicFindOrdersByUserRpcInput({ reqUser: user, query: queryDto }),
+      new PublicFindOrdersByUserRpcInput({
+        reqUser: user,
+        query: { ...queryDto, cursor },
+      }),
     );
   }
 
@@ -184,14 +188,18 @@ export class ApiOrdersController extends BaseController {
     summary: 'Get all orders',
     description: 'Retrieve a paginated list of orders with optional filtering',
   })
-  @ApiQuery({ type: OrderOffsetQueryDto })
+  @ApiQuery({ type: OrderQueryDto })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Orders successfully retrieved',
-    type: PagOffsetResultDto<OrderResponseDto>,
+    type: PagCursorResultDto<OrderResponseDto>,
   })
-  adminFindAllOrders(@Query() queryDto: OrderOffsetQueryDto) {
+  adminFindAllOrders(
+    @Query() queryDto: OrderQueryDto,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
+  ) {
     return this.ordersRpcClient.call(
-      new AdminFindAllOrdersRpcInput({ query: queryDto }),
+      new AdminFindAllOrdersRpcInput({ query: { ...queryDto, cursor } }),
     );
   }
 

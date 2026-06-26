@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { BaseOffsetQueryInput } from '../interfaces/base-offset-query-input.interface';
 
-export abstract class OffsetQueryDto implements BaseOffsetQueryInput {
+export abstract class BaseOffsetQueryDto implements BaseOffsetQueryInput {
   @ApiPropertyOptional({
     description: 'Page number for pagination',
     example: 1,

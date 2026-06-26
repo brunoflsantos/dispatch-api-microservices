@@ -1,16 +1,12 @@
 import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { IsDateString, IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { OrderStatus } from 'libs/common/enums/order-status.enum';
-import { OffsetQueryDto } from 'libs/contracts/dto/base-query.dto';
 import {
-  OrderByUserOffsetQueryInput,
-  OrderOffsetQueryInput,
-} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
+  OrderByUserCursorQueryInput,
+  OrderCursorQueryInput,
+} from 'libs/contracts/interfaces/orders/order-cursor-query-input.interface';
 
-export class OrderOffsetQueryDto
-  extends OffsetQueryDto
-  implements OrderOffsetQueryInput
-{
+export class OrderQueryDto implements Omit<OrderCursorQueryInput, 'cursor'> {
   @ApiPropertyOptional({
     description: 'User ID to filter orders',
     example: '550e8400-e29b-41d4-a716-446655440001',
@@ -45,6 +41,6 @@ export class OrderOffsetQueryDto
   endDate?: string;
 }
 
-export class OrderByUserOffsetQueryDto
-  extends OmitType(OrderOffsetQueryDto, ['userId'] as const)
-  implements OrderByUserOffsetQueryInput {}
+export class OrderByUserQueryDto
+  extends OmitType(OrderQueryDto, ['userId'] as const)
+  implements Omit<OrderByUserCursorQueryInput, 'cursor'> {}

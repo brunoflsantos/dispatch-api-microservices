@@ -19,7 +19,7 @@ import {
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { template } from 'libs/common/utils/functions.utils';
 import { HashAdapter } from 'libs/common/utils/hash-adapter.utils';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import {
   CreateUserInput,
@@ -30,16 +30,17 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserOffsetQueryInput,
-  UserOffsetQueryInput,
-} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
+  PublicUserCursorQueryInput,
+  UserCursorQueryInput,
+} from 'libs/contracts/interfaces/users/user-cursor-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
   UserSelfResult,
 } from 'libs/contracts/interfaces/users/user-result.interface';
 import { BaseService } from 'libs/contracts/services/base.service';
-import { PublicUserResponseDto } from '../../../../api-gateway/src/dto/identity/user-response.dto';
+
+import { PublicUserResponseDto } from 'apps/api-gateway/src/dto/identity/user-response.dto';
 import { I18N_IDENTITY } from '../../constants/i18n.constant';
 import { ADDRESS_REPOSITORY, USER_REPOSITORY } from '../../constants/identity.token';
 import { UserAddressResponseDto } from './dto/user-address-response.dto';
@@ -143,15 +144,14 @@ export class UsersService extends BaseService implements IUsersService {
   }
 
   async publicFindAll(
-    query: PublicUserOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<PublicUserResult>> {
+    query: PublicUserCursorQueryInput,
+  ): Promise<PagCursorResultDto<PublicUserResult>> {
     const result = await this.userRepository.filter(query);
 
-    const resultMapped = new PagOffsetResultDto<PublicUserResponseDto>(
-      result.meta.total,
-      result.meta.page,
-      result.meta.limit,
+    const resultMapped = new PagCursorResultDto<PublicUserResponseDto>(
       EntityMapper.mapArray(result.items, PublicUserResponseDto),
+      result.nextCursor,
+      result.hasMore,
     );
 
     this.logger.debug(`Retrieved ${result.items.length} users with public query`, {
@@ -291,15 +291,14 @@ export class UsersService extends BaseService implements IUsersService {
   }
 
   async adminFindAll(
-    query: UserOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<UserResult>> {
+    query: UserCursorQueryInput,
+  ): Promise<PagCursorResultDto<UserResult>> {
     const result = await this.userRepository.filter(query);
 
-    const resultMapped = new PagOffsetResultDto<UserResponseDto>(
-      result.meta.total,
-      result.meta.page,
-      result.meta.limit,
+    const resultMapped = new PagCursorResultDto<UserResponseDto>(
       EntityMapper.mapArray(result.items, UserResponseDto),
+      result.nextCursor,
+      result.hasMore,
     );
 
     this.logger.debug(`Retrieved ${result.items.length} users`);

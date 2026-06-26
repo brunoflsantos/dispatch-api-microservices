@@ -1,5 +1,4 @@
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
-import { CursorQueryInput } from 'libs/contracts/interfaces/cursor-query-input.interface';
 import { CreateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/create-gateway-customer-input.interface';
 import { CreateGatewayPaymentInput } from 'libs/contracts/interfaces/payments/create-gateway-payment-input.interface';
 import { CreateGatewayRefundInput } from 'libs/contracts/interfaces/payments/create-gateway-refund-input.interface';
@@ -10,11 +9,12 @@ import { GatewayRefundResult } from 'libs/contracts/interfaces/payments/gateway-
 import { PaymentCursorQueryInput } from 'libs/contracts/interfaces/payments/payment-cursor-query-input.interface';
 import { PaymentResult } from 'libs/contracts/interfaces/payments/payment-result.interface';
 import { UpdateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/update-gateway-customer-input.interface';
+import { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { BaseRpcInput } from './base.input';
 
 interface PaymentsTransportPayloads {
   CREATE_GATEWAY_CUSTOMER: { input: CreateGatewayCustomerInput };
-  FIND_ALL_GATEWAY_CUSTOMERS: { cursor?: CursorQueryInput };
+  FIND_ALL_GATEWAY_CUSTOMERS: { cursor?: CursorParams };
   FIND_ONE_GATEWAY_CUSTOMER: { customerId: string };
   UPDATE_GATEWAY_CUSTOMER: { customerId: string; input: UpdateGatewayCustomerInput };
   DELETE_GATEWAY_CUSTOMER: { customerId: string };

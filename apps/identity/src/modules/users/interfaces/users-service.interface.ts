@@ -1,4 +1,4 @@
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { IBaseService } from 'libs/contracts/interfaces/base-service.interface';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import {
@@ -10,9 +10,9 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserOffsetQueryInput,
-  UserOffsetQueryInput,
-} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
+  PublicUserCursorQueryInput,
+  UserCursorQueryInput,
+} from 'libs/contracts/interfaces/users/user-cursor-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -30,8 +30,8 @@ export interface IUsersService extends IBaseService {
   publicFindOne(id: string): Promise<PublicUserResult>;
 
   publicFindAll(
-    query: PublicUserOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<PublicUserResult>>;
+    query: PublicUserCursorQueryInput,
+  ): Promise<PagCursorResultDto<PublicUserResult>>;
 
   publicUpdate(
     dto: PublicUpdateUserInput,
@@ -46,7 +46,7 @@ export interface IUsersService extends IBaseService {
     requestUser: RequestUser,
   ): Promise<UserResult>;
 
-  adminFindAll(query: UserOffsetQueryInput): Promise<PagOffsetResultDto<UserResult>>;
+  adminFindAll(query: UserCursorQueryInput): Promise<PagCursorResultDto<UserResult>>;
 
   adminFindOne(id: string): Promise<UserResult>;
 

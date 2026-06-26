@@ -20,8 +20,8 @@ import { NotificationsRpcClient } from 'libs/common/modules/transport/providers/
 import { CursorParamsPipe } from 'libs/common/pipes/cursor-params.pipe';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
-import type { CursorQueryInput } from 'libs/contracts/interfaces/cursor-query-input.interface';
 import type { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
+import type { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { NotificationResponseDto } from '../dto/notifications/notification-response.dto';
 
 @Controller('notifications')
@@ -43,11 +43,11 @@ export class ApiNotificationsController extends BaseController {
   @ApiOkResponse({ type: PagCursorResultDto<NotificationResponseDto> })
   findByUser(
     @GetUser() user: RequestUser,
-    @Query('cursor', CursorParamsPipe) cursor: CursorQueryInput,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
   ) {
     return this.notificationsRpcClient.call(
       new FindByUserNotificationsRpcInput({
-        query: { userId: user.id, language: user.language, ...cursor },
+        query: { userId: user.id, language: user.language, cursor },
       }),
     );
   }

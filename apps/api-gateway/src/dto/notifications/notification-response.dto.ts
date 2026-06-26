@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { NotificationResult } from 'libs/contracts/interfaces/notifications/notification-result.interface';
+import { NotificationTranslatedResult } from 'libs/contracts/interfaces/notifications/notification-translated-result.interface';
 
 @Exclude()
-export class NotificationResponseDto implements NotificationResult {
+export class NotificationResponseDto implements NotificationTranslatedResult {
   @Expose()
   @ApiProperty({
     description: 'Notification unique identifier',

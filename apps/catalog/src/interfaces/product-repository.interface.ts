@@ -1,12 +1,12 @@
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import { ProductOffsetQueryInput } from 'libs/contracts/interfaces/products/product-offset-query-input.interface';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
+import { ProductCursorQueryInput } from 'libs/contracts/interfaces/products/product-cursor-query-input.interface';
 import { IBaseRepository } from 'libs/contracts/repositories/base-repository.interface';
 import { Product } from '../entities/product.entity';
 
 export interface IProductRepository extends IBaseRepository<Product> {
   filter(
-    query: Partial<ProductOffsetQueryInput>,
-  ): Promise<PagOffsetResultDto<Product>>;
+    query: Partial<ProductCursorQueryInput>,
+  ): Promise<PagCursorResultDto<Product>>;
 
   findManyByIds(ids: string[]): Promise<Product[]>;
 

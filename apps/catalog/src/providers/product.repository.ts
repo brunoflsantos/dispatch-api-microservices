@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { col } from 'libs/common/utils/functions.utils';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
-import { ProductOffsetQueryInput } from 'libs/contracts/interfaces/products/product-offset-query-input.interface';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
+import { ProductCursorQueryInput } from 'libs/contracts/interfaces/products/product-cursor-query-input.interface';
 import { BaseRepository } from 'libs/contracts/repositories/base.repository';
+import type { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { In, Repository } from 'typeorm';
 import { Product } from '../entities/product.entity';
 import { IProductRepository } from '../interfaces/product-repository.interface';
@@ -21,11 +22,16 @@ export class ProductRepository
   }
 
   async filter(
-    query: Partial<ProductOffsetQueryInput>,
-  ): Promise<PagOffsetResultDto<Product>> {
-    const { name, description, page, limit } = query;
+    query: Partial<ProductCursorQueryInput>,
+  ): Promise<PagCursorResultDto<Product>> {
+    const { name, description, cursor } = query;
+    const limit = cursor?.limit ? Math.min(cursor.limit, 100) : 20;
 
-    const queryBuilder = this.createQueryBuilder(ALIAS_PRODUCT);
+    const queryBuilder = this.createQueryBuilder(ALIAS_PRODUCT)
+      .orderBy(product('createdAt'), 'DESC')
+      .addOrderBy(product('id'), 'DESC')
+      .take(limit + 1);
+
     if (name) {
       queryBuilder.andWhere(`${product('name')} ILIKE :name`, {
         name: `%${name}%`,
@@ -36,18 +42,27 @@ export class ProductRepository
         description: `%${description}%`,
       });
     }
+    if (cursor?.startingAfter) {
+      queryBuilder.andWhere(`${product('createdAt')} < :startingAfter`, {
+        startingAfter: cursor.startingAfter,
+      });
+    }
 
-    const pageLimit = limit ? Math.min(limit, 100) : 20;
-    const skip = page ? (page - 1) * pageLimit : 0;
+    const items = await queryBuilder.getMany();
+    const hasMore = items.length > limit;
+    const paginatedItems = hasMore ? items.slice(0, limit) : items;
+    const lastItem = paginatedItems.at(-1);
 
-    return queryBuilder
-      .skip(skip)
-      .take(pageLimit)
-      .orderBy(product('createdAt'), 'DESC')
-      .getManyAndCount()
-      .then(
-        ([data, total]) => new PagOffsetResultDto(total, page || 1, pageLimit, data),
-      );
+    return new PagCursorResultDto(
+      paginatedItems,
+      hasMore && lastItem ? this.encodeCursor(lastItem) : undefined,
+      hasMore,
+    );
+  }
+
+  private encodeCursor(item: Product): string {
+    const cursor: CursorParams = { startingAfter: item.createdAt.toISOString() };
+    return Buffer.from(JSON.stringify(cursor)).toString('base64');
   }
 
   async increment(id: string, field: keyof Product, value: number): Promise<void> {

@@ -1,18 +1,18 @@
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { Role } from 'libs/common/enums/role.enum';
+import { AddressResult } from 'libs/contracts/interfaces/users/address-result.interface';
 import {
   PublicUserResult,
-  UserAddressResponseContract,
   UserResult,
   UserSelfResult,
 } from 'libs/contracts/interfaces/users/user-result.interface';
-import { BaseAddressDto } from './create-address.dto';
+import { CreateAddressDto } from './create-address.dto';
 
 @Exclude()
 export class UserAddressResponseDto
-  extends BaseAddressDto
-  implements UserAddressResponseContract {}
+  extends CreateAddressDto
+  implements AddressResult {}
 
 @Exclude()
 export class UserResponseDto implements UserResult {

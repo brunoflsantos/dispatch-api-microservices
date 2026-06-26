@@ -1,12 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { OffsetQueryDto } from 'libs/contracts/dto/base-query.dto';
-import { ProductOffsetQueryInput } from 'libs/contracts/interfaces/products/product-offset-query-input.interface';
+import { ProductCursorQueryInput } from 'libs/contracts/interfaces/products/product-cursor-query-input.interface';
 
-export class ProductOffsetQueryDto
-  extends OffsetQueryDto
-  implements ProductOffsetQueryInput
-{
+export class ProductQueryDto implements Omit<ProductCursorQueryInput, 'cursor'> {
   @ApiPropertyOptional({
     description: 'Filter items by name (partial match)',
     example: 'Headphones',

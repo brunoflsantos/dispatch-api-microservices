@@ -27,12 +27,12 @@ import {
 import { CatalogRpcClient } from 'libs/common/modules/transport/providers/catalog-rpc-client';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { template } from 'libs/common/utils/functions.utils';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CreateOrderInput } from 'libs/contracts/interfaces/orders/create-order-input.interface';
 import {
-  OrderByUserOffsetQueryInput,
-  OrderOffsetQueryInput,
-} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
+  OrderByUserCursorQueryInput,
+  OrderCursorQueryInput,
+} from 'libs/contracts/interfaces/orders/order-cursor-query-input.interface';
 import {
   OrderResult,
   PublicOrderResult,
@@ -133,24 +133,20 @@ export class OrdersService extends BaseService implements IOrdersService {
   }
 
   async publicFindByUser(
-    query: OrderByUserOffsetQueryInput,
+    query: OrderByUserCursorQueryInput,
     reqUser: RequestUser,
-  ): Promise<PagOffsetResultDto<PublicOrderResult>> {
+  ): Promise<PagCursorResultDto<PublicOrderResult>> {
     const result = await this.orderRepository.filter({
       ...query,
       userId: reqUser.id,
     });
 
-    this.logger.debug(`Found ${result.items.length} orders for user ${reqUser.id}`, {
-      page: query.page,
-      totalPages: result.meta.totalPages,
-    });
+    this.logger.debug(`Found ${result.items.length} orders for user ${reqUser.id}`);
 
-    return new PagOffsetResultDto<PublicOrderResponseDto>(
-      result.meta.total,
-      result.meta.page,
-      result.meta.limit,
+    return new PagCursorResultDto<PublicOrderResponseDto>(
       EntityMapper.mapArray(result.items, PublicOrderResponseDto),
+      result.nextCursor,
+      result.hasMore,
     );
   }
 
@@ -199,20 +195,16 @@ export class OrdersService extends BaseService implements IOrdersService {
   //#region Orders - Admin
 
   async adminFindAll(
-    query: OrderOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<OrderResult>> {
+    query: OrderCursorQueryInput,
+  ): Promise<PagCursorResultDto<OrderResult>> {
     const result = await this.orderRepository.filter(query);
 
-    this.logger.debug(`Found ${result.items.length} orders`, {
-      page: query.page,
-      totalPages: result.meta.totalPages,
-    });
+    this.logger.debug(`Found ${result.items.length} orders`);
 
-    return new PagOffsetResultDto<OrderResponseDto>(
-      result.meta.total,
-      result.meta.page,
-      result.meta.limit,
+    return new PagCursorResultDto<OrderResponseDto>(
       EntityMapper.mapArray(result.items, OrderResponseDto),
+      result.nextCursor,
+      result.hasMore,
     );
   }
 

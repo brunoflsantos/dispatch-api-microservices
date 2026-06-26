@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ModuleImportsFactory } from 'libs/common/factories/module-imports.factory';
 import { TransportModule } from 'libs/common/modules/transport/transport.module';
-import { join } from 'path';
+import { join, resolve } from 'path';
+import { typeOrmPaymentsConfig } from './config/orm.payments.config';
 import {
   CUSTOMER_REPOSITORY,
   PAYMENT_REPOSITORY,
   PAYMENTS_GATEWAY_PORT,
-  PAYMENTS_SERVICE,
   REFUND_REPOSITORY,
 } from './constants/payments.token';
 import { Customer } from './entities/customer.entity';
@@ -25,6 +25,17 @@ import { RefundRepository } from './providers/refund.repository';
   imports: [
     TypeOrmModule.forFeature([Payment, Refund, Customer]),
 
+    ModuleImportsFactory.createConfigModule({
+      envFilePath: resolve(
+        process.cwd(),
+        `apps/payments/.env.${process.env.NODE_ENV || 'local'}`,
+      ),
+    }),
+
+    ModuleImportsFactory.createLoggerModule(),
+
+    ModuleImportsFactory.createTypeOrmModule(typeOrmPaymentsConfig),
+
     ModuleImportsFactory.createI18nModule({
       translationsPath: join(__dirname, '/i18n/'),
     }),
@@ -35,13 +46,10 @@ import { RefundRepository } from './providers/refund.repository';
   ],
   controllers: [PaymentsController],
   providers: [
-    {
-      provide: PAYMENTS_SERVICE,
-      useClass: PaymentsService,
-    },
+    PaymentsService,
     {
       provide: PAYMENTS_GATEWAY_PORT,
-      useClass: StripePort,
+      useExisting: StripePort,
     },
     {
       provide: CUSTOMER_REPOSITORY,

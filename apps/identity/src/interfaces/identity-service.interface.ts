@@ -1,4 +1,4 @@
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
 import { IBaseService } from 'libs/contracts/interfaces/base-service.interface';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
@@ -11,9 +11,9 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserOffsetQueryInput,
-  UserOffsetQueryInput,
-} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
+  PublicUserCursorQueryInput,
+  UserCursorQueryInput,
+} from 'libs/contracts/interfaces/users/user-cursor-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -31,8 +31,8 @@ export interface IIdentityService extends IBaseService {
   publicFindOneUser(id: string): Promise<PublicUserResult>;
 
   publicFindAllUsers(
-    query: PublicUserOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<PublicUserResult>>;
+    query: PublicUserCursorQueryInput,
+  ): Promise<PagCursorResultDto<PublicUserResult>>;
 
   publicUpdateUser(
     dto: PublicUpdateUserInput,
@@ -48,8 +48,8 @@ export interface IIdentityService extends IBaseService {
   ): Promise<UserResult>;
 
   adminFindAllUsers(
-    query: UserOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<UserResult>>;
+    query: UserCursorQueryInput,
+  ): Promise<PagCursorResultDto<UserResult>>;
 
   adminFindOneUser(id: string): Promise<UserResult>;
 

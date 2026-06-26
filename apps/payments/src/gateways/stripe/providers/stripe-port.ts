@@ -4,11 +4,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { STRIPE_CLIENT } from 'apps/payments/src/config/payments.config';
+import { I18N_PAYMENTS } from 'apps/payments/src/constants/i18n.constant';
+import { PaymentsGatewayPort } from 'apps/payments/src/interfaces/payments-gateway-port.interface';
 import { OUTBOX_SERVICE } from 'libs/common/modules/outbox/constants/outbox.token';
 import type { IOutboxService } from 'libs/common/modules/outbox/interfaces/outbox-service.interface';
 import { ensureError, template } from 'libs/common/utils/functions.utils';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
-import { CursorQueryInput } from 'libs/contracts/interfaces/cursor-query-input.interface';
 import { CreateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/create-gateway-customer-input.interface';
 import { CreateGatewayPaymentInput } from 'libs/contracts/interfaces/payments/create-gateway-payment-input.interface';
 import { CreateGatewayRefundInput } from 'libs/contracts/interfaces/payments/create-gateway-refund-input.interface';
@@ -16,10 +18,8 @@ import { GatewayCustomerResult } from 'libs/contracts/interfaces/payments/gatewa
 import { GatewayPaymentResult } from 'libs/contracts/interfaces/payments/gateway-payment-result.interface';
 import { GatewayRefundResult } from 'libs/contracts/interfaces/payments/gateway-refund-result.interface';
 import { UpdateGatewayCustomerInput } from 'libs/contracts/interfaces/payments/update-gateway-customer-input.interface';
+import { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import Stripe from 'stripe';
-import { STRIPE_CLIENT } from '../../../config/payments.config';
-import { I18N_PAYMENTS } from '../../../constants/i18n.constant';
-import { PaymentsGatewayPort } from '../../../interfaces/payments-gateway-port.interface';
 import {
   StripWebhookParams,
   StripeCustomer,
@@ -60,7 +60,7 @@ export class StripePort implements PaymentsGatewayPort {
   }
 
   async findAllCustomers(
-    cursor?: CursorQueryInput,
+    cursor?: CursorParams,
   ): Promise<PagCursorResultDto<GatewayCustomerResult>> {
     const limit = cursor?.limit || 20;
 
@@ -123,7 +123,9 @@ export class StripePort implements PaymentsGatewayPort {
   ): Promise<GatewayPaymentResult> {
     const inputConverted = this.mapToStripePaymentIntentCreateParams(input);
 
-    const paymentIntent = await this.stripe.paymentIntents.create(inputConverted);
+    const paymentIntent = await this.stripe.paymentIntents.create(inputConverted, {
+      idempotencyKey: input.idempotencyKey,
+    });
 
     return this.mapToPaymentResult(paymentIntent);
   }
@@ -138,7 +140,9 @@ export class StripePort implements PaymentsGatewayPort {
   ): Promise<GatewayRefundResult> {
     const inputConverted = this.mapToRefundCreateParams(input);
 
-    const refund = await this.stripe.refunds.create(inputConverted);
+    const refund = await this.stripe.refunds.create(inputConverted, {
+      idempotencyKey: input.idempotencyKey,
+    });
 
     return this.mapToRefundResult(refund);
   }

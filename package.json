@@ -6,6 +6,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "prebuild": "chmod +x scripts/prebuild.sh && bash scripts/prebuild.sh",
     "build": "chmod +x scripts/build.sh && bash scripts/build.sh",
     "postbuild": "node scripts/copy-shared-i18n.mjs",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -41,7 +42,7 @@
     "nest:start:orders": "bash -c 'set -a; source apps/orders/.env.local; set +a; nest start orders --debug=9232 --watch'",
     "nest:start:payments": "bash -c 'set -a; source apps/payments/.env.local; set +a; nest start payments --debug=9234 --watch'",
     "nest:start:all": "concurrently -n \"gw,catalog,identity,orders,notif,pay\" -c \"blue,green,yellow,red,magenta,cyan\" --kill-others-on-fail \"npm:nest:start:api-gateway\" \"npm:nest:start:catalog\" \"npm:nest:start:identity\" \"npm:nest:start:orders\" \"npm:nest:start:notifications\" \"npm:nest:start:payments\"",
-    "docker:infra": "docker compose up -d postgres redis rabbitmq loki grafana promtail",
+    "docker:infra": "docker compose up -d postgres redis rabbitmq loki grafana promtail stripe-mock",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:build": "docker compose build --no-cache",

@@ -47,17 +47,16 @@ import {
   PublicUpdateUserRpcInput,
 } from 'libs/common/modules/transport/dto/identity-rpc.input';
 import { IdentityRpcClient } from 'libs/common/modules/transport/providers/identity-rpc-client';
+import { CursorParamsPipe } from 'libs/common/pipes/cursor-params.pipe';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import type { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
+import type { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { CreateUserDto, PublicCreateUserDto } from '../dto/identity/create-user.dto';
 import { LoginResponseDto } from '../dto/identity/login-response.dto';
 import { LoginDto } from '../dto/identity/login.dto';
 import { PublicUpdateUserDto, UpdateUserDto } from '../dto/identity/update-user.dto';
-import {
-  PublicUserQueryDto,
-  UserOffsetQueryDto,
-} from '../dto/identity/user-offset-query.dto';
+import { PublicUserQueryDto, UserQueryDto } from '../dto/identity/user-query.dto';
 import {
   PublicUserResponseDto,
   UserSelfResponseDto,
@@ -179,12 +178,18 @@ export class ApiIdentityController extends BaseController {
     description: 'Retrieve a paginated list of all users',
   })
   @ApiQuery({ type: PublicUserQueryDto })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Users retrieved successfully',
-    type: PagOffsetResultDto<PublicUserResponseDto>,
+    type: PagCursorResultDto<PublicUserResponseDto>,
   })
-  publicFindAllUsers(@Query() query: PublicUserQueryDto) {
-    return this.identityRpcClient.call(new PublicFindAllUsersRpcInput({ query }));
+  publicFindAllUsers(
+    @Query() query: PublicUserQueryDto,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
+  ) {
+    return this.identityRpcClient.call(
+      new PublicFindAllUsersRpcInput({ query: { ...query, cursor } }),
+    );
   }
 
   @Patch('public/users/me')
@@ -254,17 +259,19 @@ export class ApiIdentityController extends BaseController {
     summary: 'Get all users (admin)',
     description: 'Retrieve a paginated list of all users (admin)',
   })
-  @ApiQuery({ type: UserOffsetQueryDto })
+  @ApiQuery({ type: UserQueryDto })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Users retrieved successfully',
-    type: PagOffsetResultDto<UserSelfResponseDto>,
+    type: PagCursorResultDto<UserSelfResponseDto>,
   })
   adminFindAllUsers(
-    @Query() query: UserOffsetQueryDto,
+    @Query() query: UserQueryDto,
     @GetUser() reqUser: RequestUser,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
   ) {
     return this.identityRpcClient.call(
-      new AdminFindAllUsersRpcInput({ query, reqUser }),
+      new AdminFindAllUsersRpcInput({ query: { ...query, cursor }, reqUser }),
     );
   }
 

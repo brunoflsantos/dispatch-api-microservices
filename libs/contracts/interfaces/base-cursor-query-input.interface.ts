@@ -1,5 +1,5 @@
-import { CursorQueryInput } from './cursor-query-input.interface';
+import { CursorParams } from '../types/cursor-params.type';
 
 export interface BaseCursorQueryInput {
-  cursor?: CursorQueryInput;
+  cursor?: CursorParams;
 }

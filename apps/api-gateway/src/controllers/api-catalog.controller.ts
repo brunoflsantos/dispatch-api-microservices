@@ -37,11 +37,13 @@ import {
   PublicFindOneProductRpcInput,
 } from 'libs/common/modules/transport/dto/catalog-rpc.input';
 import { CatalogRpcClient } from 'libs/common/modules/transport/providers/catalog-rpc-client';
+import { CursorParamsPipe } from 'libs/common/pipes/cursor-params.pipe';
 import { template } from 'libs/common/utils/functions.utils';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
+import type { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { CreateProductDto } from '../dto/catalog/create-product.dto';
-import { ProductOffsetQueryDto } from '../dto/catalog/product-offset-query.dto';
+import { ProductQueryDto } from '../dto/catalog/product-query.dto';
 import { ProductResponseDto } from '../dto/catalog/product-response.dto';
 import { UpdateProductDto } from '../dto/catalog/update-product.dto';
 
@@ -62,13 +64,19 @@ export class ApiCatalogController extends BaseController {
     summary: 'Get all products',
     description: 'Retrieve a paginated list of all products',
   })
-  @ApiQuery({ type: ProductOffsetQueryDto })
+  @ApiQuery({ type: ProductQueryDto })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Products retrieved successfully',
-    type: PagOffsetResultDto<ProductResponseDto>,
+    type: PagCursorResultDto<ProductResponseDto>,
   })
-  publicFindAllProducts(@Query() query: ProductOffsetQueryDto) {
-    return this.catalogRpcClient.call(new PublicFindAllProductsRpcInput({ query }));
+  publicFindAllProducts(
+    @Query() query: ProductQueryDto,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
+  ) {
+    return this.catalogRpcClient.call(
+      new PublicFindAllProductsRpcInput({ query: { ...query, cursor } }),
+    );
   }
 
   @Get('public/products/:id')
@@ -127,13 +135,19 @@ export class ApiCatalogController extends BaseController {
     summary: 'Get all products (admin)',
     description: 'Retrieve a paginated list of all products for admin users',
   })
-  @ApiQuery({ type: ProductOffsetQueryDto })
+  @ApiQuery({ type: ProductQueryDto })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Products retrieved successfully',
-    type: PagOffsetResultDto<ProductResponseDto>,
+    type: PagCursorResultDto<ProductResponseDto>,
   })
-  adminFindAllProducts(@Query() query: ProductOffsetQueryDto) {
-    return this.catalogRpcClient.call(new AdminFindAllProductsRpcInput({ query }));
+  adminFindAllProducts(
+    @Query() query: ProductQueryDto,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
+  ) {
+    return this.catalogRpcClient.call(
+      new AdminFindAllProductsRpcInput({ query: { ...query, cursor } }),
+    );
   }
 
   @Get('admin/products/:id')

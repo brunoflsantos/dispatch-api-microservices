@@ -1,4 +1,4 @@
-import { OffsetQueryDto } from 'libs/contracts/dto/base-query.dto';
+import { BaseCursorQueryInput } from 'libs/contracts/interfaces/base-cursor-query-input.interface';
 import { CacheKeysFactory } from '../factories/cache-keys.factory';
 
 export const CACHE_KEYS = {
@@ -10,7 +10,7 @@ export const CACHE_KEYS = {
     IDEMPOTENCY: (operation: string, uniqueId: string) =>
       CacheKeysFactory.idempotency('products', operation, uniqueId),
 
-    CACHE_FIND_ALL: <T extends OffsetQueryDto>(query: Partial<T>) =>
+    CACHE_FIND_ALL: <T extends BaseCursorQueryInput>(query: Partial<T>) =>
       CacheKeysFactory.cache('products', 'findAll', JSON.stringify(query)),
 
     CACHE_FIND_ONE: (id: string) =>
@@ -26,7 +26,7 @@ export const CACHE_KEYS = {
 
     CACHE_FIND_ONE: (id: string) => CacheKeysFactory.cache('orders', 'findOne', id),
 
-    CACHE_FIND_ALL: <T extends OffsetQueryDto>(query: Partial<T>) =>
+    CACHE_FIND_ALL: <T extends BaseCursorQueryInput>(query: Partial<T>) =>
       CacheKeysFactory.cache('orders', 'findAll', JSON.stringify(query)),
 
     CACHE_FIND_ALL_PATTERN: () => CacheKeysFactory.cachePattern('orders', 'findAll'),
@@ -43,7 +43,7 @@ export const CACHE_KEYS = {
     IDEMPOTENCY: (operation: string, uniqueId: string) =>
       CacheKeysFactory.idempotency('users', operation, uniqueId),
 
-    CACHE_FIND_ALL: <T extends OffsetQueryDto>(query: Partial<T>) =>
+    CACHE_FIND_ALL: <T extends BaseCursorQueryInput>(query: Partial<T>) =>
       CacheKeysFactory.cache('users', 'findAll', JSON.stringify(query)),
 
     CACHE_FIND_ONE: (id: string) => CacheKeysFactory.cache('users', 'findOne', id),

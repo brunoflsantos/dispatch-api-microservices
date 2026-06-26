@@ -8,7 +8,7 @@
 export NODE_ENV="local"
 
 SERVICES=("api-gateway" "catalog" "identity" "orders" "notifications" "payments")
-INFRA_SERVICES="postgres redis rabbitmq loki grafana promtail"
+INFRA_SERVICES="postgres redis rabbitmq loki grafana promtail stripe-mock"
 
 # ─── Guard: Docker must be running ───────────────────────────────────────────
 if ! docker info > /dev/null 2>&1; then
@@ -57,6 +57,7 @@ echo "  API Gateway : http://localhost:3000"
 echo "  Swagger     : http://localhost:3000/api/docs"
 echo "  RabbitMQ UI : http://localhost:15672  (guest / guest)"
 echo "  Grafana     : http://localhost:3001"
+echo "  Stripe Mock : http://localhost:12111"
 echo "  Debug ports : api-gateway=9229  catalog=9230  identity=9231"
 echo "                orders=9232       notifications=9233  payments=9234"
 echo ""

@@ -12,10 +12,10 @@ import { IdempotencyService } from 'libs/common/modules/cache/providers/idempote
 import { DbGuardService } from 'libs/common/modules/db-guard/db-guard.service';
 import { EntityMapper } from 'libs/common/utils/entity-mapper.utils';
 import { runAndIgnoreError, template } from 'libs/common/utils/functions.utils';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CreateOrderProductInput } from 'libs/contracts/interfaces/orders/create-order-product-input.interface';
 import { CreateProductInput } from 'libs/contracts/interfaces/products/create-product-input.interface';
-import { ProductOffsetQueryInput } from 'libs/contracts/interfaces/products/product-offset-query-input.interface';
+import { ProductCursorQueryInput } from 'libs/contracts/interfaces/products/product-cursor-query-input.interface';
 import {
   ProductResult,
   PublicProductResult,
@@ -53,12 +53,12 @@ export class CatalogService extends BaseService implements ICatalogService {
   //#region Products - Public
 
   async publicFindAllProducts(
-    query: ProductOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<PublicProductResult>> {
+    query: ProductCursorQueryInput,
+  ): Promise<PagCursorResultDto<PublicProductResult>> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ALL(query);
     const cachedResult = await runAndIgnoreError(
       () =>
-        this.cacheService.get<PagOffsetResultDto<PublicProductResponseDto>>(
+        this.cacheService.get<PagCursorResultDto<PublicProductResponseDto>>(
           cacheKey,
         ),
       `fetching product list from cache with key: ${cacheKey}`,
@@ -70,11 +70,10 @@ export class CatalogService extends BaseService implements ICatalogService {
     }
 
     const result = await this.productRepository.filter(query);
-    const resultMapped = new PagOffsetResultDto<PublicProductResponseDto>(
-      result.meta.total,
-      result.meta.page,
-      result.meta.limit,
+    const resultMapped = new PagCursorResultDto<PublicProductResponseDto>(
       EntityMapper.mapArray(result.items, PublicProductResponseDto),
+      result.nextCursor,
+      result.hasMore,
     );
 
     await runAndIgnoreError(
@@ -152,11 +151,11 @@ export class CatalogService extends BaseService implements ICatalogService {
   }
 
   async adminFindAllProducts(
-    query: ProductOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<ProductResult>> {
+    query: ProductCursorQueryInput,
+  ): Promise<PagCursorResultDto<ProductResult>> {
     const cacheKey = CACHE_KEYS.PRODUCTS.CACHE_FIND_ALL(query);
     const cachedResult = await runAndIgnoreError(
-      () => this.cacheService.get<PagOffsetResultDto<ProductResponseDto>>(cacheKey),
+      () => this.cacheService.get<PagCursorResultDto<ProductResponseDto>>(cacheKey),
       `fetching product list from cache with key: ${cacheKey}`,
       this.logger,
     );
@@ -166,11 +165,10 @@ export class CatalogService extends BaseService implements ICatalogService {
     }
 
     const result = await this.productRepository.filter(query);
-    const resultMapped = new PagOffsetResultDto<ProductResponseDto>(
-      result.meta.total,
-      result.meta.page,
-      result.meta.limit,
+    const resultMapped = new PagCursorResultDto<ProductResponseDto>(
       EntityMapper.mapArray(result.items, ProductResponseDto),
+      result.nextCursor,
+      result.hasMore,
     );
 
     await runAndIgnoreError(

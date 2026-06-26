@@ -6,7 +6,7 @@ import {
   USERS_SERVICE,
 } from '../../constants/identity.token';
 
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheModule } from 'libs/common/modules/cache/cache.module';
 import { DbGuardModule } from 'libs/common/modules/db-guard/db-guard.module';
 import { OutboxModule } from 'libs/common/modules/outbox/outbox.module';
 import { Address } from './entities/address.entity';

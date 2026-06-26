@@ -1,5 +1,5 @@
-export interface CursorQueryInput {
+export type CursorParams = {
   startingAfter?: string;
 
   limit?: number;
-}
+};

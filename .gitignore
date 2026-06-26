@@ -27,3 +27,10 @@ lerna-debug.log*
 # IDE specific
 .idea
 .vscode
+
+# Agents
+.claude
+.agents
+
+# Misc
+.DS_Store

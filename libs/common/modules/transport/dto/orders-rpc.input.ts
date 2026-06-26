@@ -1,9 +1,9 @@
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { CreateOrderInput } from 'libs/contracts/interfaces/orders/create-order-input.interface';
 import {
-  OrderByUserOffsetQueryInput,
-  OrderOffsetQueryInput,
-} from 'libs/contracts/interfaces/orders/order-offset-query-input.interface';
+  OrderByUserCursorQueryInput,
+  OrderCursorQueryInput,
+} from 'libs/contracts/interfaces/orders/order-cursor-query-input.interface';
 import {
   OrderResult,
   PublicOrderResult,
@@ -22,7 +22,7 @@ interface OrdersTransportPayloads {
   };
 
   PUBLIC_FIND_ORDERS_BY_USER: {
-    query: OrderByUserOffsetQueryInput;
+    query: OrderByUserCursorQueryInput;
     reqUser: RequestUser;
   };
 
@@ -37,7 +37,7 @@ interface OrdersTransportPayloads {
   };
 
   ADMIN_FIND_ALL_ORDERS: {
-    query: OrderOffsetQueryInput;
+    query: OrderCursorQueryInput;
   };
 
   ADMIN_FIND_ONE_ORDER: {
@@ -77,11 +77,11 @@ interface OrdersTransportPayloads {
 
 interface OrdersTransportResponses {
   PUBLIC_CREATE_ORDER: PublicOrderResult;
-  PUBLIC_FIND_ORDERS_BY_USER: PagOffsetResultDto<PublicOrderResult>;
+  PUBLIC_FIND_ORDERS_BY_USER: PagCursorResultDto<PublicOrderResult>;
   PUBLIC_FIND_ONE_ORDER: PublicOrderResult;
   PUBLIC_CANCEL_ORDER: void;
 
-  ADMIN_FIND_ALL_ORDERS: PagOffsetResultDto<OrderResult>;
+  ADMIN_FIND_ALL_ORDERS: PagCursorResultDto<OrderResult>;
   ADMIN_FIND_ONE_ORDER: OrderResult;
   ADMIN_UPDATE_ORDER: OrderResult;
   ADMIN_REMOVE_ORDER: void;

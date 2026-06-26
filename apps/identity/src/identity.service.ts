@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PagOffsetResultDto } from 'libs/contracts/dto/pagination/pag-offset-result.dto';
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { LoginResult } from 'libs/contracts/interfaces/auth/login-result.interface';
 import { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
 import {
@@ -11,9 +11,9 @@ import {
   UpdateUserInput,
 } from 'libs/contracts/interfaces/users/update-user-input.interface';
 import {
-  PublicUserOffsetQueryInput,
-  UserOffsetQueryInput,
-} from 'libs/contracts/interfaces/users/user-offset-query-input.interface';
+  PublicUserCursorQueryInput,
+  UserCursorQueryInput,
+} from 'libs/contracts/interfaces/users/user-cursor-query-input.interface';
 import {
   PublicUserResult,
   UserResult,
@@ -52,8 +52,8 @@ export class IdentityService extends BaseService implements IIdentityService {
   }
 
   publicFindAllUsers(
-    query: PublicUserOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<PublicUserResult>> {
+    query: PublicUserCursorQueryInput,
+  ): Promise<PagCursorResultDto<PublicUserResult>> {
     return this.usersService.publicFindAll(query);
   }
 
@@ -81,8 +81,8 @@ export class IdentityService extends BaseService implements IIdentityService {
   }
 
   adminFindAllUsers(
-    query: UserOffsetQueryInput,
-  ): Promise<PagOffsetResultDto<UserResult>> {
+    query: UserCursorQueryInput,
+  ): Promise<PagCursorResultDto<UserResult>> {
     return this.usersService.adminFindAll(query);
   }
 

@@ -17,6 +17,7 @@ import { IdempotencyService } from './providers/idempotency.service';
     }),
   ],
   providers: [
+    CacheService,
     IdempotencyService,
     {
       provide: REDIS_CLIENT,

@@ -12,8 +12,8 @@ import {
 import { PaymentsRpcClient } from 'libs/common/modules/transport/providers/payments-rpc-client';
 import { CursorParamsPipe } from 'libs/common/pipes/cursor-params.pipe';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
-import type { CursorQueryInput } from 'libs/contracts/interfaces/cursor-query-input.interface';
 import type { RequestUser } from 'libs/contracts/interfaces/request-user.interface';
+import type { CursorParams } from 'libs/contracts/types/cursor-params.type';
 
 @Controller('payments')
 @ApiTags('payments')
@@ -31,7 +31,7 @@ export class ApiPaymentsController extends BaseController {
   @ApiOkResponse({ type: FindAllPaymentsRpcInput['response'] })
   findAllPayments(
     @Query('userId', ParseUUIDPipe) userId: string,
-    @Query('cursor', CursorParamsPipe) cursor: CursorQueryInput,
+    @Query('cursor', CursorParamsPipe) cursor: CursorParams,
   ) {
     return this.paymentsRpcClient.call(
       new FindAllPaymentsRpcInput({ query: { userId, cursor } }),

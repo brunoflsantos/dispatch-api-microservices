@@ -16,7 +16,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json",
+        "assets": [{ "include": "i18n/**/*", "watchAssets": true }]
       }
     },
     "catalog": {
@@ -25,7 +26,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/catalog/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/catalog/tsconfig.app.json"
+        "tsConfigPath": "apps/catalog/tsconfig.app.json",
+        "assets": [{ "include": "i18n/**/*", "watchAssets": true }]
       }
     },
     "dispatch-api-microservices": {
@@ -43,7 +45,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/identity/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/identity/tsconfig.app.json"
+        "tsConfigPath": "apps/identity/tsconfig.app.json",
+        "assets": [{ "include": "i18n/**/*", "watchAssets": true }]
       }
     },
     "notifications": {
@@ -52,7 +55,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/notifications/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/notifications/tsconfig.app.json"
+        "tsConfigPath": "apps/notifications/tsconfig.app.json",
+        "assets": [{ "include": "i18n/**/*", "watchAssets": true }]
       }
     },
     "orders": {
@@ -61,7 +65,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/orders/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/orders/tsconfig.app.json"
+        "tsConfigPath": "apps/orders/tsconfig.app.json",
+        "assets": [{ "include": "i18n/**/*", "watchAssets": true }]
       }
     },
     "payments": {
@@ -70,7 +75,8 @@
       "entryFile": "main",
       "sourceRoot": "apps/payments/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/payments/tsconfig.app.json"
+        "tsConfigPath": "apps/payments/tsconfig.app.json",
+        "assets": [{ "include": "i18n/**/*", "watchAssets": true }]
       }
     }
   }

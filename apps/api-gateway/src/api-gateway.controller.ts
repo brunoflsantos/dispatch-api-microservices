@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   HealthCheck,
   HealthCheckService,
@@ -17,6 +17,7 @@ import {
 } from 'libs/common/modules/transport/constants/queues.token';
 
 @Controller()
+@ApiTags('default')
 export class ApiGatewayController {
   private readonly brokerUrl: string;
 
@@ -32,8 +33,9 @@ export class ApiGatewayController {
   @Public()
   @HealthCheck()
   @ApiOperation({ summary: 'Health check' })
-  @ApiResponse({ status: 200, description: 'Application is healthy' })
+  @ApiOkResponse({ description: 'Application is healthy' })
   healthCheck() {
+    const queueOptions = { durable: false };
     return this.health.check([
       async () =>
         this.microserviceHealth.pingCheck('catalog-service', {
@@ -41,6 +43,7 @@ export class ApiGatewayController {
           options: {
             urls: [this.brokerUrl],
             queue: CATALOG_RPC_QUEUE,
+            queueOptions,
           },
         }),
       async () =>
@@ -49,6 +52,7 @@ export class ApiGatewayController {
           options: {
             urls: [this.brokerUrl],
             queue: IDENTITY_RPC_QUEUE,
+            queueOptions,
           },
         }),
       async () =>
@@ -57,6 +61,7 @@ export class ApiGatewayController {
           options: {
             urls: [this.brokerUrl],
             queue: NOTIFICATIONS_RPC_QUEUE,
+            queueOptions,
           },
         }),
       async () =>
@@ -65,6 +70,7 @@ export class ApiGatewayController {
           options: {
             urls: [this.brokerUrl],
             queue: ORDERS_RPC_QUEUE,
+            queueOptions,
           },
         }),
       async () =>
@@ -73,6 +79,7 @@ export class ApiGatewayController {
           options: {
             urls: [this.brokerUrl],
             queue: PAYMENTS_RPC_QUEUE,
+            queueOptions,
           },
         }),
     ]);

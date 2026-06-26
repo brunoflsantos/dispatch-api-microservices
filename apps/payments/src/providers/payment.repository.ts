@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { col } from 'libs/common/utils/functions.utils';
-import { CursorQueryDto } from 'libs/contracts/dto/cursor-query.dto';
 import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { PaymentCursorQueryInput } from 'libs/contracts/interfaces/payments/payment-cursor-query-input.interface';
+import type { CursorParams } from 'libs/contracts/types/cursor-params.type';
 import { BaseRepository } from 'libs/contracts/repositories/base.repository';
 import { Repository } from 'typeorm';
 import { Payment } from '../entities/payment.entity';
@@ -62,7 +62,7 @@ export class PaymentRepository
   }
 
   private encodeCursor(payment: Payment): string {
-    const cursor: CursorQueryDto = {
+    const cursor: CursorParams = {
       startingAfter: payment.createdAt.toISOString(),
     };
 

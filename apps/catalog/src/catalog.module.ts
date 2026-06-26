@@ -8,13 +8,19 @@ import { join, resolve } from 'path';
 import { CatalogController } from './catalog.controller';
 import { CatalogService } from './catalog.service';
 import { typeOrmCatalogConfig } from './config/orm.catalog.config';
-import { CATALOG_SERVICE, PRODUCT_REPOSITORY } from './constants/catalog.token';
+import {
+  CART_PRODUCT_REPOSITORY,
+  CATALOG_SERVICE,
+  PRODUCT_REPOSITORY,
+} from './constants/catalog.token';
+import { CartProduct } from './entities/cart-product.entity';
 import { Product } from './entities/product.entity';
+import { CartProductRepository } from './providers/cart-product.repository';
 import { ProductRepository } from './providers/product.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product]),
+    TypeOrmModule.forFeature([Product, CartProduct]),
 
     ModuleImportsFactory.createConfigModule({
       envFilePath: resolve(
@@ -40,8 +46,8 @@ import { ProductRepository } from './providers/product.repository';
   controllers: [CatalogController],
   providers: [
     { provide: CATALOG_SERVICE, useClass: CatalogService },
-
     { provide: PRODUCT_REPOSITORY, useClass: ProductRepository },
+    { provide: CART_PRODUCT_REPOSITORY, useClass: CartProductRepository },
   ],
 })
 export class CatalogModule {}

@@ -19,6 +19,8 @@ import { CatalogRpcClient } from './providers/catalog-rpc-client';
 import { EventEmitter } from './providers/event-emitter';
 import { IdentityRpcClient } from './providers/identity-rpc-client';
 import { NotificationsRpcClient } from './providers/notifications-rpc-client';
+import { OrdersRpcClient } from './providers/orders-rpc-client';
+import { PaymentsRpcClient } from './providers/payments-rpc-client';
 
 @Module({
   imports: [
@@ -45,12 +47,16 @@ import { NotificationsRpcClient } from './providers/notifications-rpc-client';
     CatalogRpcClient,
     IdentityRpcClient,
     NotificationsRpcClient,
+    OrdersRpcClient,
+    PaymentsRpcClient,
   ],
   exports: [
     EventEmitter,
     CatalogRpcClient,
     IdentityRpcClient,
     NotificationsRpcClient,
+    OrdersRpcClient,
+    PaymentsRpcClient,
   ],
 })
 export class TransportModule {}

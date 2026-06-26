@@ -1,6 +1,6 @@
+import { PagCursorResultDto } from 'libs/contracts/dto/pagination/pag-cursor-result.dto';
 import { NotificationCursorQueryInput } from 'libs/contracts/interfaces/notifications/notification-cursor-query-input.interface';
 import { NotificationTranslatedResult } from 'libs/contracts/interfaces/notifications/notification-translated-result.interface';
-import { PagCursorResultDto } from '../../../../contracts/dto/pagination/pag-cursor-result.dto';
 import { BaseRpcInput } from './base.input';
 
 interface NotificationsTransportPayloads {
