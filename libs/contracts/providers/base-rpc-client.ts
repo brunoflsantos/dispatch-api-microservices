@@ -11,6 +11,8 @@ export abstract class BaseRpcClient<T extends BaseRpcInput> {
    * @returns A promise that resolves with the response of the RPC call.
    */
   call<U extends T, V = U['response']>(rpcInput: U): Promise<V> {
-    return firstValueFrom(this.client.send(rpcInput.pattern, rpcInput.payload));
+    return firstValueFrom(this.client.send(rpcInput.pattern, rpcInput.payload), {
+      defaultValue: undefined as V,
+    });
   }
 }

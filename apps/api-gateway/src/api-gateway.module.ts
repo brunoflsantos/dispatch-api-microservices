@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'libs/common/guards/jwt.guard';
 import { RolesGuard } from 'libs/common/guards/roles.guard';
 import { CorrelationIdMiddleware } from 'libs/common/middleware/correlation-id.middleware';
 import { LoggingMiddleware } from 'libs/common/middleware/logging.middleware';
+import { JwtAuthModule } from 'libs/common/modules/jwt-auth/jwt-auth.module';
 import { TransportModule } from 'libs/common/modules/transport/transport.module';
 import { join } from 'path';
 import { ApiGatewayController } from './api-gateway.controller';
@@ -33,6 +34,8 @@ import { ApiPaymentsController } from './controllers/api-payments.controller';
     }),
 
     TransportModule,
+
+    JwtAuthModule,
 
     TerminusModule,
   ],

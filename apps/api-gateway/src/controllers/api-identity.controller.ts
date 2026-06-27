@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   Headers,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -90,6 +92,7 @@ export class ApiIdentityController extends BaseController {
   }
 
   @Post('public/auth/refresh')
+  @Public()
   @UseGuards(JwtRefreshAuthGuard)
   @ApiOperation({
     summary: 'Refresh user session',
@@ -104,6 +107,7 @@ export class ApiIdentityController extends BaseController {
   }
 
   @Post('public/auth/logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'User logout',
     description: 'Invalidate the current user session and tokens',
@@ -213,6 +217,7 @@ export class ApiIdentityController extends BaseController {
   }
 
   @Delete('public/users/me')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Throttle({ default: { limit: resolveThrottleLimit(10) } })
   @ApiOperation({
     summary: 'Delete current user',
@@ -315,6 +320,7 @@ export class ApiIdentityController extends BaseController {
   }
 
   @Delete('admin/users/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   @ApiOperation({
     summary: 'Delete a user by ID (admin)',

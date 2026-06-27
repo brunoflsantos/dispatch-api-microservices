@@ -31,6 +31,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new RpcCorrelationInterceptor());
 
+  await app.init();
   await app.startAllMicroservices();
 
   logger.log('Identity microservice is running');

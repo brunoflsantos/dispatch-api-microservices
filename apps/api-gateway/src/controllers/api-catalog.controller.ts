@@ -5,6 +5,8 @@ import {
   Delete,
   Get,
   Headers,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -183,6 +185,7 @@ export class ApiCatalogController extends BaseController {
   }
 
   @Delete('admin/products/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Roles(Role.SUPERADMIN, Role.ADMIN)
   @ApiOperation({
     summary: 'Remove a product',

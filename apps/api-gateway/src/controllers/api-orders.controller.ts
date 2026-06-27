@@ -5,6 +5,8 @@ import {
   Delete,
   Get,
   Headers,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -259,6 +261,7 @@ export class ApiOrdersController extends BaseController {
     name: 'id',
     description: 'Order unique identifier (UUID)',
   })
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: 'Order successfully deleted' })
   adminRemoveOrder(@Param('id', ParseUUIDPipe) id: string) {
     return this.ordersRpcClient.call(new AdminRemoveOrderRpcInput({ id }));

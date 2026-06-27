@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, Patch, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNoContentResponse,
@@ -53,6 +53,7 @@ export class ApiNotificationsController extends BaseController {
   }
 
   @Patch('public/notifications/:id/read')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Mark notification as read',
     description: 'Mark a specific notification as read for the authenticated user',
