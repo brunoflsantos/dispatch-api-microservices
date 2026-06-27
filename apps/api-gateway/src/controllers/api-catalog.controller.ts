@@ -64,7 +64,7 @@ export class ApiCatalogController extends BaseController {
     summary: 'Get all products',
     description: 'Retrieve a paginated list of all products',
   })
-  @ApiQuery({ type: ProductQueryDto })
+  // @ApiQuery({ type: ProductQueryDto })
   @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Products retrieved successfully',
@@ -135,7 +135,7 @@ export class ApiCatalogController extends BaseController {
     summary: 'Get all products (admin)',
     description: 'Retrieve a paginated list of all products for admin users',
   })
-  @ApiQuery({ type: ProductQueryDto })
+  // @ApiQuery({ type: ProductQueryDto })
   @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Products retrieved successfully',

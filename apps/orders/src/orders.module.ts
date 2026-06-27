@@ -6,17 +6,17 @@ import { DbGuardModule } from 'libs/common/modules/db-guard/db-guard.module';
 import { OutboxModule } from 'libs/common/modules/outbox/outbox.module';
 import { TransportModule } from 'libs/common/modules/transport/transport.module';
 import { join, resolve } from 'path';
+import { typeOrmOrdersConfig } from './config/orm.orders.config';
 import {
   ORDER_PRODUCT_REPOSITORY,
   ORDER_REPOSITORY,
   ORDERS_SERVICE,
 } from './constants/orders.token';
-import { typeOrmOrdersConfig } from './config/orm.orders.config';
-import { Order } from './entities/order.entity';
 import { OrderProduct } from './entities/order-product.entity';
+import { Order } from './entities/order.entity';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { OrderProductRepository } from './providers/order-item.repository';
+import { OrderProductRepository } from './providers/order-product.repository';
 import { OrderRepository } from './providers/order.repository';
 
 @Module({

@@ -15,6 +15,7 @@ import {
 } from './constants/catalog.token';
 import { CartProduct } from './entities/cart-product.entity';
 import { Product } from './entities/product.entity';
+import { CatalogSeedService } from './providers/catalog-seed.service';
 import { CartProductRepository } from './providers/cart-product.repository';
 import { ProductRepository } from './providers/product.repository';
 
@@ -48,6 +49,7 @@ import { ProductRepository } from './providers/product.repository';
     { provide: CATALOG_SERVICE, useClass: CatalogService },
     { provide: PRODUCT_REPOSITORY, useClass: ProductRepository },
     { provide: CART_PRODUCT_REPOSITORY, useClass: CartProductRepository },
+    CatalogSeedService,
   ],
 })
 export class CatalogModule {}

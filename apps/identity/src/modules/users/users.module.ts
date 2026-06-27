@@ -13,6 +13,7 @@ import { Address } from './entities/address.entity';
 import { User } from './entities/user.entity';
 import { AddressRepository } from './providers/address.repository';
 import { UserRepository } from './providers/user.repository';
+import { UsersSeedService } from './providers/users-seed.service';
 import { UsersService } from './users.service';
 
 @Module({
@@ -38,6 +39,7 @@ import { UsersService } from './users.service';
       provide: ADDRESS_REPOSITORY,
       useClass: AddressRepository,
     },
+    UsersSeedService,
   ],
   exports: [USERS_SERVICE, USER_REPOSITORY, ADDRESS_REPOSITORY],
 })

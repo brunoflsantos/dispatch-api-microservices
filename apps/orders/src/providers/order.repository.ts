@@ -32,7 +32,9 @@ export class OrderRepository
     query: Partial<OrderCursorQueryInput>,
   ): Promise<PagCursorResultDto<Order>> {
     const { userId, status, startDate, endDate, cursor } = query;
-    const limit = cursor?.limit ? Math.min(cursor.limit, MAX_PAGE_SIZE) : DEFAULT_PAGE_SIZE;
+    const limit = cursor?.limit
+      ? Math.min(cursor.limit, MAX_PAGE_SIZE)
+      : DEFAULT_PAGE_SIZE;
 
     const queryBuilder = this.createQueryBuilder(ALIAS_ORDER)
       .leftJoinAndSelect(order('products'), ALIAS_ORDER_PRODUCT)

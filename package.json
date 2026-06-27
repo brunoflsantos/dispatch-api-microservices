@@ -9,7 +9,7 @@
     "prebuild": "chmod +x scripts/prebuild.sh && bash scripts/prebuild.sh",
     "build": "chmod +x scripts/build.sh && bash scripts/build.sh",
     "postbuild": "node scripts/copy-shared-i18n.mjs",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "chmod +x scripts/start-local.sh && bash scripts/start-local.sh",
     "start:prod": "chmod +x scripts/start-prod.sh && bash scripts/start-prod.sh",
     "reset": "chmod +x scripts/reset.sh && bash scripts/reset.sh",
@@ -154,6 +154,13 @@
         "testPathIgnorePatterns": [
           "<rootDir>/.*/test/"
         ],
+        "moduleNameMapper": {
+          "^libs/(.*)$": "<rootDir>/../libs/$1",
+          "^@/shared/(.*)$": "<rootDir>/../libs/common/$1",
+          "^@/modules/(.*)$": "<rootDir>/../libs/common/modules/$1",
+          "^@/config/(.*)$": "<rootDir>/../libs/common/config/$1",
+          "^@/(.*)$": "<rootDir>/$1"
+        },
         "transform": {
           "^.+\\.(t|j)s$": [
             "ts-jest",
@@ -171,6 +178,13 @@
         "testPathIgnorePatterns": [
           "<rootDir>/.*/test/"
         ],
+        "moduleNameMapper": {
+          "^libs/(.*)$": "<rootDir>/../libs/$1",
+          "^@/shared/(.*)$": "<rootDir>/../libs/common/$1",
+          "^@/modules/(.*)$": "<rootDir>/../libs/common/modules/$1",
+          "^@/config/(.*)$": "<rootDir>/../libs/common/config/$1",
+          "^@/(.*)$": "<rootDir>/$1"
+        },
         "transform": {
           "^.+\\.(t|j)s$": [
             "ts-jest",
@@ -185,6 +199,13 @@
         "displayName": "e2e",
         "rootDir": "<rootDir>/apps",
         "testRegex": ".*\\.e2e-spec\\.ts$",
+        "moduleNameMapper": {
+          "^libs/(.*)$": "<rootDir>/../libs/$1",
+          "^@/shared/(.*)$": "<rootDir>/../libs/common/$1",
+          "^@/modules/(.*)$": "<rootDir>/../libs/common/modules/$1",
+          "^@/config/(.*)$": "<rootDir>/../libs/common/config/$1",
+          "^@/(.*)$": "<rootDir>/$1"
+        },
         "transform": {
           "^.+\\.(t|j)s$": [
             "ts-jest",

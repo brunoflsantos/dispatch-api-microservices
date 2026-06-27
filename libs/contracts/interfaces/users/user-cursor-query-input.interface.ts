@@ -6,4 +6,7 @@ export interface UserCursorQueryInput extends BaseCursorQueryInput {
   email?: string;
 }
 
-export interface PublicUserCursorQueryInput extends Pick<UserCursorQueryInput, 'name' | 'cursor'> {}
+export interface PublicUserCursorQueryInput extends Pick<
+  UserCursorQueryInput,
+  'name' | 'cursor'
+> {}

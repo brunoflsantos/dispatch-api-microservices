@@ -116,7 +116,7 @@ export class ApiOrdersController extends BaseController {
     description:
       'Retrieve a paginated list of orders belonging to the authenticated user',
   })
-  @ApiQuery({ type: OrderByUserQueryDto })
+  // @ApiQuery({ type: OrderByUserQueryDto })
   @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Orders retrieved successfully',
@@ -188,7 +188,7 @@ export class ApiOrdersController extends BaseController {
     summary: 'Get all orders',
     description: 'Retrieve a paginated list of orders with optional filtering',
   })
-  @ApiQuery({ type: OrderQueryDto })
+  // @ApiQuery({ type: OrderQueryDto })
   @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Orders successfully retrieved',

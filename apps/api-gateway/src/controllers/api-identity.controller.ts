@@ -177,7 +177,7 @@ export class ApiIdentityController extends BaseController {
     summary: 'Get all users',
     description: 'Retrieve a paginated list of all users',
   })
-  @ApiQuery({ type: PublicUserQueryDto })
+  // @ApiQuery({ type: PublicUserQueryDto })
   @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Users retrieved successfully',
@@ -259,7 +259,7 @@ export class ApiIdentityController extends BaseController {
     summary: 'Get all users (admin)',
     description: 'Retrieve a paginated list of all users (admin)',
   })
-  @ApiQuery({ type: UserQueryDto })
+  // @ApiQuery({ type: UserQueryDto })
   @ApiQuery({ name: 'cursor', required: false, type: String })
   @ApiOkResponse({
     description: 'Users retrieved successfully',
