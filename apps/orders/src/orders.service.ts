@@ -71,7 +71,7 @@ export class OrdersService extends BaseService implements IOrdersService {
     super(OrdersService.name);
   }
 
-  //#region Orders - Public
+  //#region Public
 
   publicCreate(
     dto: CreateOrderInput,
@@ -192,7 +192,7 @@ export class OrdersService extends BaseService implements IOrdersService {
 
   //#endregion
 
-  //#region Orders - Admin
+  //#region Admin
 
   async adminFindAll(
     query: OrderCursorQueryInput,
@@ -331,7 +331,8 @@ export class OrdersService extends BaseService implements IOrdersService {
 
     this.assertOrderTransitionIsValid(order, OrderStatus.REFUNDED);
 
-    // Expected side effects: notify user and process refund in payment gateway
+    // Expected side effects: notify user, process refund in payment gateway and undo
+    // stock reservation
     await this.outboxService.add(
       new OrderRefundedEventInput({
         userId: order.userId,
@@ -347,7 +348,7 @@ export class OrdersService extends BaseService implements IOrdersService {
 
   //#endregion
 
-  //#region Orders - Internal
+  //#region Internal
 
   markPaymentAsSucceeded(dto: UpdateOrderPaymentInput): Promise<OrderResult> {
     return this.guard.lockAndTransaction(

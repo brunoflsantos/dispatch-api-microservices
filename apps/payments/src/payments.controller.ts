@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   UserCreatedEventInput,
+  UserDeletedEventInput,
   UserUpdatedEventInput,
 } from 'libs/common/modules/transport/dto/identity-event.input';
 import { OrderRefundedEventInput } from 'libs/common/modules/transport/dto/orders-event.input';
@@ -74,6 +75,13 @@ export class PaymentsController {
       email: payload.email,
       name: payload.name,
     });
+  }
+
+  @EventPattern(UserDeletedEventInput.pattern)
+  async eventUserDeleted(
+    @Payload() payload: UserDeletedEventInput['payload'],
+  ): Promise<void> {
+    await this.paymentsService.deleteCustomer(payload.userId);
   }
 
   @EventPattern(OrderRefundedEventInput.pattern)

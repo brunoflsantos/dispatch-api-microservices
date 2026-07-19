@@ -1,5 +1,6 @@
 import { Controller, Inject } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { OrderPaidEventInput } from 'libs/common/modules/transport/dto/orders-event.input';
 import {
   AdminDeliverOrderRpcInput,
   AdminFindAllOrdersRpcInput,
@@ -22,7 +23,7 @@ export class OrdersController {
     @Inject(ORDERS_SERVICE) private readonly ordersService: IOrdersService,
   ) {}
 
-  //#region Orders - Public
+  //#region Public
 
   @MessagePattern(PublicCreateOrderRpcInput.pattern)
   publicCreate(
@@ -58,7 +59,7 @@ export class OrdersController {
 
   //#endregion
 
-  //#region Orders - Admin
+  //#region Admin
 
   @MessagePattern(AdminFindAllOrdersRpcInput.pattern)
   adminFindAll(
@@ -107,6 +108,18 @@ export class OrdersController {
     @Payload() payload: AdminRefundOrderRpcInput['payload'],
   ): Promise<AdminRefundOrderRpcInput['response']> {
     return this.ordersService.adminRefund(payload.id);
+  }
+
+  //#endregion
+
+  //#region Events
+
+  @EventPattern(OrderPaidEventInput.pattern)
+  async eventOrderPaid(
+    @Payload() payload: OrderPaidEventInput['payload'],
+  ): Promise<void> {
+    // TODO: Implement method in the service to process order
+    await Promise.resolve(console.log(payload));
   }
 
   //#endregion

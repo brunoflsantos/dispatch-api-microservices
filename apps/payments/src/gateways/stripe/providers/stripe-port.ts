@@ -116,7 +116,7 @@ export class StripePort implements PaymentsGatewayPort {
 
   //#endregion
 
-  //#region Payments and Refunds
+  //#region Payments
 
   async createPayment(
     input: CreateGatewayPaymentInput,
@@ -134,6 +134,10 @@ export class StripePort implements PaymentsGatewayPort {
     const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentId);
     return this.mapToPaymentResult(paymentIntent);
   }
+
+  //#endregion
+
+  //#region Refunds
 
   async createRefundPayment(
     input: CreateGatewayRefundInput,
@@ -179,7 +183,7 @@ export class StripePort implements PaymentsGatewayPort {
 
   //#endregion
 
-  //#region Private Methods
+  //#region Private
 
   private mapToStripeCustomerCreateParams(
     input: CreateGatewayCustomerInput | UpdateGatewayCustomerInput,

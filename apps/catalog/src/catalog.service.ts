@@ -263,7 +263,7 @@ export class CatalogService extends BaseService implements ICatalogService {
 
   //#endregion
 
-  //#region Products - Internal/Events
+  //#region Products - Events
 
   async findManyProductsByIds(ids: string[]): Promise<ProductResult[]> {
     const result = await this.productRepository.findManyByIds(ids);

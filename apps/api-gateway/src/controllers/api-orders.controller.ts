@@ -75,7 +75,8 @@ export class ApiOrdersController extends BaseController {
   @ApiOperation({
     summary: 'Create a new order',
     description:
-      'Creates a new order with items and adds it to the processing queue. Requires idempotency-key header to prevent duplicate orders.',
+      'Creates a new order with items and adds it to the processing queue. ' +
+      'Requires idempotency-key header to prevent duplicate orders.',
   })
   @ApiHeader({
     name: 'idempotency-key',
@@ -142,7 +143,8 @@ export class ApiOrdersController extends BaseController {
   @ApiOperation({
     summary: 'Get order by ID',
     description:
-      'Retrieve a specific order by its unique identifier. Only the owner can access their own orders.',
+      'Retrieve a specific order by its unique identifier. ' +
+      'Only the owner can access their own orders.',
   })
   @ApiParam({
     name: 'id',

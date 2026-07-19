@@ -67,7 +67,7 @@ export class UsersService extends BaseService implements IUsersService {
     super(UsersService.name);
   }
 
-  //#region Users - Public
+  //#region Public
 
   publicCreate(
     dto: PublicCreateUserInput,
@@ -238,7 +238,7 @@ export class UsersService extends BaseService implements IUsersService {
 
   //#endregion
 
-  //#region Users - Admin
+  //#region Admin
 
   adminCreate(
     dto: CreateUserInput,
@@ -400,7 +400,7 @@ export class UsersService extends BaseService implements IUsersService {
 
   //#endregion
 
-  //#region Private methods
+  //#region Private
 
   private async validateEmail(email: string) {
     const emailExists = await this.userRepository.existsBy({

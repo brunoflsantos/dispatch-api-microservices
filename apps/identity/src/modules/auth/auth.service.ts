@@ -30,7 +30,7 @@ export class AuthService extends BaseService implements IAuthService {
     super(AuthService.name);
   }
 
-  //#region Auth - Public
+  //#region Public
 
   publicLogin(email: string, password: string): Promise<LoginResult> {
     return this.guard.lockAndTransaction<LoginResult>(
@@ -115,7 +115,7 @@ export class AuthService extends BaseService implements IAuthService {
 
   //#endregion
 
-  //#region Private methods
+  //#region Private
 
   private generateTokens(user: User): LoginResult {
     const payload: JwtPayload = {

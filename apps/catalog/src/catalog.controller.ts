@@ -14,7 +14,9 @@ import {
 import {
   OrderCanceledEventInput,
   OrderCreatedEventInput,
+  OrderFailedEventInput,
   OrderFailedUponCreatingEventInput,
+  OrderRefundedEventInput,
 } from 'libs/common/modules/transport/dto/orders-event.input';
 import { BaseController } from 'libs/contracts/controllers/base.controller';
 import { CATALOG_SERVICE } from './constants/catalog.token';
@@ -114,9 +116,23 @@ export class CatalogController extends BaseController {
     await this.service.undoStockReservation(payload.reserveId);
   }
 
+  @EventPattern(OrderFailedEventInput.pattern)
+  async eventOrderFailed(
+    @Payload() payload: OrderFailedEventInput['payload'],
+  ): Promise<void> {
+    await this.service.undoStockReservation(payload.reserveId);
+  }
+
   @EventPattern(OrderCanceledEventInput.pattern)
   async eventOrderCanceled(
     @Payload() payload: OrderCanceledEventInput['payload'],
+  ): Promise<void> {
+    await this.service.undoStockReservation(payload.reserveId);
+  }
+
+  @EventPattern(OrderRefundedEventInput.pattern)
+  async eventOrderRefunded(
+    @Payload() payload: OrderRefundedEventInput['payload'],
   ): Promise<void> {
     await this.service.undoStockReservation(payload.reserveId);
   }

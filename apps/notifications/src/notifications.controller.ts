@@ -12,6 +12,7 @@ import {
   OrderDeliveredEventInput,
   OrderFailedEventInput,
   OrderFailedUponCreatingEventInput,
+  OrderPaidEventInput,
   OrderRefundedEventInput,
   OrderShippedEventInput,
   OrderStatusChangedEventInput,
@@ -97,6 +98,18 @@ export class NotificationsController extends BaseController {
       userId: payload.userId,
       type: NotificationType.PUSH,
       event: NotificationEvent.ORDER_STATUS_CHANGED,
+      data: payload,
+    });
+  }
+
+  @EventPattern(OrderPaidEventInput.pattern)
+  async eventOrderPaid(
+    @Payload() payload: OrderPaidEventInput['payload'],
+  ): Promise<void> {
+    await this.notificationsService.create({
+      userId: payload.userId,
+      type: NotificationType.PUSH,
+      event: NotificationEvent.ORDER_PAID,
       data: payload,
     });
   }

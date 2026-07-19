@@ -37,7 +37,7 @@ export class NotificationsService
     super(NotificationsService.name);
   }
 
-  //#region Notifications - Public
+  //#region Public
 
   async create(dto: CreateNotificationInput): Promise<NotificationResult> {
     const notification = this.notificationRepository.createEntity({
@@ -108,7 +108,7 @@ export class NotificationsService
 
   //#endregion
 
-  //#region Private Helpers
+  //#region Private
 
   private async translate(
     notifications: Notification[],
